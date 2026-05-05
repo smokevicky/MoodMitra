@@ -1324,7 +1324,7 @@ async function saveEntry() {
   };
 
   try {
-    const res = await fetch('http://localhost:5000/save', {
+    const res = await fetch('/save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(entry)
@@ -1335,9 +1335,13 @@ async function saveEntry() {
 
     showToast('Saved to database ✅');
 
-    // OPTIONAL: clear editor
+    // Clear editor
     document.getElementById('entryTitle').value = '';
     document.getElementById('entryBody').value  = '';
+    localStorage.removeItem('wys_draft_title');
+    localStorage.removeItem('wys_draft_body');
+    editingId = null;
+    loadEntriesFromDB(); // refresh the entries list
 
   } catch (err) {
     console.error(err);
@@ -1452,7 +1456,7 @@ async function deleteEntry(e, id) {
 
   if (!confirm('Delete this entry?')) return;
 
-  await fetch(`http://localhost:5000/delete/${id}`, {
+  await fetch(`/delete/${id}`, {
     method: 'DELETE'
   });
 
@@ -1487,7 +1491,7 @@ function showToast(msg) {
 }
 async function loadEntriesFromDB() {
   try {
-    const res = await fetch('http://localhost:5000/entries');
+    const res = await fetch('/entries');
     let data = await res.json();
 
     entries = data.map(e => ({
