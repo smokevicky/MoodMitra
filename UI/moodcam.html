@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MoodCam</title>
+<link rel="icon" type="image/x-icon" href="./image/MOODMITRALOGO.png">
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d12;
+    --surface: rgba(255,255,255,0.04);
+    --surface2: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.1);
+    --text: #f0ede8;
+    --muted: rgba(240,237,232,0.5);
+    --accent: #c8b4ff;
+    --mood-bg: radial-gradient(ellipse at 30% 20%, #1a0d2e 0%, #0d0d12 50%, #0a1520 100%);
+    --glow: rgba(200,180,255,0.15);
+    --transition: 2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background var(--transition);
+  }
+
+  .bg-layer {
+    position: fixed; inset: 0; z-index: 0;
+    background: var(--mood-bg);
+    transition: background var(--transition);
+  }
+
+  .noise {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  main {
+    position: relative; z-index: 2;
+    max-width: 900px; margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 2rem; border-bottom: 0.5px solid var(--border);
+    margin-bottom: 2.5rem;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.8rem; letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #c8b4ff, #ffd4a8);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .logo span { font-style: italic; }
+
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #3d3d4a; transition: background 0.5s;
+    display: inline-block; margin-right: 8px;
+  }
+  .status-dot.active { background: #7effa0; box-shadow: 0 0 8px #7effa0; }
+  .status-dot.scanning { background: #ffcc44; box-shadow: 0 0 8px #ffcc44; animation: pulse 1s infinite; }
+
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .status-text { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .cam-section {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  @media (max-width: 620px) { .cam-section { grid-template-columns: 1fr; } }
+
+  .cam-box {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 20px; overflow: hidden;
+    position: relative; aspect-ratio: 4/3;
+  }
+
+  #video {
+    width: 100%; height: 100%; object-fit: cover;
+    transform: scaleX(-1); display: block;
+    filter: brightness(1.05) contrast(1.05);
+  }
+
+  #overlay {
+    position: absolute; inset: 0;
+    transform: scaleX(-1); pointer-events: none;
+  }
+
+  .scan-ring {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+
+  .ring {
+    width: 140px; height: 140px; border-radius: 50%;
+    border: 1.5px solid rgba(200,180,255,0.4);
+    position: absolute; animation: ring-pulse 2s ease-in-out infinite;
+  }
+
+  .ring:nth-child(2) { width: 170px; height: 170px; animation-delay: 0.4s; opacity: 0.5; }
+  .ring:nth-child(3) { width: 200px; height: 200px; animation-delay: 0.8s; opacity: 0.25; }
+
+  @keyframes ring-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.05); opacity: 0.2; }
+  }
+
+  .timer-arc {
+    position: absolute; top: 12px; right: 12px;
+    width: 44px; height: 44px;
+  }
+
+  .timer-arc svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .timer-arc circle { fill: none; stroke: rgba(200,180,255,0.2); stroke-width: 2; }
+  .timer-arc .progress { stroke: #c8b4ff; stroke-width: 2; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+  .timer-label {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 500; color: var(--accent);
+  }
+
+  .mood-panel {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 20px; padding: 1.5rem;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+
+  .mood-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 1rem;
+  }
+
+  .mood-emoji {
+    font-size: 3.5rem; margin-bottom: 0.5rem;
+    display: block; transition: all 0.5s;
+    filter: drop-shadow(0 0 12px var(--glow));
+  }
+
+  .mood-label {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem; margin-bottom: 0.25rem;
+    transition: color 0.8s;
+  }
+
+  .mood-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.5; }
+
+  .metrics {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem;
+  }
+
+  .metric {
+    background: var(--surface2); border-radius: 10px; padding: 8px 10px;
+  }
+
+  .metric-name { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .metric-bar { height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; margin: 5px 0; }
+  .metric-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease, background 0.6s; }
+  .metric-val { font-size: 0.75rem; font-weight: 500; }
+
+  .start-btn {
+    width: 100%; padding: 0.75rem;
+    background: linear-gradient(135deg, rgba(200,180,255,0.2), rgba(255,212,168,0.1));
+    border: 0.5px solid rgba(200,180,255,0.4); border-radius: 12px;
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+    cursor: pointer; transition: all 0.3s; letter-spacing: 0.02em;
+  }
+
+  .start-btn:hover { background: linear-gradient(135deg, rgba(200,180,255,0.35), rgba(255,212,168,0.2)); transform: translateY(-1px); }
+  .start-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .activities-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .section-head {
+    font-family: 'DM Serif Display', serif;
+    font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 1rem;
+  }
+
+  .activities-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 12px;
+  }
+
+  .activity-card {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 16px; padding: 1.1rem 1rem;
+    transition: all 0.4s; cursor: default; position: relative; overflow: hidden;
+    opacity: 0; transform: translateY(12px);
+    animation: fadeup 0.5s forwards;
+  }
+
+  .activity-card:nth-child(2) { animation-delay: 0.08s; }
+  .activity-card:nth-child(3) { animation-delay: 0.16s; }
+  .activity-card:nth-child(4) { animation-delay: 0.24s; }
+  .activity-card:nth-child(5) { animation-delay: 0.32s; }
+
+  @keyframes fadeup { to { opacity: 1; transform: translateY(0); } }
+
+  .activity-card::before {
+    content: ''; position: absolute; inset: 0; opacity: 0;
+    background: linear-gradient(135deg, var(--glow), transparent);
+    transition: opacity 0.3s; border-radius: 16px;
+  }
+
+  .activity-card:hover::before { opacity: 1; }
+  .activity-card:hover { transform: translateY(-2px); border-color: rgba(200,180,255,0.3); }
+
+  .act-icon { font-size: 1.6rem; margin-bottom: 0.5rem; display: block; }
+  .act-name { font-size: 0.85rem; font-weight: 500; margin-bottom: 0.25rem; }
+  .act-desc { font-size: 0.72rem; color: var(--muted); line-height: 1.4; }
+
+  .history-section {}
+
+  .history-list {
+    display: flex; flex-direction: column; gap: 8px;
+    max-height: 260px; overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+
+  .history-item {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 12px; padding: 0.75rem 1rem;
+    display: flex; align-items: center; gap: 12px;
+    animation: fadeup 0.4s forwards;
+  }
+
+  .h-emoji { font-size: 1.4rem; flex-shrink: 0; }
+
+  .h-info { flex: 1; }
+  .h-mood { font-size: 0.85rem; font-weight: 500; }
+  .h-time { font-size: 0.72rem; color: var(--muted); }
+
+  .h-bars { display: flex; gap: 3px; align-items: flex-end; }
+  .h-bar { width: 4px; border-radius: 2px; background: rgba(200,180,255,0.4); }
+
+  .empty-state {
+    text-align: center; padding: 2rem;
+    color: var(--muted); font-size: 0.85rem; line-height: 1.6;
+  }
+
+  .light-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.7rem; color: var(--muted); padding: 3px 8px;
+    background: var(--surface2); border-radius: 6px; margin-bottom: 0.75rem;
+  }
+
+  .light-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  .error-msg {
+    background: rgba(255,80,80,0.08); border: 0.5px solid rgba(255,80,80,0.3);
+    border-radius: 12px; padding: 1rem; font-size: 0.82rem;
+    color: #ff9999; margin-bottom: 1rem; line-height: 1.5;
+  }
+
+  .loading-models {
+    display: flex; align-items: center; gap: 10px;
+    color: var(--muted); font-size: 0.8rem; padding: 0.5rem 0;
+  }
+
+  .spin { animation: spin 1s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="bg-layer" id="bgLayer"></div>
+<div class="noise"></div>
+
+<main>
+  <header>
+    <div class="logo">Mood<span>Cam</span></div>
+    <div>
+      <span class="status-dot" id="statusDot"></span>
+      <span class="status-text" id="statusText">Ready</span>
+    </div>
+  </header>
+
+  <div id="errorBox" class="error-msg" style="display:none"></div>
+  <div id="loadingModels" class="loading-models" style="display:none">
+    <span class="spin">◌</span> Loading face detection models…
+  </div>
+
+  <div class="cam-section">
+    <div class="cam-box">
+      <video id="video" autoplay muted playsinline></video>
+      <canvas id="overlay"></canvas>
+      <div class="scan-ring" id="scanRing" style="display:none">
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+      </div>
+      <div class="timer-arc" id="timerArc" style="display:none">
+        <svg viewBox="0 0 44 44">
+          <circle cx="22" cy="22" r="18"/>
+          <circle cx="22" cy="22" r="18" class="progress" id="timerProgress"
+            stroke-dasharray="113" stroke-dashoffset="113"/>
+        </svg>
+        <div class="timer-label" id="timerLabel">10</div>
+      </div>
+    </div>
+
+    <div class="mood-panel">
+      <div>
+        <div class="mood-title">Current Mood</div>
+        <div id="lightBadge" class="light-badge" style="display:none">
+          <div class="light-dot" id="lightDot"></div>
+          <span id="lightText">checking light…</span>
+        </div>
+        <span class="mood-emoji" id="moodEmoji">✦</span>
+        <div class="mood-label" id="moodLabel">Awaiting scan</div>
+        <div class="mood-sub" id="moodSub">Point your face at the camera and press start. MoodCam will read your expression in 10 seconds.</div>
+        <div class="metrics" id="metricsBox" style="display:none">
+          <div class="metric">
+            <div class="metric-name">Smile</div>
+            <div class="metric-bar"><div class="metric-fill" id="smileBar" style="width:0%;background:#c8b4ff"></div></div>
+            <div class="metric-val" id="smileVal">0%</div>
+          </div>
+          <div class="metric">
+            <div class="metric-name">Eye open</div>
+            <div class="metric-bar"><div class="metric-fill" id="eyeBar" style="width:0%;background:#7effcc"></div></div>
+            <div class="metric-val" id="eyeVal">0%</div>
+          </div>
+          <div class="metric">
+            <div class="metric-name">Brow raise</div>
+            <div class="metric-bar"><div class="metric-fill" id="browBar" style="width:0%;background:#ffd4a8"></div></div>
+            <div class="metric-val" id="browVal">0%</div>
+          </div>
+          <div class="metric">
+            <div class="metric-name">Light</div>
+            <div class="metric-bar"><div class="metric-fill" id="lightBar" style="width:0%;background:#ffe77e"></div></div>
+            <div class="metric-val" id="lightVal">—</div>
+          </div>
+        </div>
+      </div>
+      <button class="start-btn" id="startBtn">Start scan</button>
+    </div>
+  </div>
+
+  <div class="activities-section" id="activitiesSection" style="display:none">
+    <div class="section-head">Activities for your mood</div>
+    <div class="activities-grid" id="activitiesGrid"></div>
+  </div>
+
+  <div class="history-section">
+    <div class="section-head">Mood history</div>
+    <div class="history-list" id="historyList">
+      <div class="empty-state">No mood scans yet.<br>Your history will appear here.</div>
+    </div>
+  </div>
+</main>
+
+<script>
+const MODELS_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
+
+const MOODS = {
+  happy:    { label:'Happy', emoji:'😄', sub:'You\'re radiating positive energy. Channel it wisely.', bg:'radial-gradient(ellipse at 30% 20%, #1a2e10 0%, #0d0f0a 50%, #0a1508 100%)', glow:'rgba(127,255,160,0.15)', accent:'#7effa0' },
+  excited:  { label:'Excited', emoji:'🤩', sub:'High energy, wide eyes — something\'s got you fired up.', bg:'radial-gradient(ellipse at 60% 10%, #2e1a10 0%, #120d0a 50%, #1a0f08 100%)', glow:'rgba(255,180,80,0.15)', accent:'#ffb450' },
+  calm:     { label:'Calm', emoji:'😌', sub:'A relaxed, serene state. Your face says peace.', bg:'radial-gradient(ellipse at 20% 70%, #0a1a2e 0%, #0a0d12 50%, #08111a 100%)', glow:'rgba(120,200,255,0.15)', accent:'#78c8ff' },
+  sad:      { label:'Sad', emoji:'😔', sub:'You seem down. That\'s okay — moods are temporary.', bg:'radial-gradient(ellipse at 50% 80%, #0a0a2e 0%, #080810 50%, #05050a 100%)', glow:'rgba(150,130,255,0.15)', accent:'#9682ff' },
+  surprised:{ label:'Surprised', emoji:'😲', sub:'Wide eyes, raised brows — something caught you off guard.', bg:'radial-gradient(ellipse at 80% 20%, #2e200a 0%, #120f08 50%, #1a1408 100%)', glow:'rgba(255,230,100,0.15)', accent:'#ffe766' },
+  angry:    { label:'Tense', emoji:'😤', sub:'Some tension detected. A few deep breaths can help.', bg:'radial-gradient(ellipse at 40% 30%, #2e0a0a 0%, #120808 50%, #1a0808 100%)', glow:'rgba(255,100,100,0.15)', accent:'#ff6464' },
+  neutral:  { label:'Neutral', emoji:'😐', sub:'A steady, composed expression. Clear-headed.', bg:'radial-gradient(ellipse at 30% 20%, #1a0d2e 0%, #0d0d12 50%, #0a1520 100%)', glow:'rgba(200,180,255,0.15)', accent:'#c8b4ff' },
+};
+
+const ACTIVITIES = {
+  happy:    [{i:'🎵',n:'Make a playlist',d:'Capture this feeling in music — upbeat songs to revisit later'},{i:'📞',n:'Call a friend',d:'Share the joy — great moods are contagious'},{i:'🚶',n:'Take a walk',d:'Carry this energy outside and soak in the world'},{i:'✍️',n:'Journal it',d:'Write what\'s making you happy right now'},{i:'🎨',n:'Create something',d:'Happy minds make great art — sketch, paint, or craft'}],
+  excited:  [{i:'🏋️',n:'Work out',d:'Match your energy with a high-intensity session'},{i:'🧠',n:'Brainstorm',d:'Excitement sparks ideas — capture them now'},{i:'🎤',n:'Sing out loud',d:'Belt it out — nobody\'s judging'},{i:'📚',n:'Start a project',d:'Excitement is fuel — begin that thing you\'ve been putting off'},{i:'🌄',n:'Go somewhere new',d:'Explore a new street, park, or shop nearby'}],
+  calm:     [{i:'📖',n:'Read a book',d:'A calm mind absorbs more — perfect reading state'},{i:'🧘',n:'Meditate',d:'Deepen the calm with 10 minutes of stillness'},{i:'☕',n:'Slow brew coffee',d:'A mindful ritual to match your mood'},{i:'🎹',n:'Listen to ambient',d:'Lo-fi or nature sounds to stay in the zone'},{i:'🌿',n:'Tend your plants',d:'Gentle activity for a gentle mood'}],
+  sad:      [{i:'🫂',n:'Reach out',d:'Text someone you trust — connection helps'},{i:'🎬',n:'Watch comfort TV',d:'Something familiar and warm'},{i:'🚿',n:'Take a warm shower',d:'A reset for the body and mind'},{i:'🍫',n:'Treat yourself',d:'A small indulgence, done mindfully'},{i:'🖊️',n:'Write it out',d:'Putting feelings into words can release their grip'}],
+  surprised:[ {i:'🗺️',n:'Investigate it',d:'Lean into the surprise — research what shocked you'},{i:'📸',n:'Capture the moment',d:'Surprising moments are worth remembering'},{i:'💬',n:'Share the story',d:'Tell someone what just happened'},{i:'🤔',n:'Reflect',d:'Surprises reveal what you expected — worth thinking about'},{i:'🎲',n:'Try something random',d:'Ride the serendipity energy and try something spontaneous'}],
+  angry:    [{i:'🌬️',n:'Box breathing',d:'4 in · 4 hold · 4 out · 4 hold — repeat 4 times'},{i:'🏃',n:'Run it out',d:'Physical motion metabolizes stress hormones fast'},{i:'🎧',n:'Music reset',d:'Put on something that matches then slowly calms'},{i:'✍️',n:'Vent on paper',d:'Write it uncensored — then decide what to keep'},{i:'🧊',n:'Cold water face wash',d:'Triggers the dive reflex and slows heart rate quickly'}],
+  neutral:  [{i:'📝',n:'Plan your day',d:'Clear head is perfect for organising tasks'},{i:'📊',n:'Learn something',d:'Neutral is focused — pick a topic and dive in'},{i:'🧹',n:'Tidy your space',d:'A calm mood makes for efficient decluttering'},{i:'🔭',n:'Daydream a bit',d:'Let your mind wander without guilt'},{i:'🎯',n:'Set a small goal',d:'Neutral energy becomes momentum with a clear direction'}],
+};
+
+let stream = null, detectionInterval = null, scanning = false;
+let expressionSamples = [], lightSamples = [];
+let history = JSON.parse(localStorage.getItem('moodcam_history') || '[]');
+let modelsLoaded = false;
+
+const video = document.getElementById('video');
+const overlay = document.getElementById('overlay');
+const startBtn = document.getElementById('startBtn');
+const statusDot = document.getElementById('statusDot');
+const statusText = document.getElementById('statusText');
+const bgLayer = document.getElementById('bgLayer');
+const scanRing = document.getElementById('scanRing');
+const timerArc = document.getElementById('timerArc');
+const timerProgress = document.getElementById('timerProgress');
+const timerLabel = document.getElementById('timerLabel');
+const moodEmoji = document.getElementById('moodEmoji');
+const moodLabel = document.getElementById('moodLabel');
+const moodSub = document.getElementById('moodSub');
+const activitiesSection = document.getElementById('activitiesSection');
+const activitiesGrid = document.getElementById('activitiesGrid');
+const historyList = document.getElementById('historyList');
+const metricsBox = document.getElementById('metricsBox');
+const lightBadge = document.getElementById('lightBadge');
+const errorBox = document.getElementById('errorBox');
+const loadingModels = document.getElementById('loadingModels');
+
+function setStatus(state, text) {
+  statusDot.className = 'status-dot' + (state ? ' ' + state : '');
+  statusText.textContent = text;
+}
+
+function showError(msg) {
+  errorBox.textContent = msg;
+  errorBox.style.display = 'block';
+}
+
+function updateBar(id, pct) {
+  document.getElementById(id).style.width = Math.round(pct) + '%';
+}
+
+function updateMetric(prefix, val, label) {
+  document.getElementById(prefix + 'Val').textContent = label || Math.round(val) + '%';
+  updateBar(prefix + 'Bar', val);
+}
+
+async function loadModels() {
+  loadingModels.style.display = 'flex';
+  try {
+    await Promise.all([
+      faceapi.nets.tinyFaceDetector.loadFromUri(MODELS_URL),
+      faceapi.nets.faceExpressionNet.loadFromUri(MODELS_URL),
+      faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODELS_URL),
+    ]);
+    modelsLoaded = true;
+  } catch(e) {
+    showError('Could not load face detection models. Check your internet connection and refresh.');
+  } finally {
+    loadingModels.style.display = 'none';
+  }
+}
+
+async function startCamera() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, facingMode: 'user' } });
+    video.srcObject = stream;
+    await new Promise(res => video.onloadedmetadata = res);
+    video.play();
+    setStatus('active', 'Camera live');
+    startBtn.disabled = false;
+  } catch(e) {
+    showError('Camera access denied or unavailable. Please allow camera permission and refresh.');
+    setStatus('', 'No camera');
+  }
+}
+
+function measureLightIntensity() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 40; canvas.height = 30;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, 40, 30);
+  const d = ctx.getImageData(0, 0, 40, 30).data;
+  let total = 0;
+  for (let i = 0; i < d.length; i += 4) total += 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
+  return total / (d.length / 4);
+}
+
+function getLandmarkMetrics(landmarks) {
+  const pts = landmarks.positions;
+  const leftEye = pts.slice(36, 42);
+  const rightEye = pts.slice(42, 48);
+
+  function eyeOpenness(eye) {
+    const top = [(eye[1].y + eye[2].y) / 2];
+    const bot = [(eye[4].y + eye[5].y) / 2];
+    const w = Math.abs(eye[3].x - eye[0].x);
+    return Math.abs(bot - top) / (w || 1);
+  }
+
+  const eyeOpen = ((eyeOpenness(leftEye) + eyeOpenness(rightEye)) / 2) * 350;
+
+  const leftBrow = pts.slice(17, 22);
+  const rightBrow = pts.slice(22, 27);
+  const browY = (leftBrow.reduce((s, p) => s + p.y, 0) + rightBrow.reduce((s, p) => s + p.y, 0)) / 10;
+  const eyeY = (leftEye.reduce((s, p) => s + p.y, 0) + rightEye.reduce((s, p) => s + p.y, 0)) / 12;
+  const browRaise = Math.max(0, Math.min(100, (eyeY - browY - 10) * 3));
+
+  return { eyeOpen: Math.min(100, eyeOpen), browRaise };
+}
+
+function classifyMood(exprAvg, smileAvg, eyeAvg, browAvg, lightAvg) {
+  const { happy, sad, angry, fearful, disgusted, surprised, neutral } = exprAvg;
+
+  if (happy > 0.4 && smileAvg > 40) return 'happy';
+  if (surprised > 0.35 || (eyeAvg > 70 && browAvg > 60)) return 'surprised';
+  if (happy > 0.25 && eyeAvg > 60) return 'excited';
+  if (sad > 0.35) return 'sad';
+  if (angry > 0.3 || disgusted > 0.25) return 'angry';
+  if (fearful > 0.2 && lightAvg < 90) return 'sad';
+  if (neutral > 0.5 && lightAvg > 130) return 'calm';
+  if (neutral > 0.45) return 'neutral';
+  if (happy > 0.15) return 'happy';
+  return 'neutral';
+}
+
+function applyMood(moodKey, smileAvg, eyeAvg, browAvg, lightAvg) {
+  const mood = MOODS[moodKey];
+  document.documentElement.style.setProperty('--glow', mood.glow);
+  document.documentElement.style.setProperty('--accent', mood.accent);
+  bgLayer.style.background = mood.bg;
+  moodEmoji.textContent = mood.emoji;
+  moodLabel.textContent = mood.label;
+  moodSub.textContent = mood.sub;
+  metricsBox.style.display = 'grid';
+
+  updateMetric('smile', Math.min(100, smileAvg), null);
+  updateMetric('eye', Math.min(100, eyeAvg), null);
+  updateMetric('brow', Math.min(100, browAvg), null);
+
+  const lightPct = Math.min(100, (lightAvg / 255) * 100);
+  updateMetric('light', lightPct, lightAvg > 160 ? 'Bright' : lightAvg > 90 ? 'Medium' : 'Dim');
+  document.getElementById('lightBar').style.background = lightAvg > 160 ? '#ffe77e' : lightAvg > 90 ? '#ffb450' : '#9682ff';
+
+  lightBadge.style.display = 'inline-flex';
+  const lightDot = document.getElementById('lightDot');
+  const lightText = document.getElementById('lightText');
+  if (lightAvg > 160) { lightDot.style.background = '#ffe77e'; lightText.textContent = 'Bright environment'; }
+  else if (lightAvg > 90) { lightDot.style.background = '#ffb450'; lightText.textContent = 'Moderate light'; }
+  else { lightDot.style.background = '#9682ff'; lightText.textContent = 'Low light detected'; }
+
+  renderActivities(moodKey);
+  addHistory(moodKey, smileAvg, eyeAvg, browAvg, lightAvg);
+}
+
+function renderActivities(moodKey) {
+  activitiesSection.style.display = 'block';
+  activitiesGrid.innerHTML = '';
+  ACTIVITIES[moodKey].forEach(a => {
+    const card = document.createElement('div');
+    card.className = 'activity-card';
+    card.innerHTML = `<span class="act-icon">${a.i}</span><div class="act-name">${a.n}</div><div class="act-desc">${a.d}</div>`;
+    activitiesGrid.appendChild(card);
+  });
+}
+
+function addHistory(moodKey, smile, eye, brow, light) {
+  const entry = { mood: moodKey, smile: Math.round(smile), eye: Math.round(eye), brow: Math.round(brow), light: Math.round(light), time: Date.now() };
+  history.unshift(entry);
+  if (history.length > 20) history.pop();
+  localStorage.setItem('moodcam_history', JSON.stringify(history));
+  renderHistory();
+}
+
+function renderHistory() {
+  if (!history.length) return;
+  historyList.innerHTML = '';
+  history.forEach(h => {
+    const mood = MOODS[h.mood];
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    const t = new Date(h.time);
+    const timeStr = t.toLocaleDateString([], {month:'short',day:'numeric'}) + ' · ' + t.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    const heights = [h.smile, h.eye, h.brow].map(v => Math.max(6, Math.round(v / 100 * 24)));
+    item.innerHTML = `
+      <span class="h-emoji">${mood.emoji}</span>
+      <div class="h-info">
+        <div class="h-mood">${mood.label}</div>
+        <div class="h-time">${timeStr}</div>
+      </div>
+      <div class="h-bars">
+        ${heights.map(h => `<div class="h-bar" style="height:${h}px"></div>`).join('')}
+      </div>`;
+    historyList.appendChild(item);
+  });
+}
+
+async function runScan() {
+  if (scanning) return;
+  scanning = true;
+  startBtn.disabled = true;
+  startBtn.textContent = 'Scanning…';
+  setStatus('scanning', 'Scanning face');
+  expressionSamples = []; lightSamples = [];
+  scanRing.style.display = 'flex';
+  timerArc.style.display = 'block';
+
+  const circumference = 113;
+  let elapsed = 0;
+  const TOTAL = 10;
+  timerProgress.style.strokeDashoffset = circumference;
+  timerLabel.textContent = TOTAL;
+
+  const tick = setInterval(() => {
+    elapsed++;
+    const remain = TOTAL - elapsed;
+    timerLabel.textContent = remain;
+    timerProgress.style.strokeDashoffset = circumference * (remain / TOTAL);
+  }, 1000);
+
+  const ctx = overlay.getContext('2d');
+
+  detectionInterval = setInterval(async () => {
+    try {
+      const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224 }))
+        .withFaceLandmarks(true).withFaceExpressions();
+
+      overlay.width = video.videoWidth || 640;
+      overlay.height = video.videoHeight || 480;
+      ctx.clearRect(0, 0, overlay.width, overlay.height);
+
+      if (detection) {
+        const { landmarks, expressions } = detection;
+        const { eyeOpen, browRaise } = getLandmarkMetrics(landmarks);
+        const smile = (expressions.happy || 0) * 100;
+        const lm = measureLightIntensity();
+        expressionSamples.push(expressions);
+        lightSamples.push(lm);
+
+        updateMetric('smile', Math.min(100, smile), null);
+        updateMetric('eye', Math.min(100, eyeOpen), null);
+        updateMetric('brow', Math.min(100, browRaise), null);
+        updateMetric('light', Math.min(100, (lm / 255) * 100), lm > 160 ? 'Bright' : lm > 90 ? 'Medium' : 'Dim');
+        metricsBox.style.display = 'grid';
+
+        const box = detection.detection.box;
+        ctx.strokeStyle = 'rgba(200,180,255,0.5)';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(box.x, box.y, box.width, box.height);
+        ctx.fillStyle = 'rgba(200,180,255,0.08)';
+        ctx.fillRect(box.x, box.y, box.width, box.height);
+
+        landmarks.positions.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 1.2, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(200,180,255,0.4)';
+          ctx.fill();
+        });
+
+        setStatus('scanning', 'Face detected');
+      } else {
+        setStatus('scanning', 'Looking for face…');
+      }
+    } catch(e) {}
+  }, 400);
+
+  setTimeout(() => {
+    clearInterval(tick);
+    clearInterval(detectionInterval);
+    scanRing.style.display = 'none';
+    timerArc.style.display = 'none';
+    overlay.getContext('2d').clearRect(0, 0, overlay.width, overlay.height);
+    scanning = false;
+    startBtn.disabled = false;
+    startBtn.textContent = 'Scan again';
+
+    if (!expressionSamples.length) {
+      setStatus('active', 'No face found');
+      moodLabel.textContent = 'No face detected';
+      moodSub.textContent = 'Make sure your face is visible, well-lit, and centred in the frame.';
+      return;
+    }
+
+    const keys = ['neutral','happy','sad','angry','fearful','disgusted','surprised'];
+    const avg = {};
+    keys.forEach(k => avg[k] = expressionSamples.reduce((s, e) => s + (e[k] || 0), 0) / expressionSamples.length);
+
+    const smileAvg = avg.happy * 100;
+    const lightAvg = lightSamples.reduce((s, v) => s + v, 0) / lightSamples.length;
+
+    let eyeVals = [];
+    detectionInterval = setInterval(async () => {
+      const d = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224 })).withFaceLandmarks(true);
+      if (d) eyeVals.push(getLandmarkMetrics(d.landmarks));
+    }, 100);
+
+    setTimeout(() => {
+      clearInterval(detectionInterval);
+      const eyeAvg = eyeVals.length ? eyeVals.reduce((s, v) => s + v.eyeOpen, 0) / eyeVals.length : 50;
+      const browAvg = eyeVals.length ? eyeVals.reduce((s, v) => s + v.browRaise, 0) / eyeVals.length : 30;
+      const moodKey = classifyMood(avg, smileAvg, eyeAvg, browAvg, lightAvg);
+      applyMood(moodKey, smileAvg, eyeAvg, browAvg, lightAvg);
+      setStatus('active', 'Mood detected');
+      activitiesSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 600);
+
+  }, TOTAL * 1000);
+}
+
+startBtn.addEventListener('click', () => {
+  if (!modelsLoaded) { showError('Models still loading, please wait…'); return; }
+  if (!stream) { showError('Camera not available.'); return; }
+  runScan();
+});
+
+(async () => {
+  if (history.length) renderHistory();
+  setStatus('', 'Loading…');
+  startBtn.disabled = true;
+  startBtn.textContent = 'Loading models…';
+  await loadModels();
+  await startCamera();
+  if (modelsLoaded && stream) {
+    startBtn.textContent = 'Start scan';
+    startBtn.disabled = false;
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Serene — Mental Health Companion</title>
+<link rel="icon" type="image/x-icon" href="./image/MOODMITRALOGO.png">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface-alt: #1c2128;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --accent: #7c6dde;
+    --accent-light: #312d6e;
+    --accent-text: #c9b8ff;
+    --bubble-ai: #1c2128;
+    --bubble-user: #7c6dde;
+    --pill-bg: #21262d;
+    --pill-text: #c9b8ff;
+    --pill-border: #4a3fad;
+    --status-bg: #0d4429;
+    --status-text: #7ee8a2;
+    --scrollbar: #30363d;
+    --shadow: rgba(0,0,0,0.4);
+  }
+
+  body.light {
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --surface-alt: #f7f9fc;
+    --border: #e2e8f0;
+    --text: #1a202c;
+    --text-muted: #718096;
+    --accent: #6c5fd5;
+    --accent-light: #ede9ff;
+    --accent-text: #4c3d9e;
+    --bubble-ai: #ffffff;
+    --bubble-user: #7c6dde;
+    --pill-bg: #eef2ff;
+    --pill-text: #4c3d9e;
+    --pill-border: #c4b5fd;
+    --status-bg: #dcfce7;
+    --status-text: #166534;
+    --scrollbar: #cbd5e0;
+    --shadow: rgba(0,0,0,0.08);
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'Lora', Georgia, serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 4px; }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 1.5rem;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    box-shadow: 0 1px 8px var(--shadow);
+    z-index: 100;
+  }
+
+  .logo { display: flex; align-items: center; gap: 10px; }
+
+  .logo-icon {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, #7c6dde, #a78bfa);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+    box-shadow: 0 2px 12px rgba(124,109,222,0.4);
+  }
+
+  .logo-name {
+    font-size: 18px; font-weight: 600; letter-spacing: -0.3px;
+    color: var(--text);
+  }
+
+  .logo-sub {
+    font-size: 11px; color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif; margin-top: 1px;
+  }
+
+  .header-right { display: flex; align-items: center; gap: 10px; }
+
+  .status-badge {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 600;
+    color: var(--status-text);
+    background: var(--status-bg);
+    padding: 4px 12px; border-radius: 20px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .status-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor;
+    animation: blink 2s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
+  }
+
+  .theme-btn {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 16px;
+    cursor: pointer;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    display: flex; align-items: center; gap: 6px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .theme-btn:hover { background: var(--accent-light); border-color: var(--accent); }
+
+  /* ── CHAT AREA ── */
+  #chat-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem 1rem;
+  }
+
+  .chat-inner {
+    max-width: 700px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  /* ── MESSAGES ── */
+  .msg-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    animation: fadeSlide 0.35s ease;
+  }
+
+  .msg-row.user { flex-direction: row-reverse; }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, #7c6dde, #a78bfa);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; margin-top: 3px;
+    box-shadow: 0 2px 8px rgba(124,109,222,0.3);
+  }
+
+  .bubble {
+    max-width: 78%;
+    padding: 13px 17px;
+    font-size: 15px;
+    line-height: 1.75;
+    border-radius: 18px 18px 18px 4px;
+    background: var(--bubble-ai);
+    border: 1px solid var(--border);
+    color: var(--text);
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  .msg-row.user .bubble {
+    background: var(--bubble-user);
+    color: #fff;
+    border: none;
+    border-radius: 18px 18px 4px 18px;
+  }
+
+  .response-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--accent-text);
+    margin-bottom: 9px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .bubble p { margin: 0 0 0.4em 0; }
+  .bubble strong { font-weight: 600; color: inherit; }
+  .bubble .tip-line { display: block; margin: 4px 0; }
+
+  /* Typing indicator */
+  .typing-row { display: flex; align-items: flex-start; gap: 10px; animation: fadeSlide 0.3s ease; }
+
+  .typing-bubble {
+    background: var(--bubble-ai);
+    border: 1px solid var(--border);
+    border-radius: 18px 18px 18px 4px;
+    padding: 14px 18px;
+    display: flex; gap: 5px; align-items: center;
+  }
+
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent); opacity: 0.7;
+    animation: pulse 1.3s ease-in-out infinite;
+  }
+
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50%       { transform: scale(1.35); opacity: 1; }
+  }
+
+  /* ── QUERY PANEL ── */
+  #query-panel {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 14px 1rem 18px;
+    flex-shrink: 0;
+    box-shadow: 0 -2px 12px var(--shadow);
+  }
+
+  .panel-inner { max-width: 700px; margin: 0 auto; }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .panel-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.3px;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .show-all-btn {
+    background: none; border: none;
+    color: var(--accent);
+    font-size: 10.5px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: opacity 0.2s;
+  }
+
+  .show-all-btn:hover { opacity: 0.75; }
+
+  #pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    max-height: 110px;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+
+  #pills.expanded { max-height: 400px; overflow-y: auto; }
+
+  .pill {
+    background: var(--pill-bg);
+    color: var(--pill-text);
+    border: 1px solid var(--pill-border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    display: inline-flex; align-items: center; gap: 5px;
+    white-space: nowrap;
+    transition: all 0.18s ease;
+    user-select: none;
+  }
+
+  .pill:hover:not(:disabled) {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(124,109,222,0.3);
+  }
+
+  .pill.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .pill:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .pill-icon { font-size: 14px; }
+
+  .panel-footer {
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    text-align: center;
+  }
+
+  /* Mobile tweaks */
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; }
+    .status-badge { display: none; }
+    .logo-sub { display: none; }
+    .bubble { max-width: 88%; font-size: 14px; }
+    #query-panel { padding: 10px 0.75rem 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🌿</div>
+    <div>
+      <div class="logo-name">Serene</div>
+      <div class="logo-sub">Mental Health Companion</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="status-badge">
+      <span class="status-dot"></span>
+      Always Here
+    </div>
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">
+      ☀️ Light Mode
+    </button>
+  </div>
+</header>
+
+<!-- CHAT -->
+<div id="chat-area">
+  <div class="chat-inner" id="chatInner">
+    <!-- Welcome message injected by JS -->
+  </div>
+</div>
+
+<!-- QUERY PANEL -->
+<div id="query-panel">
+  <div class="panel-inner">
+    <div class="panel-header">
+      <span class="panel-label">Select a topic to explore</span>
+      <button class="show-all-btn" id="showAllBtn" onclick="toggleShowAll()">Show All (25) ▼</button>
+    </div>
+    <div id="pills"></div>
+    <div class="panel-footer">🔒 Your conversations are private &nbsp;·&nbsp; For emergencies, please contact a crisis helpline</div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────
+const QUERIES = [
+  { id:1,  icon:"🌀", label:"I feel constantly anxious",         short:"Anxiety" },
+  { id:2,  icon:"🌧️", label:"I feel sad and hopeless",          short:"Depression" },
+  { id:3,  icon:"⚡", label:"I'm overwhelmed by stress",         short:"Stress" },
+  { id:4,  icon:"🌙", label:"I can't sleep properly",            short:"Insomnia" },
+  { id:5,  icon:"🫧", label:"I feel very lonely",               short:"Loneliness" },
+  { id:6,  icon:"💨", label:"I have panic attacks",             short:"Panic Attacks" },
+  { id:7,  icon:"🪞", label:"I have low self-esteem",           short:"Self-Esteem" },
+  { id:8,  icon:"🕊️", label:"I'm dealing with grief or loss",  short:"Grief & Loss" },
+  { id:9,  icon:"🔥", label:"I struggle to control anger",      short:"Anger" },
+  { id:10, icon:"🎯", label:"I can't concentrate or focus",     short:"Concentration" },
+  { id:11, icon:"💔", label:"I'm having relationship problems", short:"Relationships" },
+  { id:12, icon:"💼", label:"I'm burned out from work",         short:"Burnout" },
+  { id:13, icon:"👥", label:"I'm scared of social situations",  short:"Social Anxiety" },
+  { id:14, icon:"🌊", label:"I'm dealing with past trauma",     short:"Trauma" },
+  { id:15, icon:"🪫", label:"I have no motivation at all",      short:"No Motivation" },
+  { id:16, icon:"🌸", label:"I feel bad about my body",         short:"Body Image" },
+  { id:17, icon:"🌀", label:"I overthink everything",           short:"Overthinking" },
+  { id:18, icon:"🏠", label:"I have family conflict issues",    short:"Family Issues" },
+  { id:19, icon:"🔭", label:"I feel lost and purposeless",      short:"Finding Purpose" },
+  { id:20, icon:"🍃", label:"I have unhealthy eating habits",   short:"Eating Habits" },
+  { id:21, icon:"🔗", label:"I'm struggling with addiction",    short:"Addiction" },
+  { id:22, icon:"☁️", label:"I carry a lot of guilt and shame", short:"Guilt & Shame" },
+  { id:23, icon:"👻", label:"I have specific fears or phobias", short:"Phobias" },
+  { id:24, icon:"🫗", label:"I feel emotionally empty",         short:"Emptiness" },
+  { id:25, icon:"🌿", label:"I want to practice mindfulness",   short:"Mindfulness" },
+];
+
+const RESPONSES = {
+  1: {
+    title: "Managing Anxiety",
+    message: [
+      "Hey, I hear you — anxiety can feel like a storm that never quite settles. First, I want you to know that what you're feeling is real, and you're not alone in this. 💙",
+      "",
+      "Here are some gentle things that can genuinely help:",
+      "",
+      "🌬️ **Box Breathing** — Inhale for 4 counts, hold 4, exhale 4, hold 4. Repeat 4 times. This directly calms your nervous system.",
+      "🛑 **The 5-4-3-2-1 Technique** — Notice 5 things you see, 4 you can touch, 3 you hear, 2 you smell, 1 you taste. It anchors you to the present.",
+      "📓 **Anxiety Journaling** — Write your worries down. It gets them out of your head and onto paper, where they feel more manageable.",
+      "☕ **Limit caffeine & check sleep** — Both dramatically affect anxiety levels.",
+      "🤝 **Consider talking to a therapist** — Cognitive Behavioral Therapy (CBT) is proven highly effective for anxiety.",
+      "",
+      "Remember: anxiety is your brain trying to protect you. You can learn to thank it, and then gently tell it to rest. You've got this! 🌟"
+    ]
+  },
+  2: {
+    title: "Coping with Depression",
+    message: [
+      "I'm really glad you reached out. Feeling sad and hopeless is exhausting, and I want you to know that what you're experiencing has a name, and there is a path through it. 💜",
+      "",
+      "🌅 **Small steps matter** — When everything feels heavy, even getting out of bed is a win. Celebrate tiny victories.",
+      "🚶 **Move your body gently** — A 10-minute walk outdoors can lift mood more than you'd expect. Sunlight and movement are natural antidepressants.",
+      "🤝 **Connection heals** — Reach out to one person today, even just a text. Isolation deepens depression.",
+      "🎨 **Engage in something creative** — Drawing, music, cooking — even passively. It reactivates parts of the brain dimmed by depression.",
+      "📋 **Track your moods** — Noticing patterns gives you insight and a sense of control.",
+      "🩺 **Please speak with a doctor or therapist** — Depression is a medical condition, not a weakness. Professional support makes a real difference.",
+      "",
+      "You matter. Your feelings matter. And brighter days are possible — I believe that for you. 🌱"
+    ]
+  },
+  3: {
+    title: "Reducing Stress",
+    message: [
+      "Stress piling up is like carrying invisible weight everywhere you go — exhausting! Let's lighten that load together. 💛",
+      "",
+      "📝 **Write a brain dump** — List everything stressing you. Then circle only what you can actually control. Focus there first.",
+      "⏸️ **Micro-breaks are magic** — Every 90 minutes, step away for 5 minutes. Your brain literally needs it to function well.",
+      "🚫 **Practice saying no** — Overcommitment is one of the biggest stress drivers. Saying no is an act of self-respect.",
+      "🧘 **Progressive Muscle Relaxation** — Tense each muscle group for 5 seconds, then release. Works from toes to forehead.",
+      "🌿 **Nature therapy** — Even 20 minutes outside in greenery significantly lowers cortisol (stress hormone) levels.",
+      "📵 **Digital boundaries** — Set phone-free hours. Constant notifications keep your nervous system in alert mode.",
+      "",
+      "You don't have to do everything at once. One small change today can shift everything. You're stronger than your stress! 💪"
+    ]
+  },
+  4: {
+    title: "Improving Sleep",
+    message: [
+      "Not sleeping well is genuinely one of the hardest things — everything feels harder when you're tired. Let's work on this together! 🌙",
+      "",
+      "⏰ **Keep a consistent schedule** — Wake up at the same time every day, even weekends. This resets your body clock.",
+      "📵 **Screen curfew** — Stop screens 1 hour before bed. Blue light suppresses melatonin, your sleep hormone.",
+      "❄️ **Cool your room** — The ideal sleep temperature is 16–19°C (60–67°F). A cool room signals sleep to your brain.",
+      "📓 **Pre-sleep journaling** — Spend 10 minutes writing tomorrow's to-do list. It clears mental clutter before bed.",
+      "🫖 **Wind-down ritual** — Tea, light reading, gentle stretching. Consistent rituals cue your brain that sleep is coming.",
+      "🌬️ **4-7-8 breathing** — Inhale 4 counts, hold 7, exhale slowly for 8. It activates your parasympathetic system.",
+      "☕ **Cut caffeine after 2pm** — Caffeine has a 5-6 hour half-life in your body.",
+      "",
+      "Good sleep is not a luxury — it's the foundation of everything else. Sweet dreams are coming! 💤"
+    ]
+  },
+  5: {
+    title: "Overcoming Loneliness",
+    message: [
+      "Loneliness is one of the most painful feelings there is, and it takes real courage to acknowledge it. I'm glad you did. 🧡",
+      "",
+      "🌱 **Start small** — You don't need a big social circle. One genuine connection is worth more than many shallow ones.",
+      "🎯 **Join something interest-based** — Classes, clubs, volunteer groups, online communities. Shared activities create natural connection.",
+      "🐾 **Consider a pet** — Even a small one. Animals provide genuine companionship and reduce loneliness significantly.",
+      "📞 **Reach out to someone from your past** — A simple 'thinking of you' message can restart a connection.",
+      "🤲 **Volunteer** — Helping others is one of the fastest ways to feel connected and purposeful.",
+      "💻 **Online communities** — There are incredibly warm communities for almost every interest. Connection doesn't have to be in-person to be real.",
+      "🪞 **Check your self-talk** — Loneliness sometimes comes with a story that we're 'too boring' or 'no one cares.' That story isn't true.",
+      "",
+      "You deserve connection. And you're more likeable than you think. 🌟"
+    ]
+  },
+  6: {
+    title: "Managing Panic Attacks",
+    message: [
+      "Panic attacks are terrifying — your body convinced there's danger when there isn't. But here's the key: **they always pass**, and they can't harm you. 💙",
+      "",
+      "🛑 **During an attack — Ground yourself:**",
+      "• Feel your feet on the floor",
+      "• Name 5 things you can see",
+      "• Say out loud: 'This is a panic attack. It will pass. I am safe.'",
+      "",
+      "🌬️ **Slow your breathing** — Panic makes you overbreathe. Deliberately slow exhales (longer than inhales) activate your calm response.",
+      "❄️ **Cold water works fast** — Splash cold water on your face or hold ice. It triggers the diving reflex, slowing heart rate quickly.",
+      "📓 **Track your triggers** — Keep a simple log of when attacks happen. Patterns reveal the triggers.",
+      "🧠 **Learn about panic** — Understanding the biology (adrenaline spike, fight-or-flight) makes it less frightening.",
+      "🩺 **Therapy helps enormously** — CBT and exposure therapy have very high success rates with panic disorder.",
+      "",
+      "You are not broken. Panic attacks are manageable, and many people fully recover. 🌈"
+    ]
+  },
+  7: {
+    title: "Building Self-Esteem",
+    message: [
+      "Low self-esteem often feels like wearing glasses that only show your flaws. Let's change those lenses. 💛",
+      "",
+      "📝 **Daily wins list** — Write 3 things you did well today. Tiny things count. This rewires how you see yourself over time.",
+      "🚫 **Challenge your inner critic** — When you think 'I'm so stupid,' ask: 'Would I say this to someone I love?' If not, it's not fair to say to yourself.",
+      "🎯 **Do hard things** — Confidence comes from doing, not from waiting to feel confident. Every small challenge builds evidence that you're capable.",
+      "🤲 **Set boundaries** — Allowing others to mistreat you damages self-worth. Gentle but firm limits are acts of self-respect.",
+      "💜 **Affirmations that feel real** — Not 'I am amazing!' but 'I am learning and growing every day.' Believable affirmations work better.",
+      "📚 **Read about self-compassion** — Dr. Kristin Neff's work on self-compassion is research-backed and transformative.",
+      "🧹 **Audit your relationships** — Spend more time with people who lift you up, less with those who don't.",
+      "",
+      "You deserve your own kindness. Start small, start today. 🌸"
+    ]
+  },
+  8: {
+    title: "Navigating Grief & Loss",
+    message: [
+      "Grief is the price of love — and that means it's also proof of how deeply you've connected. There's no right way to grieve. 🕊️",
+      "",
+      "💙 **Let yourself feel** — Don't rush the process or judge your emotions. Anger, numbness, sadness — all are valid.",
+      "🗣️ **Talk about your loss** — Share memories with people who knew them, or with a trusted friend. Grief shrinks when spoken.",
+      "🕯️ **Create rituals** — Light a candle, tend a plant, visit a meaningful place. Rituals give grief somewhere to go.",
+      "📓 **Write to them** — Write letters to who or what you've lost. It's a powerful way to process unfinished feelings.",
+      "⏰ **Be patient with timelines** — Grief has waves, not stages. Some days will be better; some will surprise you with their weight.",
+      "🚫 **Avoid numbing** — Alcohol, overworking, or isolating delays grief without resolving it.",
+      "🤝 **Grief support groups** — Being with others who understand is uniquely healing. Many meet online too.",
+      "",
+      "Your love didn't end with the loss. It transforms. 💜"
+    ]
+  },
+  9: {
+    title: "Managing Anger",
+    message: [
+      "Anger is a completely natural emotion — it signals that something important to you has been threatened. The goal isn't to eliminate anger, but to express it wisely. 🔥",
+      "",
+      "⏸️ **The pause** — When you feel anger rising, give yourself permission to pause before reacting. Even 5 seconds changes outcomes.",
+      "🚶 **Physical release** — Go for a fast walk, exercise, or even punch a pillow. Anger is physical energy — discharge it physically first.",
+      "🌬️ **Breathe low and slow** — Slow, belly-deep breaths physically lower your heart rate and cortisol within 60–90 seconds.",
+      "📝 **Identify the real feeling** — Anger often masks hurt, fear, or shame. Ask yourself: 'What am I actually feeling underneath this?'",
+      "🗣️ **Use 'I' statements** — 'I feel hurt when...' instead of 'You always...' Changes the entire conversation.",
+      "📓 **Anger journaling** — Write uncensored when you're alone. Get it out on paper before deciding how to respond.",
+      "🧠 **Therapy (especially DBT)** — Dialectical Behaviour Therapy has powerful tools specifically for emotional regulation.",
+      "",
+      "Your feelings are valid. Your response to them is something you can choose. 💪"
+    ]
+  },
+  10: {
+    title: "Improving Focus & Concentration",
+    message: [
+      "Can't focus? You're definitely not alone — and in today's world of constant notifications, it's almost universal. Let's work on it! 🎯",
+      "",
+      "📵 **Single-tasking** — Multitasking is a myth. Close all tabs except one. Do one thing at a time intentionally.",
+      "⏱️ **Pomodoro Technique** — 25 minutes focused work, 5 minute break. Repeat. Structure helps a wandering mind enormously.",
+      "🔕 **Environmental design** — Remove distractions before you begin. Phone in another room. Notifications off. Headphones on.",
+      "🌊 **Get enough sleep** — Sleep deprivation is one of the biggest concentration killers. Even one extra hour helps.",
+      "🏃 **Move first** — 20 minutes of exercise before cognitively demanding work dramatically improves focus and memory.",
+      "☕ **Hydrate & eat well** — Dehydration and blood sugar crashes tank concentration. Drink water, eat balanced meals.",
+      "🧠 **Consider ADHD evaluation** — If this is lifelong and severe, it's worth speaking to a doctor. ADHD is common and very treatable.",
+      "",
+      "Your focus can be rebuilt. One distraction-free session at a time. ✨"
+    ]
+  },
+  11: {
+    title: "Navigating Relationship Problems",
+    message: [
+      "Relationships are complex, and when they hurt, everything hurts. You deserve support and connection that feels good. 💙",
+      "",
+      "🗣️ **Communicate needs directly** — Most relationship pain comes from unspoken expectations. Practice saying 'I need...' clearly.",
+      "👂 **Listen to understand, not reply** — When in conflict, try reflecting back what you heard before defending yourself.",
+      "🚫 **Identify toxic patterns** — Stonewalling, contempt, criticism, defensiveness — these erode relationships. Naming them is step one.",
+      "⏸️ **Time-out agreements** — Agree in advance that either person can call a 20-minute pause during heated moments.",
+      "💜 **Know your attachment style** — Anxious, avoidant, or secure? Understanding this explains many relationship patterns.",
+      "🤝 **Couples therapy** — Even for relationships that aren't 'bad enough.' Therapy is maintenance, not emergency care.",
+      "📚 **Read together** — Books like 'The 5 Love Languages' or 'Hold Me Tight' create shared language.",
+      "🌱 **Know your worth** — Healthy relationships make you feel fundamentally safe, valued, and free to be yourself.",
+      "",
+      "You deserve love that doesn't feel like work. 💛"
+    ]
+  },
+  12: {
+    title: "Recovering from Burnout",
+    message: [
+      "Burnout isn't weakness — it's what happens when a strong person tries to push through for too long. You heard yourself. That's brave. 🌿",
+      "",
+      "🛑 **First: stop doing more** — Adding productivity hacks to burnout is like adding fuel to a fire. Rest is the prescription.",
+      "🔄 **Reconnect with why** — What originally drew you to your work or role? Sometimes burnout signals a values misalignment.",
+      "📵 **Hard boundaries with work** — No emails after 7pm. Real days off. Vacations actually taken. These aren't luxuries.",
+      "🌿 **Rest intentionally** — Not just sleep. Restorative activities: nature, hobbies, time with loved ones, creative play.",
+      "🗣️ **Talk to your manager** — If it's safe to, be honest about your capacity. Many workplaces have more flexibility than you think.",
+      "🩺 **See a doctor** — Burnout can present physically (headaches, immune issues, exhaustion). Rule out other causes.",
+      "💼 **Consider: is this job right for you?** — Sometimes burnout is your body voting with its health. It's okay to reassess.",
+      "",
+      "You are more than your productivity. You deserve to feel alive again. 🌱"
+    ]
+  },
+  13: {
+    title: "Easing Social Anxiety",
+    message: [
+      "Social anxiety tells you that you're being watched, judged, and found lacking. But here's what's true: most people are too busy worrying about themselves. 👥",
+      "",
+      "🎭 **Reframe the spotlight** — Social anxiety exaggerates how much attention is on you. Gently challenge that assumption.",
+      "🐣 **Gradual exposure** — Start with tiny social situations (saying hi to a cashier) and slowly work up. Avoidance keeps anxiety alive.",
+      "🌬️ **Breathe before entering** — Take 3 slow deep breaths before walking into a social situation. It physically calms you.",
+      "🎯 **Shift attention outward** — Instead of monitoring yourself, focus on genuinely listening to the other person. This breaks the anxiety loop.",
+      "📝 **Prepare conversation starters** — Having a few simple questions ready reduces fear of awkward silences.",
+      "🏆 **Celebrate courage, not performance** — Success is showing up, not being perfect.",
+      "🧠 **CBT is very effective** — Cognitive Behavioral Therapy has the strongest evidence base for social anxiety.",
+      "",
+      "You have something valuable to offer in every room you enter. 💛"
+    ]
+  },
+  14: {
+    title: "Healing from Trauma",
+    message: [
+      "Carrying trauma is one of the heaviest burdens. And the fact that you're seeking help is already a profound act of courage. 💜",
+      "",
+      "🔒 **Safety first** — Healing trauma requires a sense of safety. If you're not currently safe, that must come first.",
+      "🌊 **Trauma responses are normal** — Flashbacks, hypervigilance, emotional numbness — these are your nervous system's adaptations.",
+      "🧘 **Body-based healing** — Trauma lives in the body. Yoga, somatic practices, and mindful movement help release stored tension.",
+      "📓 **Expressive writing** — Writing about traumatic experiences (when you feel ready) can reduce their power significantly.",
+      "🤝 **Trauma-informed therapy** — EMDR, Somatic Experiencing, and Trauma-focused CBT are specifically designed for trauma. Please seek a specialist.",
+      "🚫 **Avoid isolation** — Withdrawal feels protective but delays healing. Safe relationships are part of the medicine.",
+      "⏳ **Honor your own timeline** — There's no standard speed for healing. Be patient and compassionate with yourself.",
+      "",
+      "What happened to you was not your fault. And healing is possible — many people have walked this path. 🌱"
+    ]
+  },
+  15: {
+    title: "Reigniting Motivation",
+    message: [
+      "When motivation disappears, it's often not laziness — it's exhaustion, disconnection, or your values quietly protesting. Let's explore this. 🔋",
+      "",
+      "🌱 **Start with 2 minutes** — Motivation follows action, not the other way around. Just begin. Often 2 minutes becomes 20.",
+      "🎯 **Find your 'why'** — Motivation without meaning is temporary. Connect your tasks to something you genuinely care about.",
+      "🚫 **Check for burnout or depression** — Persistent lack of motivation can be a symptom, not just a mood. Worth examining honestly.",
+      "📋 **Reduce the list** — An overwhelming to-do list kills motivation before you start. Pick one meaningful thing per day.",
+      "🏆 **Celebrate small wins loudly** — Your brain needs evidence that effort leads to reward. Acknowledge progress, even tiny.",
+      "👥 **Accountability partner** — Tell someone what you plan to do. Social commitment is motivating in a way pure willpower isn't.",
+      "🌅 **Design your mornings** — A strong morning routine can carry you through low-motivation days.",
+      "",
+      "Motivation ebbs and flows for everyone. You're not broken — you might just need a reset. 💫"
+    ]
+  },
+  16: {
+    title: "Improving Body Image",
+    message: [
+      "Our culture makes it genuinely difficult to feel good about our bodies. What you're experiencing is real — and it's also changeable. 🌸",
+      "",
+      "🚫 **Audit your social media** — Unfollow accounts that make you feel bad about yourself. This isn't vanity; it's mental health hygiene.",
+      "💜 **Shift focus to function** — What can your body do? Walk, hug, breathe, laugh, create. Function over appearance.",
+      "🗣️ **Challenge the inner critic** — When harsh body thoughts come, ask: 'Where did this thought come from? Is it true? Is it kind?'",
+      "🪞 **Reduce mirror time** — Frequent body checking increases anxiety and self-criticism. Set gentle limits.",
+      "🌿 **Joyful movement** — Exercise that's about pleasure and vitality, not punishment or changing your body.",
+      "🤝 **Talk to trusted people** — Body image issues grow in silence. Sharing them with someone safe reduces their power.",
+      "🩺 **Consider therapy** — Especially if eating behaviors are being affected. A body-neutral therapist can help greatly.",
+      "",
+      "Your worth is not measured in your appearance. You are so much more. 💛"
+    ]
+  },
+  17: {
+    title: "Managing Overthinking",
+    message: [
+      "Overthinking is your brain trying to solve a problem — but spinning without actually reaching a solution. Let's interrupt the loop. 🌀",
+      "",
+      "⏰ **Scheduled worry time** — Set 15 minutes to think/worry, then stop. When anxious thoughts come outside that window, say 'not now — later.'",
+      "✋ **The 'so what' chain** — Keep asking 'so what would happen then?' until you reach the realistic worst case. Often it's survivable.",
+      "🌬️ **Physical interruption** — Shake your hands, splash cold water, take a breath. Physical sensation breaks the thought loop.",
+      "📝 **Write it down** — Externalizing the thought gets it out of the mental loop. Writing it down often dissolves its power.",
+      "🎯 **Action vs rumination** — Ask: 'Is there one thing I can do right now about this?' If yes, do it. If no, practice letting it go.",
+      "🧘 **Mindfulness meditation** — Even 10 minutes a day trains the brain to notice thoughts without being consumed by them.",
+      "🎵 **Engage your senses** — Music, cooking, crafts — activities that require sensory attention naturally quiet overthinking.",
+      "",
+      "Your mind is powerful. You can learn to direct it, not just follow it. ✨"
+    ]
+  },
+  18: {
+    title: "Navigating Family Conflict",
+    message: [
+      "Family relationships carry so much history — love and pain can live very close together in them. You don't have to navigate this alone. 🏠",
+      "",
+      "🚫 **You can't control others** — Focus only on your own responses, boundaries, and communication. You can't change people, only how you engage.",
+      "🗣️ **Timing matters** — Don't raise sensitive issues when either party is hungry, tired, or already upset.",
+      "📝 **Write before you speak** — In highly charged family dynamics, drafting what you want to say first leads to much cleaner conversations.",
+      "🔲 **Boundaries aren't punishment** — They're clarity. 'I'll leave if shouting starts' is a boundary, not a threat.",
+      "👂 **Listen for the wound** — Often family conflict is about old wounds and unmet needs, not the current argument.",
+      "🤝 **Family therapy** — A skilled therapist can navigate multi-person dynamics in ways that are nearly impossible to manage alone.",
+      "💜 **Grieve the family you needed** — Sometimes part of healing is mourning the family dynamic you deserved but didn't get.",
+      "",
+      "You are allowed to protect your peace — even with family. 🌿"
+    ]
+  },
+  19: {
+    title: "Finding Purpose & Direction",
+    message: [
+      "Feeling lost and purposeless is one of the more quietly painful experiences — because it affects everything. You're asking exactly the right questions. 🔭",
+      "",
+      "🔍 **Explore, don't demand** — Purpose is usually discovered through action, not introspection alone. Try new things.",
+      "💡 **Look for flow states** — When do you lose track of time doing something? Those moments are clues to your purpose.",
+      "🌱 **Small meaning, daily** — Purpose doesn't have to be capital-P Purpose. A kind conversation, a skill practiced — these build meaning.",
+      "🎯 **What would you do for free?** — And: 'What problems in the world make you angry enough to want to fix them?' Overlap is purpose.",
+      "📚 **Learn voraciously** — Exposure to many things helps you discover what resonates most deeply.",
+      "👥 **Service gives meaning** — Many people find purpose through helping others. Volunteering is one of the most reliable ways.",
+      "🧭 **Values clarification** — Write down your top 5 core values. Purpose lives at the intersection of values, strengths, and contribution.",
+      "",
+      "You are not lost. You're in the beautiful, uncomfortable space of becoming. 🌟"
+    ]
+  },
+  20: {
+    title: "Improving Eating Habits",
+    message: [
+      "Our relationship with food is deeply emotional — and untangling it takes patience, not willpower. Let's approach this with kindness. 🍃",
+      "",
+      "💜 **Drop guilt first** — Guilt about eating doesn't improve choices; it usually makes them worse. Start with self-compassion.",
+      "🍽️ **Eat mindfully** — Sit down, no screens, actually taste your food. Mindful eating naturally regulates portion and satisfaction.",
+      "⏰ **Don't skip meals** — Skipping meals leads to later overeating. Regular, satisfying meals create stability.",
+      "🛒 **Set up your environment** — Keep nourishing foods visible and accessible. Make unhelpful choices slightly harder to reach.",
+      "💧 **Hydrate first** — Thirst and hunger signals overlap. Drink water and wait a few minutes before eating if unsure.",
+      "📓 **Food and mood journal** — Track not just what you eat, but how you feel before and after. Patterns emerge.",
+      "🩺 **See a registered dietitian** — Especially if eating is deeply distressing. They offer non-diet, evidence-based support.",
+      "",
+      "Food is nourishment, pleasure, and culture — not a moral test. Be gentle with yourself. 🌿"
+    ]
+  },
+  21: {
+    title: "Addressing Addiction",
+    message: [
+      "Reaching out about addiction takes real courage. Please know: addiction is a health condition, not a character flaw. You deserve support. 🔗",
+      "",
+      "🤝 **You don't have to do this alone** — Recovery is almost always more successful with support. Community is not optional; it's essential.",
+      "🏥 **Professional help is important** — Speak with a doctor or addiction specialist, especially for substances where withdrawal can be dangerous.",
+      "🔍 **Understand your triggers** — Stress, boredom, specific people, places, emotions? Knowing your triggers helps you prepare.",
+      "🔄 **Replace, don't just remove** — The void left by a substance needs to be filled with something healthy (exercise, connection, creativity).",
+      "👥 **Support groups work** — AA, NA, SMART Recovery — peer support dramatically improves recovery outcomes. Online groups too.",
+      "📅 **Take it one day at a time** — Recovery is not linear. Setbacks don't erase progress. Each day is a fresh opportunity.",
+      "💜 **Practice radical self-compassion** — Shame deepens addiction. Kindness toward yourself is not weakness; it's part of healing.",
+      "",
+      "Many people have walked this path and reached the other side. You can too. 💙"
+    ]
+  },
+  22: {
+    title: "Releasing Guilt & Shame",
+    message: [
+      "Guilt and shame are heavy — and often far heavier than the situation warrants. You are not your worst moments. ☁️",
+      "",
+      "💡 **Guilt vs shame** — Guilt: 'I did something bad.' Shame: 'I am bad.' Guilt can motivate repair; shame only paralyses.",
+      "🔄 **Make amends if possible** — If you've harmed someone, apologizing and making it right genuinely reduces guilt. Then let it go.",
+      "📝 **Write a self-forgiveness letter** — Write to yourself as you'd write to a dear friend in the same situation.",
+      "🚫 **Challenge the origin** — Much shame comes from childhood messages from others. Were they right? Are those messages still true?",
+      "🧘 **Mindfulness of shame** — Notice shame without becoming it. 'I notice I'm feeling shame' creates space between you and the feeling.",
+      "🤝 **Shame reduces in the light** — Sharing your shame with a trusted person or therapist is one of the most powerful ways to dissolve it.",
+      "💜 **You are not your mistakes** — Everyone has acted in ways they regret. Being human means being imperfect.",
+      "",
+      "You are worthy of forgiveness — including from yourself. 🌱"
+    ]
+  },
+  23: {
+    title: "Overcoming Fears & Phobias",
+    message: [
+      "Phobias can feel absolutely overwhelming — like the fear is bigger than you. But fears that were learned can also be unlearned. 👻",
+      "",
+      "🧠 **Understand what's happening** — Phobias are fear responses in the amygdala. They feel real because they are — but they're overestimating danger.",
+      "📊 **Reality-test the risk** — 'What's the actual probability this fear will come true?' Numbers give perspective fear cannot.",
+      "🪜 **Gradual exposure (with support)** — Slowly, in stages, approaching what you fear. Not diving in — gentle, supported steps.",
+      "🌬️ **Breathing during fear** — Slow, deep exhales activate the parasympathetic system and physically reduce fear intensity.",
+      "🗣️ **Name the fear** — 'I'm feeling intense fear right now because of [X].' Naming it engages your prefrontal cortex and reduces the amygdala response.",
+      "🩺 **Exposure therapy is highly effective** — A trained therapist can guide you through structured, safe exposure. Most phobias respond very well.",
+      "💜 **Patience and self-compassion** — Fear is not weakness. Moving through it despite the fear is extraordinary courage.",
+      "",
+      "You are more powerful than any phobia. 🌟"
+    ]
+  },
+  24: {
+    title: "Filling Emotional Emptiness",
+    message: [
+      "Emotional emptiness is a quiet ache — like something important is missing but you can't quite name it. That feeling deserves attention. 🫗",
+      "",
+      "🔍 **Explore, don't rush to fix** — Emptiness often has something to tell you about unmet needs or disconnection from yourself.",
+      "🌿 **Reconnect with your senses** — Sometimes emptiness is a sign of living too 'in your head.' Cooking, gardening, music, touch — embodied experiences help.",
+      "💜 **Check for depression** — Emotional numbness and emptiness are common depression symptoms. Please speak with a doctor.",
+      "📓 **Journal your inner life** — Write about what you find beautiful, what angers you, what you long for. Reconnect with who you actually are.",
+      "🤝 **Connection first** — Even introverts need some genuine human connection to feel emotionally alive. Reach out to someone meaningful.",
+      "🎨 **Creative expression** — Making something — anything — can awaken a sense of aliveness.",
+      "🌱 **Serve others** — Contribution to something beyond ourselves is one of the most reliable antidotes to emptiness.",
+      "🩺 **Therapy helps enormously** — Especially existential or psychodynamic therapy for this kind of feeling.",
+      "",
+      "You deserve to feel fully alive. The path back exists. 💙"
+    ]
+  },
+  25: {
+    title: "Starting a Mindfulness Practice",
+    message: [
+      "Mindfulness is one of the most evidence-backed tools for mental wellbeing — and it's simpler (though not always easy) than people think! 🌿",
+      "",
+      "🌬️ **Start with breath** — Just 3 conscious breaths, three times a day. Notice the air moving in and out. That's mindfulness.",
+      "⏱️ **Begin with 5 minutes** — Not 20, not 30. Five minutes daily is more valuable than 30 minutes occasionally.",
+      "📱 **Use an app** — Headspace, Calm, Insight Timer, or Ten Percent Happier are all excellent guided starting points.",
+      "🚶 **Mindful daily activities** — Wash dishes mindfully. Walk mindfully. Eat mindfully. Mindfulness doesn't require a cushion.",
+      "🧠 **Mind wandering is normal** — Every time you notice your mind has wandered and return to the present, that IS the practice.",
+      "📚 **Read or listen** — 'Wherever You Go, There You Are' by Jon Kabat-Zinn is a gentle, accessible start.",
+      "🌅 **Anchor it to your morning** — Practicing first thing, before the day's chaos begins, is easiest to sustain.",
+      "",
+      "Mindfulness is a skill. Like any skill, it grows with practice. Be patient with yourself. 🌟"
+    ]
+  }
+};
+
+// ─── STATE ──────────────────────────────────────────────────────────────
+let darkMode = true;
+let loading = false;
+let showAll = false;
+
+// ─── INIT ────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  renderPills();
+  addWelcomeMessage();
+});
+
+// ─── THEME ───────────────────────────────────────────────────────────────
+function toggleTheme() {
+  darkMode = !darkMode;
+  document.body.classList.toggle('light', !darkMode);
+  document.getElementById('themeBtn').innerHTML = darkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+}
+
+// ─── PILLS ───────────────────────────────────────────────────────────────
+function renderPills() {
+  const container = document.getElementById('pills');
+  const list = showAll ? QUERIES : QUERIES.slice(0, 12);
+  container.innerHTML = '';
+  container.className = showAll ? 'expanded' : '';
+
+  list.forEach(q => {
+    const btn = document.createElement('button');
+    btn.className = 'pill';
+    btn.id = 'pill-' + q.id;
+    btn.innerHTML = `<span class="pill-icon">${q.icon}</span>${q.short}`;
+    btn.onclick = () => handleQuery(q);
+    if (loading) btn.disabled = true;
+    container.appendChild(btn);
+  });
+}
+
+function toggleShowAll() {
+  showAll = !showAll;
+  document.getElementById('showAllBtn').textContent = showAll
+    ? 'Show Less ▲'
+    : `Show All (${QUERIES.length}) ▼`;
+  renderPills();
+}
+
+// ─── MESSAGES ────────────────────────────────────────────────────────────
+function addWelcomeMessage() {
+  const text = [
+    "Hello there! 💙 I'm **Serene**, your mental health companion.",
+    "",
+    "I'm here to listen, support, and offer guidance — a safe space just for you. Whatever you're feeling right now, you're not alone.",
+    "",
+    "Please select a topic below that resonates with you, and I'll share some gentle, evidence-based support. Remember, while I can offer helpful guidance, I always encourage speaking with a qualified mental health professional for deeper support. 🌿"
+  ];
+  appendMessage('ai', text, null);
+}
+
+function handleQuery(q) {
+  if (loading) return;
+
+  // Highlight active pill
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  const pillEl = document.getElementById('pill-' + q.id);
+  if (pillEl) pillEl.classList.add('active');
+
+  // User bubble
+  appendMessage('user', [q.label], null);
+
+  // Set loading
+  loading = true;
+  setAllPillsDisabled(true);
+  const typingId = addTypingIndicator();
+
+  // Simulate response delay
+  setTimeout(() => {
+    removeTypingIndicator(typingId);
+    const resp = RESPONSES[q.id];
+    appendMessage('ai', resp.message, resp.title);
+    loading = false;
+    setAllPillsDisabled(false);
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  }, 1100 + Math.random() * 600);
+}
+
+function appendMessage(role, lines, title) {
+  const chat = document.getElementById('chatInner');
+
+  const row = document.createElement('div');
+  row.className = 'msg-row' + (role === 'user' ? ' user' : '');
+
+  if (role === 'ai') {
+    const av = document.createElement('div');
+    av.className = 'avatar';
+    av.textContent = '🌿';
+    row.appendChild(av);
+  }
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+
+  if (title) {
+    const t = document.createElement('div');
+    t.className = 'response-title';
+    t.textContent = title;
+    bubble.appendChild(t);
+  }
+
+  const content = document.createElement('div');
+  lines.forEach(line => {
+    if (line === '') {
+      content.appendChild(document.createElement('br'));
+      return;
+    }
+    const span = document.createElement('span');
+    span.className = 'tip-line';
+    span.innerHTML = formatLine(line);
+    content.appendChild(span);
+  });
+
+  bubble.appendChild(content);
+  row.appendChild(bubble);
+  chat.appendChild(row);
+  scrollToBottom();
+}
+
+function formatLine(text) {
+  return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+}
+
+function addTypingIndicator() {
+  const chat = document.getElementById('chatInner');
+  const id = 'typing-' + Date.now();
+
+  const row = document.createElement('div');
+  row.className = 'typing-row';
+  row.id = id;
+
+  const av = document.createElement('div');
+  av.className = 'avatar';
+  av.textContent = '🌿';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'typing-bubble';
+  bubble.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+
+  row.appendChild(av);
+  row.appendChild(bubble);
+  chat.appendChild(row);
+  scrollToBottom();
+  return id;
+}
+
+function removeTypingIndicator(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+function setAllPillsDisabled(state) {
+  document.querySelectorAll('.pill').forEach(p => p.disabled = state);
+}
+
+function scrollToBottom() {
+  const area = document.getElementById('chat-area');
+  setTimeout(() => area.scrollTo({ top: area.scrollHeight, behavior: 'smooth' }), 50);
+}
+</script>
+</body>
+</html>

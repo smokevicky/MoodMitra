@@ -1,0 +1,321 @@
+body {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    transition: background-color 0.8s;
+    padding: 20px;
+}
+
+/* Emotion colors */
+body.happy {
+    background-color: #69ff66;
+}
+
+body.neutral {
+    background-color: #dee4e6;
+}
+
+body.sad {
+    background-color: #74fcee;
+}
+
+/* Video section */
+#videoSection {
+    position: relative;
+    display: inline-block;
+}
+
+/* ================= SIDE BY SIDE LAYOUT ================= */
+
+.main-container{
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+}
+
+/* Make both boxes same size */
+.popup,
+.history-box{
+    width: 450px;
+    height: 380px;
+    max-width: 95%;
+    border-radius: 20px;
+    background: white;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+}
+
+/* Hover lift effect */
+.popup:hover,
+.history-box:hover{
+    transform: translateY(-6px);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+}
+
+/* ================= POPUP STYLING ================= */
+
+.popup {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-content {
+    background: white;
+    padding: 25px;
+    width: 300px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.hidden {
+    display: none;
+}
+
+#closePopup {
+    float: right;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.popup-buttons{
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.popup-buttons button{
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.popup-buttons button:hover{
+    opacity: 0.9;
+}
+
+.breath-text{
+    margin-top: 12px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+/* ================= HISTORY BOX ================= */
+
+.history-box{
+    margin-top: 0;
+    padding: 20px;
+    text-align: left;
+    overflow-y: auto;
+}
+
+.history-box ul{
+    list-style: none;
+    padding: 0;
+}
+
+.history-box li{
+    padding: 6px 0;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.summary-box{
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.summary-box p{
+    margin: 4px 0;
+}
+
+.history-actions{
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.history-actions button{
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+/* ================= POWERFUL AI CAMERA GLOW (FIXED) ================= */
+
+#cameraWrapper{
+    position: relative;
+    display: inline-block;
+    border-radius: 15px;
+    overflow: hidden;
+    animation: cameraGlow 2s infinite ease-in-out;
+    transition: transform 0.3s ease;
+}
+
+/* Slight lift */
+#cameraWrapper:hover{
+    transform: translateY(-5px);
+}
+
+@keyframes cameraGlow {
+    0% {
+        box-shadow:
+            0 0 20px rgba(77,171,247,0.6),
+            0 0 40px rgba(77,171,247,0.5),
+            0 0 70px rgba(77,171,247,0.4);
+    }
+    50% {
+        box-shadow:
+            0 0 35px rgba(77,171,247,1),
+            0 0 70px rgba(77,171,247,0.8),
+            0 0 110px rgba(77,171,247,0.6);
+    }
+    100% {
+        box-shadow:
+            0 0 20px rgba(77,171,247,0.6),
+            0 0 40px rgba(77,171,247,0.5),
+            0 0 70px rgba(77,171,247,0.4);
+    }
+}
+
+/* ================= FLOATING EMOJIS (FADE STYLE) ================= */
+
+#emojiContainer{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 9999;
+}
+
+.floating-emoji{
+    position: absolute;
+    animation: floatUp 6s ease-in-out forwards;
+    user-select: none;
+    pointer-events: none;
+}
+
+@keyframes floatUp{
+    0%{
+        transform: translateY(100vh) scale(0.7);
+        opacity: 0;
+    }
+    10%{
+        opacity: 1;
+    }
+    50%{
+        transform: translateY(50vh) translateX(30px) scale(1.1);
+    }
+    90%{
+        opacity: 1;
+    }
+    100%{
+        transform: translateY(-10vh) translateX(-20px) scale(1);
+        opacity: 0;
+    }
+}
+
+/* ================= CLASSY 3D TITLE ================= */
+
+h1{
+    font-family: 'Baloo 2', cursive;
+    font-size: 60px;
+    margin-bottom: 15px;
+    position: relative;
+    display: inline-block;
+    color: #a246c7;
+
+    text-shadow:
+        0 2px 0 #d0d0d0,
+        0 4px 0 #bdbdbd,
+        0 6px 10px rgba(0,0,0,0.25);
+
+    transition: all 0.3s ease;
+}
+
+h1::after{
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -10px;
+    transform: translateX(-50%);
+    width: 70%;
+    height: 20px;
+    background: radial-gradient(circle, rgba(77,171,247,0.35), transparent);
+    filter: blur(12px);
+    z-index: -1;
+}
+
+h1:hover{
+    transform: translateY(-5px) scale(1.05);
+    text-shadow:
+        0 3px 0 #d0d0d0,
+        0 6px 0 #bdbdbd,
+        0 10px 20px rgba(0,0,0,0.35);
+}
+
+/* ================= REAL CAMERA SHUTTER ================= */
+
+/* ================= FIXED CAMERA SHUTTER ================= */
+
+#cameraWrapper{
+    position: relative;
+    display: inline-block;
+    border-radius: 15px;
+    overflow: hidden; /* 👈 keeps shutter confined */
+}
+
+#shutterOverlay{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 15px;
+    z-index: 3;
+    transition: opacity 0.8s ease;
+}
+
+#shutterImage{
+    width: 70%;
+    max-width: 350px;
+}
+
+.clickText{
+    color: white;
+    margin-top: 15px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+#shutterOverlay.open{
+    opacity: 0;
+    pointer-events: none;
+}

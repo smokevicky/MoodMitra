@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Mindful Space</title>
+<link rel="icon" type="image/x-icon" href="./image/MOODMITRALOGO.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* ===================================================
+   DESIGN TOKENS
+=================================================== */
+:root {
+  --ease: cubic-bezier(.4,0,.2,1);
+  --spring: cubic-bezier(.34,1.56,.64,1);
+  --dur: .36s;
+  --r: 20px;
+  --r-sm: 12px;
+}
+
+[data-theme="dark"] {
+  --bg:        #0e0f14;
+  --bg2:       #13151c;
+  --bg3:       #1a1d27;
+  --bg4:       #21253300;
+  --surface:   rgba(255,255,255,.04);
+  --glass:     rgba(255,255,255,.05);
+  --border:    rgba(255,255,255,.07);
+  --border2:   rgba(255,255,255,.13);
+  --text:      #eceaf5;
+  --text2:     rgba(236,234,245,.52);
+  --text3:     rgba(236,234,245,.28);
+  --accent:    #7eb8a4;
+  --accent2:   rgba(126,184,164,.14);
+  --accent3:   rgba(126,184,164,.07);
+  --teal:      #7eb8a4;
+  --violet:    #9b8ec4;
+  --amber:     #d4976b;
+  --rose:      #c47b8e;
+  --sky:       #6ba4c4;
+  --shadow:    0 8px 40px rgba(0,0,0,.55);
+  --shadow-sm: 0 2px 16px rgba(0,0,0,.4);
+  --invert-icon: 0;
+}
+
+[data-theme="light"] {
+  --bg:        #f3f1ec;
+  --bg2:       #faf9f6;
+  --bg3:       #ffffff;
+  --surface:   rgba(255,255,255,.65);
+  --glass:     rgba(255,255,255,.7);
+  --border:    rgba(0,0,0,.07);
+  --border2:   rgba(0,0,0,.13);
+  --text:      #1e1c18;
+  --text2:     rgba(30,28,24,.55);
+  --text3:     rgba(30,28,24,.3);
+  --accent:    #3a8f76;
+  --accent2:   rgba(58,143,118,.11);
+  --accent3:   rgba(58,143,118,.06);
+  --teal:      #3a8f76;
+  --violet:    #6b5fa8;
+  --amber:     #b8732a;
+  --rose:      #a85068;
+  --sky:       #3078a8;
+  --shadow:    0 8px 40px rgba(0,0,0,.10);
+  --shadow-sm: 0 2px 16px rgba(0,0,0,.07);
+  --invert-icon: 1;
+}
+
+/* ===================================================
+   BASE
+=================================================== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Nunito',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  transition:background .45s var(--ease),color .45s var(--ease);
+}
+
+/* Background mesh */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 700px 500px at 85% -5%,  rgba(126,184,164,.07) 0%,transparent 65%),
+    radial-gradient(ellipse 500px 700px at -5% 75%,  rgba(155,142,196,.07) 0%,transparent 65%),
+    radial-gradient(ellipse 400px 300px at 55% 105%, rgba(212,151,107,.05) 0%,transparent 65%);
+  transition:opacity .45s;
+}
+[data-theme="light"] body::before{
+  background:
+    radial-gradient(ellipse 700px 500px at 85% -5%,  rgba(58,143,118,.07) 0%,transparent 65%),
+    radial-gradient(ellipse 500px 700px at -5% 75%,  rgba(107,95,168,.06) 0%,transparent 65%),
+    radial-gradient(ellipse 400px 300px at 55% 105%, rgba(184,115,42,.05) 0%,transparent 65%);
+}
+
+/* Grain */
+body::after{
+  content:'';
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");
+}
+
+.wrap{position:relative;z-index:1;max-width:1020px;margin:0 auto;padding:0 22px 100px}
+
+/* ===================================================
+   HEADER
+=================================================== */
+header{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  padding:38px 0 0;flex-wrap:wrap;gap:14px;
+  animation:riseIn .65s var(--ease) both;
+}
+
+.logo-block{display:flex;flex-direction:column;gap:3px}
+.logo-eyebrow{
+  font-size:10px;font-weight:600;letter-spacing:2.8px;
+  text-transform:uppercase;color:var(--accent);
+}
+.logo-name{
+  font-family:'DM Serif Display',serif;
+  font-size:32px;letter-spacing:-.4px;color:var(--text);line-height:1;
+}
+
+.header-right{display:flex;align-items:center;gap:10px}
+
+/* Theme toggle */
+.theme-toggle{
+  width:48px;height:26px;border-radius:100px;
+  border:1px solid var(--border2);background:var(--bg3);
+  cursor:pointer;position:relative;transition:background .3s,border-color .3s;
+  flex-shrink:0;
+}
+.theme-toggle::after{
+  content:'';position:absolute;
+  top:4px;left:4px;width:16px;height:16px;
+  border-radius:50%;background:var(--accent);
+  transition:transform .3s var(--spring),background .3s;
+}
+[data-theme="light"] .theme-toggle::after{transform:translateX(22px)}
+.toggle-icon{
+  position:absolute;font-size:9px;top:50%;transform:translateY(-50%);
+  transition:opacity .3s;user-select:none;pointer-events:none;
+}
+.icon-moon{right:5px;opacity:1}
+.icon-sun{left:5px;opacity:0}
+[data-theme="light"] .icon-moon{opacity:0}
+[data-theme="light"] .icon-sun{opacity:1}
+
+.date-chip{
+  font-size:11px;font-weight:500;color:var(--text3);
+  letter-spacing:.5px;padding-bottom:3px;
+}
+
+/* ===================================================
+   ORNAMENT DIVIDER
+=================================================== */
+.divider-ornament{
+  display:flex;align-items:center;gap:14px;
+  margin:24px 0 38px;
+  animation:fadeIn .7s .1s both;
+}
+.div-line{flex:1;height:1px;background:linear-gradient(90deg,var(--border2),transparent)}
+.div-line.r{background:linear-gradient(90deg,transparent,var(--border2))}
+.div-sym{font-family:'DM Serif Display',serif;font-size:18px;color:var(--accent);opacity:.5}
+
+/* ===================================================
+   SECTION HEADERS
+=================================================== */
+.sec-head{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;margin-bottom:20px;
+}
+.sec-title-wrap{display:flex;align-items:center;gap:12px}
+.sec-title{
+  font-family:'DM Serif Display',serif;
+  font-size:26px;letter-spacing:-.2px;
+}
+.sec-badge{
+  font-size:10px;font-weight:700;letter-spacing:1.8px;
+  text-transform:uppercase;color:var(--accent);
+  background:var(--accent2);border:1px solid rgba(126,184,164,.2);
+  padding:4px 10px;border-radius:100px;
+}
+
+/* ===================================================
+   REFRESH BUTTON
+=================================================== */
+.refresh-btn{
+  display:flex;align-items:center;gap:7px;
+  padding:9px 18px;border-radius:100px;
+  border:1px solid var(--border2);background:var(--bg3);
+  color:var(--text2);font-family:'Nunito',sans-serif;
+  font-size:12px;font-weight:600;cursor:pointer;
+  transition:all .2s;letter-spacing:.3px;
+}
+.refresh-btn:hover{
+  border-color:var(--accent);color:var(--accent);
+  background:var(--accent3);transform:translateY(-1px);
+}
+.refresh-btn:active{transform:translateY(0)}
+.ref-ico{
+  display:inline-block;font-size:15px;
+  transition:transform .55s var(--spring);
+}
+.refresh-btn.spin .ref-ico{transform:rotate(360deg)}
+
+/* ===================================================
+   TASK CARDS
+=================================================== */
+.tasks-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(290px,1fr));
+  gap:14px;margin-bottom:58px;
+}
+
+.task-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:22px;
+  backdrop-filter:blur(14px);
+  box-shadow:var(--shadow-sm);
+  transition:all .28s var(--ease);
+  position:relative;overflow:hidden;
+  animation:riseIn .5s var(--ease) both;
+  cursor:default;
+}
+.task-card::before{
+  content:'';position:absolute;
+  top:0;left:0;width:3px;height:100%;
+  background:var(--tc,var(--teal));
+  border-radius:3px 0 0 3px;
+  transition:width .2s;
+}
+.task-card:hover{
+  border-color:var(--border2);
+  box-shadow:var(--shadow);
+  transform:translateY(-4px);
+}
+.task-card:hover::before{width:4px}
+.task-card.done{opacity:.5}
+.task-card.done .task-title{text-decoration:line-through;color:var(--text3)}
+
+.task-row1{
+  display:flex;align-items:flex-start;
+  justify-content:space-between;margin-bottom:13px;
+}
+.task-icon-box{
+  width:46px;height:46px;border-radius:14px;
+  background:var(--tic,var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+  transition:transform .2s var(--spring);
+}
+.task-card:hover .task-icon-box{transform:scale(1.07)}
+
+.task-chk{
+  width:27px;height:27px;border-radius:50%;
+  border:2px solid var(--border2);background:none;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:13px;color:transparent;
+  transition:all .2s var(--spring);flex-shrink:0;
+}
+.task-chk:hover{border-color:var(--accent);color:var(--accent)}
+.task-card.done .task-chk{
+  background:var(--accent);border-color:var(--accent);color:#fff;
+}
+.task-cat{
+  font-size:10px;font-weight:700;letter-spacing:1.4px;
+  text-transform:uppercase;color:var(--tc,var(--teal));
+  margin-bottom:5px;
+}
+.task-title{
+  font-family:'DM Serif Display',serif;
+  font-size:17px;line-height:1.35;margin-bottom:8px;
+  letter-spacing:-.1px;
+}
+.task-desc{font-size:13px;color:var(--text2);line-height:1.65;font-weight:300}
+.task-dur{
+  display:inline-flex;align-items:center;gap:5px;
+  margin-top:14px;font-size:11px;color:var(--text3);
+  font-weight:600;letter-spacing:.3px;
+}
+
+/* ===================================================
+   EXERCISE PRESET TABS
+=================================================== */
+.ex-tabs{
+  display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;
+}
+.ex-tab{
+  padding:9px 18px;border-radius:100px;
+  border:1px solid var(--border2);background:var(--bg3);
+  color:var(--text2);font-family:'Nunito',sans-serif;
+  font-size:12px;font-weight:600;cursor:pointer;
+  transition:all .22s;white-space:nowrap;letter-spacing:.2px;
+}
+.ex-tab:hover{color:var(--text);border-color:var(--border2)}
+.ex-tab.active{
+  background:var(--ec,var(--teal));
+  border-color:var(--ec,var(--teal));
+  color:#fff;
+  box-shadow:0 3px 16px rgba(0,0,0,.18);
+}
+
+/* ===================================================
+   PRACTICE CARD
+=================================================== */
+.practice-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:24px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(16px);
+  display:grid;
+  grid-template-columns:1fr 1.15fr;
+  min-height:560px;
+}
+@media(max-width:680px){
+  .practice-card{grid-template-columns:1fr}
+}
+
+/* ── LEFT: Timer ── */
+.timer-pane{
+  padding:38px 30px;
+  display:flex;flex-direction:column;align-items:center;
+  border-right:1px solid var(--border);
+  position:relative;overflow:hidden;
+}
+@media(max-width:680px){
+  .timer-pane{border-right:none;border-bottom:1px solid var(--border)}
+}
+
+/* Breathing orb */
+.breath-orb{
+  position:absolute;
+  width:280px;height:280px;border-radius:50%;
+  background:radial-gradient(circle,var(--orb,rgba(126,184,164,.12)) 0%,transparent 70%);
+  top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(1);
+  pointer-events:none;z-index:0;
+  transition:background .6s;
+}
+.breath-orb.anim-inhale{animation:orbIn var(--id,4s) ease-in-out forwards}
+.breath-orb.anim-exhale{animation:orbOut var(--ed,6s) ease-in-out forwards}
+.breath-orb.anim-hold{transform:translate(-50%,-50%) scale(1.35);animation:none}
+.breath-orb.anim-hold2{transform:translate(-50%,-50%) scale(.85);animation:none}
+@keyframes orbIn{
+  from{transform:translate(-50%,-50%) scale(.82)}
+  to  {transform:translate(-50%,-50%) scale(1.38)}
+}
+@keyframes orbOut{
+  from{transform:translate(-50%,-50%) scale(1.38)}
+  to  {transform:translate(-50%,-50%) scale(.82)}
+}
+
+/* SVG Ring */
+.ring-wrap{position:relative;z-index:1;margin:8px 0 14px}
+.ring-svg{width:200px;height:200px;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:5}
+.ring-track{
+  fill:none;stroke:var(--ec,var(--teal));stroke-width:5;
+  stroke-linecap:round;
+  stroke-dasharray:565;stroke-dashoffset:565;
+  transition:stroke .5s,stroke-dashoffset .12s linear;
+}
+.ring-inner{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  z-index:2;
+}
+.ring-count{
+  font-family:'DM Serif Display',serif;
+  font-size:50px;color:var(--text);
+  line-height:1;letter-spacing:-1px;
+}
+.ring-phase{
+  font-size:10px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;color:var(--ec,var(--teal));
+  margin-top:5px;
+}
+
+.session-elapsed{
+  font-size:13px;color:var(--text3);
+  letter-spacing:1.2px;z-index:1;margin-bottom:18px;
+  font-family:'DM Serif Display',serif;
+}
+
+/* Controls */
+.ctrl-row{display:flex;gap:10px;z-index:1;margin-bottom:18px}
+.ctrl-btn{
+  width:50px;height:50px;border-radius:50%;
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s var(--spring);font-size:16px;
+}
+.ctrl-play{
+  background:var(--ec,var(--teal));color:#fff;
+  width:66px;height:66px;
+  box-shadow:0 4px 22px rgba(0,0,0,.22);
+}
+.ctrl-play:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(0,0,0,.28)}
+.ctrl-play:active{transform:scale(.97)}
+.ctrl-sec{
+  background:var(--bg3);color:var(--text2);
+  border:1px solid var(--border2);
+}
+.ctrl-sec:hover{color:var(--text);transform:scale(1.06)}
+
+/* Duration chips */
+.dur-row{display:flex;gap:6px;z-index:1;margin-bottom:12px}
+.dur-chip{
+  padding:6px 13px;border-radius:100px;
+  border:1px solid var(--border2);background:var(--bg3);
+  color:var(--text2);font-family:'Nunito',sans-serif;
+  font-size:11px;font-weight:700;cursor:pointer;
+  transition:all .15s;
+}
+.dur-chip:hover{color:var(--text)}
+.dur-chip.active{
+  background:var(--ec,var(--teal));
+  border-color:var(--ec,var(--teal));color:#fff;
+}
+.cycles-info{
+  font-size:11px;color:var(--text3);
+  z-index:1;letter-spacing:.4px;font-weight:500;
+}
+
+/* Completion overlay */
+.done-overlay{
+  position:absolute;inset:0;
+  background:var(--bg2);opacity:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;z-index:20;pointer-events:none;
+  transition:opacity .4s;border-radius:24px 0 0 24px;
+}
+.done-overlay.show{opacity:.97;pointer-events:all}
+.done-icon{font-size:52px;animation:pop .5s var(--spring) both}
+.done-title{
+  font-family:'DM Serif Display',serif;
+  font-size:22px;color:var(--accent);
+}
+.done-sub{font-size:13px;color:var(--text2);text-align:center;padding:0 20px}
+.done-restart{
+  margin-top:8px;padding:10px 22px;border-radius:100px;
+  border:1px solid var(--border2);background:var(--bg3);
+  color:var(--text2);font-family:'Nunito',sans-serif;
+  font-size:12px;font-weight:600;cursor:pointer;
+  transition:all .2s;
+}
+.done-restart:hover{border-color:var(--accent);color:var(--accent)}
+@keyframes pop{
+  from{transform:scale(0);opacity:0}
+  to  {transform:scale(1);opacity:1}
+}
+
+/* ── RIGHT: Guide ── */
+.guide-pane{
+  padding:32px 32px 36px 36px;
+  display:flex;flex-direction:column;
+  overflow-y:auto;max-height:580px;
+}
+.guide-pane::-webkit-scrollbar{width:4px}
+.guide-pane::-webkit-scrollbar-track{background:transparent}
+.guide-pane::-webkit-scrollbar-thumb{background:var(--border2);border-radius:100px}
+
+.ex-icon-big{font-size:36px;margin-bottom:10px;display:block}
+.ex-name{
+  font-family:'DM Serif Display',serif;
+  font-size:28px;letter-spacing:-.3px;
+  margin-bottom:7px;line-height:1.2;
+}
+.ex-blurb{
+  font-size:13px;color:var(--text2);
+  line-height:1.7;font-weight:300;margin-bottom:18px;
+}
+.guide-rule{height:1px;background:var(--border);margin:16px 0}
+
+/* Rhythm row */
+.rhythm-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.rhy-pill{
+  display:flex;flex-direction:column;align-items:center;
+  padding:9px 16px;border-radius:var(--r-sm);
+  border:1px solid var(--border);background:var(--bg3);
+  min-width:72px;
+}
+.rhy-lbl{font-size:9px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--text3);margin-bottom:2px}
+.rhy-val{
+  font-family:'DM Serif Display',serif;
+  font-size:24px;color:var(--ec,var(--teal));line-height:1;
+}
+.rhy-unit{font-size:9px;color:var(--text3);margin-top:2px}
+
+/* Steps */
+.steps-lbl{
+  font-size:10px;font-weight:700;letter-spacing:1.8px;
+  text-transform:uppercase;color:var(--text3);margin-bottom:12px;
+}
+.steps-list{list-style:none;display:flex;flex-direction:column;gap:9px}
+.step{
+  display:flex;gap:12px;padding:13px 14px;
+  border-radius:var(--r-sm);border:1px solid var(--border);
+  background:rgba(255,255,255,.03);
+  transition:all .25s;
+}
+[data-theme="light"] .step{background:rgba(255,255,255,.55)}
+.step.lit{
+  border-color:var(--ec,var(--teal));
+  background:var(--estep,rgba(126,184,164,.06));
+  box-shadow:0 2px 12px rgba(0,0,0,.06);
+}
+.step-n{
+  width:24px;height:24px;border-radius:50%;
+  background:var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:var(--text3);
+  flex-shrink:0;margin-top:1px;transition:all .2s;
+}
+.step.lit .step-n{background:var(--ec,var(--teal));color:#fff}
+.step-txt{
+  font-size:13px;line-height:1.65;
+  color:var(--text2);font-weight:300;
+}
+.step.lit .step-txt{color:var(--text);font-weight:400}
+
+/* Benefits */
+.benefits{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}
+.ben-tag{
+  font-size:11px;font-weight:500;padding:5px 11px;
+  border-radius:100px;
+  background:var(--estep,rgba(126,184,164,.07));
+  color:var(--ec,var(--teal));
+  border:1px solid rgba(126,184,164,.15);
+}
+
+/* ===================================================
+   QUOTE SECTION
+=================================================== */
+.quote-section{
+  margin-top:52px;text-align:center;padding:32px 20px;
+  animation:riseIn .6s .3s var(--ease) both;
+}
+.quote-text{
+  font-family:'DM Serif Display',serif;
+  font-size:clamp(17px,2.8vw,23px);
+  font-style:italic;color:var(--text2);
+  line-height:1.6;letter-spacing:.1px;
+}
+.quote-attr{
+  font-size:11px;color:var(--text3);
+  letter-spacing:1.8px;text-transform:uppercase;
+  margin-top:12px;font-weight:600;
+}
+
+/* ===================================================
+   ANIMATIONS
+=================================================== */
+@keyframes riseIn{
+  from{opacity:0;transform:translateY(20px)}
+  to  {opacity:1;transform:translateY(0)}
+}
+@keyframes fadeIn{
+  from{opacity:0} to{opacity:1}
+}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:100px}
+
+@media(max-width:600px){
+  .tasks-grid{grid-template-columns:1fr}
+  .timer-pane{padding:28px 18px}
+  .guide-pane{padding:24px 18px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ══════════ HEADER ══════════ -->
+<header>
+  <div class="logo-block">
+    <span class="logo-eyebrow">Daily Practice</span>
+    <span class="logo-name">Mindful Space</span>
+  </div>
+  <div class="header-right">
+    <span class="date-chip" id="dateLbl"></span>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+      <span class="toggle-icon icon-moon">🌙</span>
+      <span class="toggle-icon icon-sun">☀️</span>
+    </button>
+  </div>
+</header>
+
+<div class="divider-ornament">
+  <div class="div-line"></div>
+  <span class="div-sym">✦</span>
+  <div class="div-line r"></div>
+</div>
+
+<!-- ══════════ DAILY TASKS ══════════ -->
+<div class="sec-head">
+  <div class="sec-title-wrap">
+    <span class="sec-title">Today's Intentions</span>
+    <span class="sec-badge">3 Tasks</span>
+  </div>
+  <button class="refresh-btn" id="rfBtn" onclick="refreshTasks()">
+    <span class="ref-ico">↻</span> New Tasks
+  </button>
+</div>
+
+<div class="tasks-grid" id="tasksGrid"></div>
+
+<!-- ══════════ PRACTICE ══════════ -->
+<div class="sec-head" style="margin-bottom:18px">
+  <div class="sec-title-wrap">
+    <span class="sec-title">Breathing &amp; Meditation</span>
+    <span class="sec-badge">Guided</span>
+  </div>
+</div>
+
+<div class="ex-tabs" id="exTabs"></div>
+
+<div class="practice-card" id="practiceCard">
+
+  <!-- LEFT -->
+  <div class="timer-pane">
+    <div class="breath-orb" id="breathOrb"></div>
+
+    <div class="done-overlay" id="doneOverlay">
+      <div class="done-icon">🌿</div>
+      <div class="done-title">Session Complete</div>
+      <div class="done-sub" id="doneSub">Well done. Take a breath.</div>
+      <button class="done-restart" onclick="resetTimer()">Start Again</button>
+    </div>
+
+    <div class="ring-wrap">
+      <svg class="ring-svg" viewBox="0 0 200 200">
+        <circle class="ring-bg"    cx="100" cy="100" r="90"/>
+        <circle class="ring-track" id="ringTrack" cx="100" cy="100" r="90"/>
+      </svg>
+      <div class="ring-inner">
+        <span class="ring-count" id="ringCount">—</span>
+        <span class="ring-phase" id="ringPhase">READY</span>
+      </div>
+    </div>
+
+    <div class="session-elapsed" id="elapsed">00:00</div>
+
+    <div class="ctrl-row">
+      <button class="ctrl-btn ctrl-sec" onclick="resetTimer()" title="Reset">↺</button>
+      <button class="ctrl-btn ctrl-play" id="playBtn" onclick="toggleTimer()">▶</button>
+      <button class="ctrl-btn ctrl-sec" onclick="skipPhase()" title="Skip">⏭</button>
+    </div>
+
+    <div class="dur-row" id="durRow"></div>
+    <div class="cycles-info" id="cyclesInfo">0 cycles completed</div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="guide-pane" id="guidePane"></div>
+
+</div>
+
+<!-- ══════════ QUOTE ══════════ -->
+<div class="quote-section">
+  <div class="quote-text" id="quoteText"></div>
+  <div class="quote-attr" id="quoteAttr"></div>
+</div>
+
+</div><!-- /wrap -->
+<footer style="
+  background: linear-gradient(135deg, var(--bg2), var(--bg3));
+  border-top: 1px solid var(--border);
+  padding: 60px 5% 30px;
+  color: var(--text2);
+">
+
+  <div style="
+    max-width: 1200px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 40px;
+  ">
+
+    <!-- BRAND -->
+    <div>
+      <h2 style="
+        font-family: 'Playfair Display', serif;
+        color: var(--accent);
+        font-size: 1.6rem;
+      ">
+        Mood<span style="color: var(--accent2)">mitra</span>
+      </h2>
+
+      <p style="margin-top: 12px; font-size: 0.9rem; line-height: 1.6;">
+        Your personal mental wellness companion. Helping you relax, grow,
+        and take care of your mind every day.
+      </p>
+    </div>
+
+    <!-- LINKS -->
+    <div>
+      
+      <div style="display:flex;gap:40px;">
+      <h3 style="color: var(--text); margin-bottom: 10px;">Quick Links</h3>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <a href="games.html" style="text-decoration:none; color: var(--text2);">Games</a>
+        <a href="music.html" style="text-decoration:none; color: var(--text2);">Music</a>
+        <a href="mentors.html" style="text-decoration:none; color: var(--text2);">Mentor</a>
+        <a href="story.html" style="text-decoration:none; color: var(--text2);">Story Now</a>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <a href="#" style="text-decoration:none; color: var(--text2);">About Us</a>
+        <a href="#" style="text-decoration:none; color: var(--text2);">Contact Us</a>
+        
+      </div>
+      
+    </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div>
+      <h3 style="color: var(--text); margin-bottom: 14px;">Contact</h3>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <a href="mailto:yourmail@gmail.com" style="text-decoration:none; color: var(--text2);">
+          📧 subhransumaharaj18@gmail.com
+        </a>
+        <a href="tel:+917978413323" style="text-decoration:none; color: var(--text2);">
+          📞 +91 7978413323
+        </a>
+        <a href="https://wa.me/917978413323" target="_blank" style="text-decoration:none; color: var(--text2);">
+          💬 WhatsApp Chat
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM -->
+  <div style="
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--text3);
+  ">
+    © 2026 Moodmitra. All rights reserved.
+  </div>
+
+</footer>
+<script>
+/* ────────────────────────────────────────────
+   DATA
+──────────────────────────────────────────── */
+const TASK_POOL = [
+  {icon:'🌅',cat:'Morning',title:'5-Minute Sunrise Stretch',desc:'Gently awaken your body with slow neck rolls, shoulder circles and a standing forward fold. No mat needed.',dur:'5 min',c:'var(--amber)',bg:'rgba(212,151,107,.12)'},
+  {icon:'📓',cat:'Journaling',title:'Three Gratitudes',desc:'Write three specific things you are grateful for today. Particularity matters — the smell of coffee, a kind word.',dur:'5 min',c:'var(--teal)',bg:'rgba(126,184,164,.12)'},
+  {icon:'🚶',cat:'Movement',title:'Mindful Walk Outside',desc:'Step outside for 10 minutes. Leave your phone in your pocket. Notice five things you can see, hear, or smell.',dur:'10 min',c:'var(--sky)',bg:'rgba(107,164,196,.12)'},
+  {icon:'💧',cat:'Hydration',title:'Drink a Full Glass of Water',desc:'Before coffee or a meal, drink 300 ml of water slowly. Hydration is the easiest wellness habit you can form.',dur:'1 min',c:'var(--sky)',bg:'rgba(107,164,196,.12)'},
+  {icon:'📵',cat:'Digital Detox',title:'Phone-Free First Hour',desc:'Keep your phone face-down for one hour after waking. Let your mind ease in without notifications.',dur:'60 min',c:'var(--violet)',bg:'rgba(155,142,196,.12)'},
+  {icon:'🎵',cat:'Music',title:'One Song — Full Presence',desc:'Sit, close your eyes, and listen to one song start to finish without doing anything else at all.',dur:'4 min',c:'var(--amber)',bg:'rgba(212,151,107,.12)'},
+  {icon:'🧹',cat:'Environment',title:'Clear One Small Space',desc:'Tidy a single surface — desk, shelf, or counter. A clear space genuinely creates a clearer mind.',dur:'7 min',c:'var(--teal)',bg:'rgba(126,184,164,.12)'},
+  {icon:'🌿',cat:'Nature',title:'Sit Near a Window',desc:'Find a window with natural light. Sit quietly for a few minutes and simply observe what is outside.',dur:'5 min',c:'var(--teal)',bg:'rgba(126,184,164,.12)'},
+  {icon:'😊',cat:'Connection',title:'Send a Kind Message',desc:'Text one person to say something genuine — a memory, appreciation, or simply "I\'m thinking of you."',dur:'3 min',c:'var(--rose)',bg:'rgba(196,123,142,.12)'},
+  {icon:'🧘',cat:'Body Scan',title:'Progressive Muscle Relax',desc:'Tense and release each muscle group from toes upward. This dissolves accumulated physical tension quickly.',dur:'8 min',c:'var(--violet)',bg:'rgba(155,142,196,.12)'},
+  {icon:'📖',cat:'Reading',title:'10 Pages of a Book',desc:'Read 10 pages of any book — not a screen. Let your imagination absorb words at a gentle pace.',dur:'10 min',c:'var(--amber)',bg:'rgba(212,151,107,.12)'},
+  {icon:'☀️',cat:'Sunlight',title:'10 Minutes of Morning Sun',desc:'Step outside within an hour of waking and let natural light hit your face. It anchors your circadian rhythm.',dur:'10 min',c:'var(--amber)',bg:'rgba(212,151,107,.12)'},
+  {icon:'🍽️',cat:'Mindful Eating',title:'One Meal Without Screens',desc:'Put devices away for one meal. Chew slowly, notice flavours, textures, and how your body responds.',dur:'20 min',c:'var(--teal)',bg:'rgba(126,184,164,.12)'},
+  {icon:'💤',cat:'Rest',title:'20-Minute Power Nap',desc:'A short nap of 15–20 minutes restores alertness without grogginess. Set an alarm and lie flat.',dur:'20 min',c:'var(--violet)',bg:'rgba(155,142,196,.12)'},
+  {icon:'🌬️',cat:'Breathing',title:'Conscious Exhale Resets',desc:'Three times today, pause and take one long exhale — twice as long as your inhale. Instant nervous-system calm.',dur:'1 min',c:'var(--sky)',bg:'rgba(107,164,196,.12)'},
+];
+
+const EXERCISES = [
+  {
+    id:'box',name:'Box Breathing',icon:'⬜',
+    blurb:'A Navy SEAL technique that creates symmetry in your nervous system. Equal counts in all four phases deliver rapid, reliable calm.',
+    c:'#5a9fb5',orb:'rgba(90,159,181,.16)',step:'rgba(90,159,181,.07)',
+    phases:[
+      {n:'INHALE',d:4,a:'anim-inhale'},
+      {n:'HOLD',  d:4,a:'anim-hold'},
+      {n:'EXHALE',d:4,a:'anim-exhale'},
+      {n:'HOLD',  d:4,a:'anim-hold2'},
+    ],
+    rhythm:[{l:'Inhale',v:4},{l:'Hold',v:4},{l:'Exhale',v:4},{l:'Hold',v:4}],
+    benefits:['Reduces stress','Sharpens focus','Regulates ANS','Combat-proven'],
+    durations:[2,5,10],
+    steps:[
+      'Sit upright with feet flat on the floor and hands resting on your thighs.',
+      'Exhale fully through your mouth to empty your lungs completely.',
+      'Inhale slowly through your nose for exactly 4 counts, expanding your belly first.',
+      'Hold with lungs full for 4 counts — stay relaxed, do not strain your throat.',
+      'Exhale smoothly for 4 counts, fully emptying the lungs.',
+      'Hold on empty for 4 counts, then begin the next cycle.',
+      'Repeat for the session duration. Let each cycle become more effortless.',
+    ],
+  },
+  {
+    id:'478',name:'4-7-8 Breathing',icon:'🌙',
+    blurb:'Dr. Andrew Weil\'s technique — a natural sedative for the nervous system. The extended exhale activates your parasympathetic response.',
+    c:'#8b7ec8',orb:'rgba(139,126,200,.16)',step:'rgba(139,126,200,.07)',
+    phases:[
+      {n:'INHALE',d:4,a:'anim-inhale'},
+      {n:'HOLD',  d:7,a:'anim-hold'},
+      {n:'EXHALE',d:8,a:'anim-exhale'},
+    ],
+    rhythm:[{l:'Inhale',v:4},{l:'Hold',v:7},{l:'Exhale',v:8}],
+    benefits:['Sleep aid','Anxiety relief','Lowers HR','Calming'],
+    durations:[2,5,10],
+    steps:[
+      'Rest the tip of your tongue against the ridge behind your upper front teeth throughout.',
+      'Exhale fully through your mouth, making a whoosh sound, to start fresh.',
+      'Close your mouth and inhale quietly through your nose for a count of 4.',
+      'Hold your breath for a count of 7 — this is the key step that deepens the effect.',
+      'Exhale completely through your mouth with a whoosh for a count of 8.',
+      'This completes one cycle. Beginners: 4 cycles. Work up to 8 over time.',
+      'Practice twice daily — morning and before bed — for best long-term results.',
+    ],
+  },
+  {
+    id:'coherent',name:'Coherent Breath',icon:'💚',
+    blurb:'Five breaths per minute resonates with your heart rate variability. Science shows this rhythm produces the deepest physiological calm.',
+    c:'#5a9e82',orb:'rgba(90,158,130,.16)',step:'rgba(90,158,130,.07)',
+    phases:[
+      {n:'INHALE',d:6,a:'anim-inhale'},
+      {n:'EXHALE',d:6,a:'anim-exhale'},
+    ],
+    rhythm:[{l:'Inhale',v:6},{l:'Exhale',v:6}],
+    benefits:['Balances HRV','Deep calm','Accessible','Daily use'],
+    durations:[5,10,20],
+    steps:[
+      'Find a comfortable seated or lying-down position, ideally in a quiet space.',
+      'Close your eyes and notice your natural breathing pattern for a moment.',
+      'Inhale through your nose for a count of 6 — a smooth, continuous breath.',
+      'Transition immediately into a smooth exhale for a count of 6. No hold.',
+      'Keep the flow between inhale and exhale as fluid and effortless as possible.',
+      'Your mind will wander — when it does, gently return to the count.',
+      'With practice this rhythm becomes meditative and deeply restorative.',
+    ],
+  },
+  {
+    id:'energy',name:'Energising Breath',icon:'🔥',
+    blurb:'An invigorating technique to super-oxygenate the body, sharpen alertness, and generate natural energy without caffeine.',
+    c:'#c4763a',orb:'rgba(196,118,58,.16)',step:'rgba(196,118,58,.07)',
+    phases:[
+      {n:'POWER IN', d:1, a:'anim-inhale'},
+      {n:'RELEASE',  d:1, a:'anim-exhale'},
+      {n:'RETAIN',   d:15,a:'anim-hold'},
+      {n:'RECOVER',  d:5, a:'anim-inhale'},
+    ],
+    rhythm:[{l:'Power In',v:1},{l:'Release',v:1},{l:'Retain',v:15},{l:'Recover',v:5}],
+    benefits:['Boosts energy','Warming','Focus','Pre-workout'],
+    durations:[5,10,15],
+    steps:[
+      'Sit comfortably. Do NOT practise this while driving or in water.',
+      'Take a powerful, full inhale through your nose or mouth — fill the chest.',
+      'Release immediately without force — let the breath fall out passively.',
+      'Repeat this rapid cycle 30 times, building rhythm like a bellows.',
+      'After the 30th exhale, exhale fully and hold on empty lungs.',
+      'When you feel the urge to breathe, take one deep recovery breath and hold 15 s.',
+      'Exhale and rest. You have completed one round. Three rounds is a full session.',
+    ],
+  },
+  {
+    id:'bodyscan',name:'Body Scan',icon:'🧘',
+    blurb:'A foundational mindfulness-based stress reduction (MBSR) practice that systematically releases tension and builds body awareness.',
+    c:'#b87c5a',orb:'rgba(184,124,90,.16)',step:'rgba(184,124,90,.07)',
+    phases:[
+      {n:'NOTICE',  d:30,a:'anim-hold'},
+      {n:'RELEASE', d:20,a:'anim-exhale'},
+      {n:'MOVE ON', d:10,a:'anim-inhale'},
+    ],
+    rhythm:[{l:'Notice',v:30},{l:'Release',v:20},{l:'Move On',v:10}],
+    benefits:['Body awareness','Releases tension','Improves sleep','MBSR-based'],
+    durations:[5,10,20],
+    steps:[
+      'Lie flat on your back — on a bed, yoga mat, or floor. Arms at your sides.',
+      'Close your eyes and take three natural breaths to settle. Feel the weight of your body.',
+      'Bring gentle attention to the soles of your feet. Notice any sensation — warmth, pressure.',
+      'Breathe into that area. On the exhale, imagine tension softening and dissolving.',
+      'Slowly move attention upward: ankles → calves → knees → thighs → hips.',
+      'Continue through belly, chest, hands, arms, shoulders, neck, face, crown.',
+      'At the top, let awareness expand to your whole body as one unified field of sensation.',
+    ],
+  },
+  {
+    id:'loving',name:'Loving-Kindness',icon:'💛',
+    blurb:'Metta meditation — scientifically shown to increase positive emotions, reduce self-criticism and loneliness, and build compassion.',
+    c:'#c4945a',orb:'rgba(196,148,90,.16)',step:'rgba(196,148,90,.07)',
+    phases:[
+      {n:'BREATHE',d:6,a:'anim-inhale'},
+      {n:'FEEL',   d:6,a:'anim-hold'},
+      {n:'RELEASE',d:6,a:'anim-exhale'},
+    ],
+    rhythm:[{l:'Breathe',v:6},{l:'Feel',v:6},{l:'Release',v:6}],
+    benefits:['Builds compassion','Reduces loneliness','Increases joy','Self-acceptance'],
+    durations:[5,10,15],
+    steps:[
+      'Sit comfortably, close your eyes, and place one hand over your heart.',
+      'Begin with yourself: silently say "May I be happy. May I be healthy. May I be at peace."',
+      'Visualise a warm golden light in your chest growing with every inhale.',
+      'Bring to mind someone you love. Extend the same phrases to them.',
+      'Expand to neutral people — a neighbour, a stranger on the street.',
+      'Finally extend loving-kindness to all beings everywhere without exception.',
+      'Return to yourself. Sit quietly for a moment feeling the warmth before opening your eyes.',
+    ],
+  },
+];
+
+const QUOTES = [
+  {q:'"Almost everything will work again if you unplug it for a few minutes — including you."',a:'Anne Lamott'},
+  {q:'"Within you there is a stillness and a sanctuary to which you can retreat at any time."',a:'Hermann Hesse'},
+  {q:'"The present moment is the only moment available to us, and it is the door to all moments."',a:'Thich Nhat Hanh'},
+  {q:'"You don\'t have to control your thoughts. You just have to stop letting them control you."',a:'Dan Millman'},
+  {q:'"Feelings come and go like clouds in a windy sky. Conscious breathing is my anchor."',a:'Thich Nhat Hanh'},
+];
+
+/* ────────────────────────────────────────────
+   THEME
+──────────────────────────────────────────── */
+function toggleTheme(){
+  const cur=document.documentElement.getAttribute('data-theme');
+  const nxt=cur==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',nxt);
+  localStorage.setItem('ms_theme',nxt);
+}
+
+/* ────────────────────────────────────────────
+   TASKS
+──────────────────────────────────────────── */
+function refreshTasks(){
+  const btn=document.getElementById('rfBtn');
+  btn.classList.add('spin');
+  setTimeout(()=>btn.classList.remove('spin'),560);
+  renderTasks();
+}
+function renderTasks(){
+  const pool=[...TASK_POOL].sort(()=>Math.random()-.5).slice(0,3);
+  document.getElementById('tasksGrid').innerHTML=pool.map((t,i)=>`
+    <div class="task-card" id="tc${i}" style="--tc:${t.c};--tic:${t.bg};animation-delay:${i*.1}s">
+      <div class="task-row1">
+        <div class="task-icon-box" style="background:${t.bg}">${t.icon}</div>
+        <button class="task-chk" onclick="toggleDone(${i})" aria-label="Mark done">✓</button>
+      </div>
+      <div class="task-cat">${t.cat}</div>
+      <div class="task-title">${t.title}</div>
+      <div class="task-desc">${t.desc}</div>
+      <div class="task-dur">⏱ ${t.dur}</div>
+    </div>`).join('');
+}
+function toggleDone(i){
+  document.getElementById('tc'+i).classList.toggle('done');
+}
+
+/* ────────────────────────────────────────────
+   TIMER ENGINE
+──────────────────────────────────────────── */
+const CIRC=2*Math.PI*90; // ≈ 565.5
+
+let ex=EXERCISES[0];
+let running=false,sessSeconds=0,sessTgt=5*60;
+let pIdx=0,pSecsLeft=0,pTotalSecs=0,cycles=0;
+let sessTimer=null,phaseTimer=null;
+
+function setExercise(e){
+  ex=e;
+  resetTimer();
+  renderGuide();
+  renderDurChips();
+  applyExColors();
+}
+
+function applyExColors(){
+  document.documentElement.style.setProperty('--ec',ex.c);
+  document.documentElement.style.setProperty('--estep',ex.step);
+  document.getElementById('breathOrb').style.setProperty('--orb',ex.orb);
+  document.getElementById('ringTrack').style.stroke=ex.c;
+  document.getElementById('playBtn').style.background=ex.c;
+  document.querySelectorAll('.ex-tab').forEach(t=>{
+    if(t.dataset.id===ex.id){
+      t.classList.add('active');
+      t.style.cssText=`--ec:${ex.c};background:${ex.c};border-color:${ex.c};color:#fff`;
+    } else {
+      t.classList.remove('active');
+      t.style.cssText='';
+    }
+  });
+}
+
+function renderGuide(){
+  document.getElementById('guidePane').innerHTML=`
+    <span class="ex-icon-big">${ex.icon}</span>
+    <div class="ex-name">${ex.name}</div>
+    <div class="ex-blurb">${ex.blurb}</div>
+    <div class="guide-rule"></div>
+    <div class="rhythm-row">
+      ${ex.rhythm.map(r=>`
+        <div class="rhy-pill">
+          <div class="rhy-lbl">${r.l}</div>
+          <div class="rhy-val">${r.v}</div>
+          <div class="rhy-unit">sec</div>
+        </div>`).join('')}
+    </div>
+    <div class="guide-rule"></div>
+    <div class="steps-lbl">Step-by-Step Guide</div>
+    <ul class="steps-list" id="stepsList">
+      ${ex.steps.map((s,i)=>`
+        <li class="step" id="stp${i}">
+          <div class="step-n">${i+1}</div>
+          <div class="step-txt">${s}</div>
+        </li>`).join('')}
+    </ul>
+    <div class="benefits">
+      ${ex.benefits.map(b=>`<span class="ben-tag">${b}</span>`).join('')}
+    </div>`;
+}
+
+function renderDurChips(){
+  document.getElementById('durRow').innerHTML=ex.durations.map(d=>`
+    <button class="dur-chip${d===sessTgt/60?' active':''}"
+      onclick="setDur(${d})">${d} min</button>`).join('');
+}
+
+function setDur(m){
+  sessTgt=m*60;
+  resetTimer();
+  renderDurChips();
+}
+
+function toggleTimer(){
+  running?pause():play();
+}
+
+function play(){
+  running=true;
+  document.getElementById('playBtn').textContent='⏸';
+  document.getElementById('doneOverlay').classList.remove('show');
+  if(pSecsLeft===0) beginPhase(0);
+  runSessClock();
+  runPhaseTick();
+}
+
+function pause(){
+  running=false;
+  document.getElementById('playBtn').textContent='▶';
+  clearInterval(sessTimer);
+  clearInterval(phaseTimer);
+}
+
+function resetTimer(){
+  pause();
+  sessSeconds=0;pIdx=0;pSecsLeft=0;cycles=0;pTotalSecs=0;
+  document.getElementById('ringCount').textContent='—';
+  document.getElementById('ringPhase').textContent='READY';
+  document.getElementById('elapsed').textContent='00:00';
+  document.getElementById('cyclesInfo').textContent='0 cycles completed';
+  document.getElementById('ringTrack').style.strokeDashoffset=CIRC;
+  document.getElementById('breathOrb').className='breath-orb';
+  document.getElementById('doneOverlay').classList.remove('show');
+  litStep(0);
+}
+
+function runSessClock(){
+  clearInterval(sessTimer);
+  sessTimer=setInterval(()=>{
+    sessSeconds++;
+    const m=String(Math.floor(sessSeconds/60)).padStart(2,'0');
+    const s=String(sessSeconds%60).padStart(2,'0');
+    document.getElementById('elapsed').textContent=m+':'+s;
+    if(sessSeconds>=sessTgt) completeSession();
+  },1000);
+}
+
+function beginPhase(idx){
+  pIdx=idx%ex.phases.length;
+  const p=ex.phases[pIdx];
+  pSecsLeft=p.d;pTotalSecs=p.d;
+  document.getElementById('ringPhase').textContent=p.n;
+  // orb
+  const orb=document.getElementById('breathOrb');
+  orb.className='breath-orb';
+  if(p.a==='anim-inhale') orb.style.setProperty('--id',p.d+'s');
+  if(p.a==='anim-exhale') orb.style.setProperty('--ed',p.d+'s');
+  void orb.offsetWidth;
+  orb.classList.add(p.a);
+  litStep(pIdx%ex.steps.length);
+}
+
+function runPhaseTick(){
+  clearInterval(phaseTimer);
+  if(pSecsLeft===0) beginPhase(pIdx);
+  updateRing();
+  phaseTimer=setInterval(()=>{
+    if(!running)return;
+    pSecsLeft--;
+    document.getElementById('ringCount').textContent=pSecsLeft>0?pSecsLeft:ex.phases[pIdx].d;
+    updateRing();
+    if(pSecsLeft<=0){
+      const nxt=pIdx+1;
+      if(nxt%ex.phases.length===0){
+        cycles++;
+        document.getElementById('cyclesInfo').textContent=cycles+(cycles===1?' cycle':' cycles')+' completed';
+      }
+      beginPhase(nxt);
+    }
+  },1000);
+  document.getElementById('ringCount').textContent=pSecsLeft;
+}
+
+function updateRing(){
+  const pct=1-(pSecsLeft/pTotalSecs);
+  document.getElementById('ringTrack').style.strokeDashoffset=Math.max(0,CIRC*(1-pct));
+}
+
+function skipPhase(){
+  if(!running)return;
+  const nxt=pIdx+1;
+  if(nxt%ex.phases.length===0){cycles++;document.getElementById('cyclesInfo').textContent=cycles+(cycles===1?' cycle':' cycles')+' completed';}
+  beginPhase(nxt);
+  pSecsLeft=ex.phases[pIdx].d;
+}
+
+function completeSession(){
+  pause();
+  document.getElementById('doneOverlay').classList.add('show');
+  document.getElementById('doneSub').textContent=
+    `${cycles} cycles · ${Math.round(sessSeconds/60)} min of ${ex.name}`;
+}
+
+function litStep(i){
+  document.querySelectorAll('.step').forEach((el,j)=>el.classList.toggle('lit',j===i));
+}
+
+/* ────────────────────────────────────────────
+   TABS
+──────────────────────────────────────────── */
+function renderTabs(){
+  document.getElementById('exTabs').innerHTML=EXERCISES.map(e=>`
+    <button class="ex-tab" data-id="${e.id}"
+      onclick="setExercise(EXERCISES.find(x=>x.id==='${e.id}'))">
+      ${e.icon} ${e.name}
+    </button>`).join('');
+}
+
+/* ────────────────────────────────────────────
+   INIT
+──────────────────────────────────────────── */
+(function init(){
+  // Theme
+  const saved=localStorage.getItem('ms_theme');
+  if(saved) document.documentElement.setAttribute('data-theme',saved);
+
+  // Date
+  document.getElementById('dateLbl').textContent=
+    new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).toUpperCase();
+
+  // Quote
+  const q=QUOTES[Math.floor(Math.random()*QUOTES.length)];
+  document.getElementById('quoteText').textContent=q.q;
+  document.getElementById('quoteAttr').textContent='— '+q.a;
+
+  renderTasks();
+  renderTabs();
+  setExercise(EXERCISES[0]);
+})();
+</script>
+</body>
+</html>

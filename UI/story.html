@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Write Your Story</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --ease: cubic-bezier(0.4,0,0.2,1);
+  --spring: cubic-bezier(0.34,1.56,0.64,1);
+  --dur: 0.35s;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+[data-theme="dark"] {
+  --bg:        #0c0c10;
+  --bg2:       #111117;
+  --bg3:       #18181f;
+  --bg4:       #1f1f28;
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.13);
+  --text:      #e8e6f0;
+  --text2:     rgba(232,230,240,0.55);
+  --text3:     rgba(232,230,240,0.3);
+  --accent:    #c9a96e;
+  --accent2:   rgba(201,169,110,0.12);
+  --accent3:   rgba(201,169,110,0.06);
+  --danger:    #e05252;
+  --success:   #5ec98a;
+  --ink:       #e8e6f0;
+  --paper:     #111117;
+  --shadow:    0 8px 40px rgba(0,0,0,0.5);
+  --shadow-sm: 0 2px 12px rgba(0,0,0,0.35);
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+[data-theme="light"] {
+  --bg:        #f5f0e8;
+  --bg2:       #faf7f2;
+  --bg3:       #ffffff;
+  --bg4:       #f0ebe0;
+  --border:    rgba(0,0,0,0.07);
+  --border2:   rgba(0,0,0,0.14);
+  --text:      #1a1814;
+  --text2:     rgba(26,24,20,0.55);
+  --text3:     rgba(26,24,20,0.3);
+  --accent:    #8b6914;
+  --accent2:   rgba(139,105,20,0.1);
+  --accent3:   rgba(139,105,20,0.05);
+  --danger:    #c0392b;
+  --success:   #27ae60;
+  --ink:       #1a1814;
+  --paper:     #faf7f2;
+  --shadow:    0 8px 40px rgba(0,0,0,0.12);
+  --shadow-sm: 0 2px 12px rgba(0,0,0,0.08);
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+}
+
+/* ─── RESET ──────────────────────────────────────────────── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Epilogue', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  transition: background 0.4s var(--ease), color 0.4s var(--ease);
+  overflow-x: hidden;
+}
+
+/* ─── BACKGROUND TEXTURE ────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: var(--grain);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 1;
+}
+
+/* Ambient orbs */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity 0.6s;
+}
+.orb-a {
+  width: 600px; height: 400px;
+  top: -100px; right: -100px;
+  background: radial-gradient(ellipse, rgba(201,169,110,0.08) 0%, transparent 70%);
+}
+.orb-b {
+  width: 500px; height: 500px;
+  bottom: -150px; left: -100px;
+  background: radial-gradient(ellipse, rgba(100,90,160,0.07) 0%, transparent 70%);
+}
+
+[data-theme="light"] .orb-a { background: radial-gradient(ellipse, rgba(139,105,20,0.1) 0%, transparent 70%); }
+[data-theme="light"] .orb-b { background: radial-gradient(ellipse, rgba(100,80,40,0.06) 0%, transparent 70%); }
+
+/* ─── LAYOUT ─────────────────────────────────────────────── */
+.app {
+  position: relative;
+  z-index: 1;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+/* ─── HEADER ─────────────────────────────────────────────── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32px 0 0;
+  margin-bottom: 0;
+}
+
+.wordmark {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  animation: fadeSlideDown 0.7s var(--ease) both;
+}
+
+.wordmark-top {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.wordmark-main {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  line-height: 1;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: fadeSlideDown 0.7s 0.1s var(--ease) both;
+}
+
+/* Theme toggle */
+.theme-btn {
+  width: 44px; height: 24px;
+  border-radius: 100px;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  cursor: pointer;
+  position: relative;
+  transition: background 0.3s, border-color 0.3s;
+  flex-shrink: 0;
+}
+
+.theme-btn::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  transition: transform 0.3s var(--spring), background 0.3s;
+}
+
+[data-theme="light"] .theme-btn::after { transform: translateX(20px); }
+
+.theme-icon {
+  position: absolute;
+  font-size: 9px;
+  top: 50%; transform: translateY(-50%);
+  transition: opacity 0.3s;
+}
+.icon-moon { right: 5px; opacity: 1; }
+.icon-sun  { left: 5px;  opacity: 0; }
+[data-theme="light"] .icon-moon { opacity: 0; }
+[data-theme="light"] .icon-sun  { opacity: 1; }
+
+.view-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  color: var(--text2);
+  font-family: 'Epilogue', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.view-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent3); }
+.view-btn svg { width: 13px; height: 13px; }
+
+/* ─── DIVIDER ORNAMENT ──────────────────────────────────── */
+.ornament {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 28px 0 32px;
+  animation: fadeIn 0.8s 0.2s both;
+}
+
+.ornament-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border2));
+}
+.ornament-line.right {
+  background: linear-gradient(90deg, var(--border2), transparent);
+}
+
+.ornament-sym {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  color: var(--accent);
+  opacity: 0.7;
+  user-select: none;
+}
+
+/* ─── WELCOME / NAME GATE ───────────────────────────────── */
+#welcomeScreen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  text-align: center;
+  animation: fadeSlideUp 0.8s var(--ease) both;
+}
+
+.welcome-heading {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(44px, 8vw, 76px);
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+}
+
+.welcome-heading em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.welcome-sub {
+  font-size: 15px;
+  color: var(--text2);
+  margin-bottom: 48px;
+  font-weight: 300;
+  letter-spacing: 0.2px;
+}
+
+.name-input-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  margin-bottom: 16px;
+}
+
+.name-input-wrap input {
+  width: 100%;
+  padding: 16px 20px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'Epilogue', sans-serif;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  text-align: center;
+}
+
+.name-input-wrap input::placeholder { color: var(--text3); }
+.name-input-wrap input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent2);
+}
+
+.btn-enter {
+  width: 100%;
+  max-width: 380px;
+  padding: 15px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--accent);
+  color: #0c0c10;
+  font-family: 'Epilogue', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s var(--spring);
+}
+.btn-enter:hover { opacity: 0.88; transform: translateY(-2px); }
+.btn-enter:active { transform: translateY(0); }
+
+/* ─── MAIN EDITOR ────────────────────────────────────────── */
+#editorScreen { display: none; }
+#editorScreen.visible { display: block; animation: fadeSlideUp 0.6s var(--ease) both; }
+
+/* Date / greeting bar */
+.greeting-bar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.greeting-left {}
+
+.greeting-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  font-weight: 300;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.greeting-name span { color: var(--accent); font-style: italic; }
+
+.greeting-date {
+  font-size: 12px;
+  color: var(--text3);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+.greeting-streak {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--accent);
+  background: var(--accent2);
+  border: 1px solid rgba(201,169,110,0.2);
+  padding: 6px 12px;
+  border-radius: 100px;
+  font-weight: 500;
+}
+
+/* Editor card */
+.editor-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.3s;
+  margin-bottom: 20px;
+}
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg3);
+  flex-wrap: wrap;
+}
+
+.tool-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border2);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.tool-btn {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  color: var(--text2);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  font-family: 'Epilogue', sans-serif;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.tool-btn:hover { background: var(--bg4); color: var(--text); }
+.tool-btn.active { background: var(--accent2); color: var(--accent); }
+
+.tool-btn svg { width: 14px; height: 14px; }
+
+/* Mood picker in toolbar */
+.mood-picker {
+  display: flex; gap: 3px; margin-left: auto;
+}
+
+.mood-opt {
+  font-size: 16px;
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0.55;
+}
+.mood-opt:hover { opacity: 1; background: var(--bg4); }
+.mood-opt.selected { opacity: 1; background: var(--accent2); border: 1px solid var(--border2); }
+
+/* Title + body */
+.entry-title-input {
+  width: 100%;
+  padding: 24px 28px 12px;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  font-weight: 400;
+  color: var(--text);
+  letter-spacing: -0.3px;
+  resize: none;
+  line-height: 1.3;
+}
+
+.entry-title-input::placeholder { color: var(--text3); font-style: italic; }
+
+.entry-body {
+  width: 100%;
+  min-height: 300px;
+  padding: 8px 28px 28px;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 19px;
+  font-weight: 300;
+  line-height: 1.85;
+  color: var(--text);
+  resize: none;
+  letter-spacing: 0.1px;
+}
+
+.entry-body::placeholder { color: var(--text3); font-style: italic; }
+
+/* Word count */
+.word-count {
+  padding: 10px 28px;
+  font-size: 11px;
+  color: var(--text3);
+  border-top: 1px solid var(--border);
+  letter-spacing: 0.5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Action bar below editor */
+.action-bar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 36px;
+}
+
+.btn {
+  padding: 12px 22px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border2);
+  font-family: 'Epilogue', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  display: flex; align-items: center; gap: 8px;
+  letter-spacing: 0.2px;
+}
+
+.btn-save {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0c0c10;
+  flex: 1;
+  justify-content: center;
+}
+.btn-save:hover { opacity: 0.85; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(201,169,110,0.25); }
+
+.btn-outline {
+  background: var(--bg3);
+  color: var(--text2);
+}
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); background: var(--accent3); transform: translateY(-1px); }
+
+.btn-upload {
+  background: var(--bg3);
+  color: var(--text2);
+}
+.btn-upload:hover { border-color: var(--accent); color: var(--accent); background: var(--accent3); transform: translateY(-1px); }
+
+#fileInput { display: none; }
+
+/* Upload drop zone */
+.drop-zone {
+  border: 2px dashed var(--border2);
+  border-radius: var(--radius);
+  padding: 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 20px;
+  display: none;
+  animation: fadeSlideUp 0.3s var(--ease) both;
+}
+
+.drop-zone.open { display: block; }
+.drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: var(--accent3); }
+.drop-zone-icon { font-size: 32px; margin-bottom: 10px; opacity: 0.5; }
+.drop-zone-text { font-size: 14px; color: var(--text2); }
+.drop-zone-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+
+/* ─── ENTRIES LIST ──────────────────────────────────────── */
+.entries-section {}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.2px;
+}
+
+.entries-count {
+  font-size: 11px;
+  color: var(--text3);
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+
+.entries-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.entry-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  position: relative;
+  overflow: hidden;
+  animation: fadeSlideUp 0.4s var(--ease) both;
+}
+
+.entry-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s var(--ease);
+}
+
+.entry-card:hover {
+  border-color: var(--border2);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-3px);
+}
+
+.entry-card:hover::before { transform: scaleX(1); }
+
+.entry-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.entry-card-mood { font-size: 20px; }
+
+.entry-card-date {
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.entry-card-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: -0.2px;
+  margin-bottom: 8px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.entry-card-preview {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.65;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 14px;
+}
+
+.entry-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.entry-wc {
+  font-size: 11px;
+  color: var(--text3);
+}
+
+.entry-actions {
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.entry-card:hover .entry-actions { opacity: 1; }
+
+.entry-action-btn {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text2);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  transition: all 0.15s;
+}
+.entry-action-btn:hover { border-color: var(--accent); color: var(--accent); }
+.entry-action-btn.del:hover { border-color: var(--danger); color: var(--danger); }
+
+.empty-entries {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text3);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  font-style: italic;
+}
+
+/* ─── VIEW MODAL ─────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(6px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.modal-backdrop.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+  transform: translateY(24px) scale(0.97);
+  transition: transform 0.35s var(--spring);
+}
+
+.modal-backdrop.open .modal {
+  transform: translateY(0) scale(1);
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 28px 32px 20px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg2);
+  z-index: 1;
+}
+
+.modal-title-area {}
+
+.modal-entry-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 400;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.modal-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text3);
+  letter-spacing: 0.4px;
+}
+
+.modal-close {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text2);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+.modal-close:hover { border-color: var(--danger); color: var(--danger); }
+
+.modal-body {
+  padding: 28px 32px 36px;
+}
+
+.modal-content {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 19px;
+  font-weight: 300;
+  line-height: 1.85;
+  color: var(--text);
+  white-space: pre-wrap;
+  letter-spacing: 0.1px;
+}
+
+/* ─── TOAST ─────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 100px;
+  padding: 11px 22px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  box-shadow: var(--shadow);
+  z-index: 999;
+  transition: transform 0.4s var(--spring), opacity 0.3s;
+  opacity: 0;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+/* ─── KEYFRAMES ──────────────────────────────────────────── */
+@keyframes fadeSlideUp {
+  from { opacity:0; transform: translateY(20px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+@keyframes fadeSlideDown {
+  from { opacity:0; transform: translateY(-12px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+/* ─── SCROLLBAR ───────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 100px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ─── RESPONSIVE ─────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .greeting-bar { flex-direction: column; align-items: flex-start; }
+  .action-bar { flex-direction: column; }
+  .modal-header { padding: 20px; }
+  .modal-body { padding: 20px; }
+  .modal-content { font-size: 17px; }
+}
+
+/* ─── WRITING LINE ANIMATION ────────────────────────────── */
+.entry-body:focus, .entry-title-input:focus {
+  caret-color: var(--accent);
+}
+
+/* Search bar */
+.search-wrap {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 11px 16px 11px 40px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'Epilogue', sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-input::placeholder { color: var(--text3); }
+.search-input:focus { border-color: var(--border2); }
+
+.search-icon {
+  position: absolute;
+  left: 14px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text3);
+  width: 14px; height: 14px;
+  pointer-events: none;
+}
+
+/* Saving indicator */
+.saving-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  display: inline-block;
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+</style>
+</head>
+<body>
+
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+
+<div class="app">
+  <header>
+    <div class="wordmark">
+      <div class="wordmark-top">Personal Journal</div>
+      <div class="wordmark-main">Write Your Story</div>
+    </div>
+    <div class="header-controls">
+      <button class="view-btn" onclick="openAllEntries()" title="View all entries">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="3" width="5" height="4" rx="1"/><rect x="9" y="3" width="5" height="4" rx="1"/>
+          <rect x="2" y="9" width="5" height="4" rx="1"/><rect x="9" y="9" width="5" height="4" rx="1"/>
+        </svg>
+        All Entries
+      </button>
+      <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle dark/light mode">
+        <span class="theme-icon icon-moon">🌙</span>
+        <span class="theme-icon icon-sun">☀️</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="ornament">
+    <div class="ornament-line"></div>
+    <div class="ornament-sym">✦</div>
+    <div class="ornament-line right"></div>
+  </div>
+
+  <!-- Welcome Screen -->
+  <div id="welcomeScreen">
+    <div class="welcome-heading">
+      Every day is a<br>new <em>chapter.</em>
+    </div>
+    <div class="welcome-sub">Tell your story, one entry at a time.</div>
+    <div class="name-input-wrap">
+      <input type="text" id="nameInput" placeholder="What's your name?" maxlength="40" autocomplete="off"
+        onkeydown="if(event.key==='Enter')enterJournal()">
+    </div>
+    <button class="btn-enter" onclick="enterJournal()">Begin Writing →</button>
+  </div>
+
+  <!-- Editor Screen -->
+  <div id="editorScreen">
+
+    <div class="greeting-bar">
+      <div class="greeting-left">
+        <div class="greeting-name">Good <span id="greetingTime">morning</span>, <span id="greetingName">friend</span>.</div>
+        <div class="greeting-date" id="greetingDate"></div>
+      </div>
+      <div class="greeting-streak" id="streakBadge">
+        ✦ <span id="streakText">Start your streak</span>
+      </div>
+    </div>
+
+    <!-- Drop Zone -->
+    <div class="drop-zone" id="dropZone"
+      ondragover="handleDragOver(event)" ondragleave="handleDragLeave()" ondrop="handleDrop(event)"
+      onclick="document.getElementById('fileInput').click()">
+      <div class="drop-zone-icon">📄</div>
+      <div class="drop-zone-text">Drop your file here, or click to browse</div>
+      <div class="drop-zone-sub">Supports .txt, .md files — content will be loaded into the editor</div>
+    </div>
+    <input type="file" id="fileInput" accept=".txt,.md,.text" onchange="handleFileSelect(event)">
+
+    <!-- Editor Card -->
+    <div class="editor-card">
+      <div class="toolbar">
+        <button class="tool-btn" onclick="format('bold')" title="Bold"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2h4.5a3.5 3.5 0 012.5 5.97A3.5 3.5 0 019 14H4V2zm2 5h2.5a1.5 1.5 0 000-3H6v3zm0 2v3h3a1.5 1.5 0 000-3H6z"/></svg></button>
+        <button class="tool-btn" onclick="format('italic')" title="Italic"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M6 2h6v2H9.5l-3 8H9v2H3v-2h2.5l3-8H6V2z"/></svg></button>
+        <button class="tool-btn" onclick="format('underline')" title="Underline"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 13h10v1.5H3V13zM8 11a4 4 0 004-4V2H10v5a2 2 0 01-4 0V2H4v5a4 4 0 004 4z"/></svg></button>
+
+        <div class="tool-sep"></div>
+
+        <button class="tool-btn" id="btnH1" onclick="insertHeading()" title="Heading">H</button>
+        <button class="tool-btn" id="btnQuote" onclick="insertQuote()" title="Quote">❝</button>
+        <button class="tool-btn" id="btnHr" onclick="insertHr()" title="Divider">—</button>
+
+        <div class="tool-sep"></div>
+
+        <button class="tool-btn" onclick="clearEditor()" title="Clear editor">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4">
+            <path d="M3 3l10 10M13 3L3 13"/>
+          </svg>
+        </button>
+
+        <button class="tool-btn" onclick="toggleUpload()" title="Upload file">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4">
+            <path d="M8 11V4M5 7l3-3 3 3"/><path d="M3 12h10"/>
+          </svg>
+        </button>
+
+        <div class="mood-picker" id="moodPicker">
+          <button class="mood-opt selected" data-mood="✍️" onclick="selectMood(this)" title="Writing">✍️</button>
+          <button class="mood-opt" data-mood="😊" onclick="selectMood(this)" title="Happy">😊</button>
+          <button class="mood-opt" data-mood="😔" onclick="selectMood(this)" title="Sad">😔</button>
+          <button class="mood-opt" data-mood="🔥" onclick="selectMood(this)" title="Inspired">🔥</button>
+          <button class="mood-opt" data-mood="🌿" onclick="selectMood(this)" title="Calm">🌿</button>
+          <button class="mood-opt" data-mood="💭" onclick="selectMood(this)" title="Reflective">💭</button>
+        </div>
+      </div>
+
+      <textarea class="entry-title-input" id="entryTitle" placeholder="Give this entry a title…" rows="1" oninput="autoGrow(this); updateWordCount();"></textarea>
+      <textarea class="entry-body" id="entryBody" placeholder="Begin writing… let your thoughts flow freely onto the page. There are no rules here — only your story." oninput="autoGrow(this); updateWordCount(); autoSaveDraft();"></textarea>
+
+      <div class="word-count">
+        <span id="wordCountDisplay">0 words</span>
+        <span id="autoSaveStatus" style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)"></span>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-bar">
+      <button class="btn btn-save" onclick="saveEntry()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l3.5 3.5L13 4"/></svg>
+        Save Entry
+      </button>
+      <button class="btn btn-upload" onclick="toggleUpload()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 11V4M5 7l3-3 3 3"/><path d="M3 12h10"/></svg>
+        Upload File
+      </button>
+      <button class="btn btn-outline" onclick="exportEntry()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v9M5 9l3 3 3-3"/><path d="M3 13h10"/></svg>
+        Export
+      </button>
+    </div>
+
+    <!-- Entries Section -->
+    <div class="entries-section" id="entriesSection">
+      <div class="section-head">
+        <div class="section-title">Your Entries</div>
+        <div class="entries-count" id="entriesCount">0 entries</div>
+      </div>
+
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="6.5" cy="6.5" r="4"/><path d="M11 11l2.5 2.5"/>
+        </svg>
+        <input class="search-input" id="searchInput" type="text" placeholder="Search your entries…" oninput="renderEntries()">
+      </div>
+
+      <div class="entries-grid" id="entriesGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- View Entry Modal -->
+<div class="modal-backdrop" id="viewModal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title-area">
+        <div class="modal-entry-title" id="modalTitle">—</div>
+        <div class="modal-meta">
+          <span id="modalMood"></span>
+          <span>·</span>
+          <span id="modalDate"></span>
+          <span>·</span>
+          <span id="modalWords"></span>
+        </div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('viewModal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-content" id="modalContent"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────
+let userName = localStorage.getItem('wys_name') || '';
+let entries  = [];
+let selectedMood = '✍️';
+let draftTimer = null;
+let editingId = null;
+
+// ─── INIT ─────────────────────────────────────────────────
+(function init() {
+  setGreetingDate();
+  loadTheme();
+  if (userName) {
+    showEditor();
+  } else {
+    document.getElementById('welcomeScreen').style.display = 'flex';
+    document.getElementById('editorScreen').classList.remove('visible');
+  }
+  loadDraft();
+  window.addEventListener('resize', () => {
+    ['entryTitle','entryBody'].forEach(id => autoGrow(document.getElementById(id)));
+  });
+})();
+
+function loadTheme() {
+  const t = localStorage.getItem('wys_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+}
+
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('wys_theme', next);
+}
+
+// ─── ENTER JOURNAL ────────────────────────────────────────
+function enterJournal() {
+  const input = document.getElementById('nameInput');
+  const name  = input.value.trim();
+  if (!name) { input.focus(); input.style.borderColor = 'var(--danger)'; setTimeout(() => input.style.borderColor = '', 1000); return; }
+  userName = name;
+  localStorage.setItem('wys_name', name);
+  document.getElementById('welcomeScreen').style.animation = 'none';
+  document.getElementById('welcomeScreen').style.opacity = '0';
+  document.getElementById('welcomeScreen').style.transform = 'translateY(-20px)';
+  document.getElementById('welcomeScreen').style.transition = 'all 0.4s';
+  setTimeout(showEditor, 350);
+}
+
+function showEditor() {
+  document.getElementById('welcomeScreen').style.display = 'none';
+  const el = document.getElementById('editorScreen');
+  el.classList.add('visible');
+  document.getElementById('greetingName').textContent = userName;
+  updateStreak();
+ loadEntriesFromDB();
+  setGreetingDate();
+  updateWordCount();
+}
+
+// ─── DATE / GREETING ──────────────────────────────────────
+function setGreetingDate() {
+  const now = new Date();
+  const h = now.getHours();
+  const times = ['midnight', 'morning', 'morning', 'morning', 'afternoon', 'afternoon', 'evening', 'evening'];
+  const seg = h < 3 ? 0 : h < 12 ? 1 : h < 17 ? 4 : 6;
+  document.getElementById('greetingTime').textContent = times[seg];
+  const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+  document.getElementById('greetingDate').textContent = now.toLocaleDateString('en-IN', opts).toUpperCase();
+}
+
+// ─── STREAK ───────────────────────────────────────────────
+function updateStreak() {
+  if (!entries.length) { document.getElementById('streakText').textContent = 'Start your streak'; return; }
+  const days = new Set(entries.map(e => e.date.split('T')[0]));
+  const today = new Date().toISOString().split('T')[0];
+  let streak = 0, d = new Date();
+  while (true) {
+    if (days.has(d.toISOString().split('T')[0])) { streak++; d.setDate(d.getDate()-1); }
+    else break;
+    if (streak > 365) break;
+  }
+  document.getElementById('streakText').textContent = streak > 1 ? `${streak} day streak` : days.has(today) ? 'Wrote today ✓' : 'Write today!';
+}
+
+// ─── AUTO GROW TEXTAREA ───────────────────────────────────
+function autoGrow(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+// ─── WORD COUNT ───────────────────────────────────────────
+function updateWordCount() {
+  const title = document.getElementById('entryTitle').value.trim();
+  const body  = document.getElementById('entryBody').value.trim();
+  const total = (title + ' ' + body).split(/\s+/).filter(Boolean).length;
+  document.getElementById('wordCountDisplay').textContent = total + (total === 1 ? ' word' : ' words');
+}
+
+// ─── AUTO SAVE DRAFT ──────────────────────────────────────
+function autoSaveDraft() {
+  clearTimeout(draftTimer);
+  const status = document.getElementById('autoSaveStatus');
+  status.innerHTML = `<span style="color:var(--text3)">Saving…</span>`;
+  draftTimer = setTimeout(() => {
+    localStorage.setItem('wys_draft_title', document.getElementById('entryTitle').value);
+    localStorage.setItem('wys_draft_body',  document.getElementById('entryBody').value);
+    status.innerHTML = `<span class="saving-dot"></span><span>Draft saved</span>`;
+    setTimeout(() => status.innerHTML = '', 3000);
+  }, 1200);
+}
+
+function loadDraft() {
+  const t = localStorage.getItem('wys_draft_title') || '';
+  const b = localStorage.getItem('wys_draft_body')  || '';
+  if (t || b) {
+    document.getElementById('entryTitle').value = t;
+    document.getElementById('entryBody').value  = b;
+    setTimeout(() => {
+      autoGrow(document.getElementById('entryTitle'));
+      autoGrow(document.getElementById('entryBody'));
+      updateWordCount();
+    }, 100);
+  }
+}
+
+// ─── TOOLBAR ─────────────────────────────────────────────
+function format(cmd) {
+  const ta = document.getElementById('entryBody');
+  const start = ta.selectionStart, end = ta.selectionEnd;
+  const sel = ta.value.substring(start, end);
+  if (!sel) return;
+  let wrap = cmd === 'bold' ? '**' : cmd === 'italic' ? '_' : '__';
+  ta.setRangeText(wrap + sel + wrap, start, end, 'select');
+  autoSaveDraft();
+}
+
+function insertHeading() {
+  const ta = document.getElementById('entryBody');
+  const pos = ta.selectionStart;
+  const lineStart = ta.value.lastIndexOf('\n', pos - 1) + 1;
+  ta.setRangeText('\n## ', lineStart, lineStart, 'end');
+  ta.focus();
+}
+
+function insertQuote() {
+  const ta = document.getElementById('entryBody');
+  const pos = ta.selectionStart;
+  ta.setRangeText('\n> ', pos, pos, 'end');
+  ta.focus();
+}
+
+function insertHr() {
+  const ta = document.getElementById('entryBody');
+  const pos = ta.selectionEnd;
+  ta.setRangeText('\n\n---\n\n', pos, pos, 'end');
+  autoGrow(ta);
+  ta.focus();
+}
+
+function clearEditor() {
+  if ((document.getElementById('entryBody').value || document.getElementById('entryTitle').value) &&
+      !confirm('Clear the editor? Unsaved changes will be lost.')) return;
+  document.getElementById('entryTitle').value = '';
+  document.getElementById('entryBody').value  = '';
+  editingId = null;
+  autoGrow(document.getElementById('entryTitle'));
+  autoGrow(document.getElementById('entryBody'));
+  updateWordCount();
+  localStorage.removeItem('wys_draft_title');
+  localStorage.removeItem('wys_draft_body');
+}
+
+function selectMood(btn) {
+  document.querySelectorAll('.mood-opt').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedMood = btn.dataset.mood;
+}
+
+// ─── UPLOAD ──────────────────────────────────────────────
+function toggleUpload() {
+  const dz = document.getElementById('dropZone');
+  dz.classList.toggle('open');
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.add('drag-over');
+}
+
+function handleDragLeave() {
+  document.getElementById('dropZone').classList.remove('drag-over');
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  handleDragLeave();
+  const file = e.dataTransfer.files[0];
+  if (file) readFile(file);
+}
+
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (file) readFile(file);
+  e.target.value = '';
+}
+
+function readFile(file) {
+  if (!file.name.match(/\.(txt|md|text)$/i)) { showToast('⚠️ Please use .txt or .md files'); return; }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const content = e.target.result;
+    document.getElementById('entryBody').value += (document.getElementById('entryBody').value ? '\n\n' : '') + content;
+    if (!document.getElementById('entryTitle').value) {
+      document.getElementById('entryTitle').value = file.name.replace(/\.(txt|md|text)$/i, '');
+    }
+    autoGrow(document.getElementById('entryBody'));
+    autoGrow(document.getElementById('entryTitle'));
+    updateWordCount();
+    document.getElementById('dropZone').classList.remove('open');
+    showToast('📄 File loaded into editor');
+  };
+  reader.readAsText(file);
+}
+
+// ─── SAVE ENTRY ───────────────────────────────────────────
+async function saveEntry() {
+  const title = document.getElementById('entryTitle').value.trim() || 'Untitled';
+  const body  = document.getElementById('entryBody').value.trim();
+
+  if (!body) {
+    showToast('✦ Write something first!');
+    return;
+  }
+
+  const wc = body.split(/\s+/).filter(Boolean).length;
+
+  const entry = {
+    name: userName,
+    title,
+    body,
+    mood: selectedMood,
+    wc
+  };
+
+  try {
+    const res = await fetch('http://localhost:5000/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry)
+    });
+
+    const data = await res.text();
+    console.log(data);
+
+    showToast('Saved to database ✅');
+
+    // OPTIONAL: clear editor
+    document.getElementById('entryTitle').value = '';
+    document.getElementById('entryBody').value  = '';
+
+  } catch (err) {
+    console.error(err);
+    showToast('Error saving ❌');
+  }
+}
+// ─── EXPORT ──────────────────────────────────────────────
+function exportEntry() {
+  const title = document.getElementById('entryTitle').value.trim() || 'My Entry';
+  const body  = document.getElementById('entryBody').value.trim();
+  if (!body) { showToast('Nothing to export yet'); return; }
+  const date = new Date().toLocaleDateString('en-IN', { year:'numeric', month:'long', day:'numeric' });
+  const content = `${title}\n${date}\nBy ${userName}\n\n${'─'.repeat(40)}\n\n${body}`;
+  const blob = new Blob([content], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = title.replace(/[^a-z0-9]/gi,'_').toLowerCase() + '.txt';
+  a.click();
+  showToast('📥 Entry exported');
+}
+
+// ─── RENDER ENTRIES ───────────────────────────────────────
+function renderEntries() {
+  const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  const filtered = entries.filter(e =>
+    e.title.toLowerCase().includes(q) || e.body.toLowerCase().includes(q)
+  );
+  const grid = document.getElementById('entriesGrid');
+  document.getElementById('entriesCount').textContent = entries.length + (entries.length===1?' entry':' entries');
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty-entries">${entries.length ? 'No entries match your search.' : 'Your story awaits the first word…'}</div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map((e, i) => {
+    const d = new Date(e.date);
+    const dateStr = d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }).toUpperCase();
+    const preview = e.body.replace(/[#*_>`\-]{1,3}/g,'').substring(0, 140);
+    return `
+      <div class="entry-card" style="animation-delay:${i * 0.05}s" onclick="viewEntry('${e.id}')">
+        <div class="entry-card-header">
+          <div>
+            <div class="entry-card-date">${dateStr}</div>
+          </div>
+          <div style="font-size:20px">${e.mood || '✍️'}</div>
+        </div>
+        <div class="entry-card-title">${escHtml(e.title)}</div>
+        <div class="entry-card-preview">${escHtml(preview)}${e.body.length > 140 ? '…' : ''}</div>
+        <div class="entry-card-footer">
+          <span class="entry-wc">${e.wc} words</span>
+          <div class="entry-actions">
+            <button class="entry-action-btn" onclick="editEntry(event,'${e.id}')" title="Edit">✎</button>
+            <button class="entry-action-btn" onclick="exportSingle(event,'${e.id}')" title="Export">↓</button>
+            <button class="entry-action-btn del" onclick="deleteEntry(event,'${e.id}')" title="Delete">✕</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ─── VIEW ENTRY ──────────────────────────────────────────
+function viewEntry(id) {
+  const e = entries.find(x => x.id === id);
+  if (!e) return;
+  const d = new Date(e.date);
+  const dateStr = d.toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  document.getElementById('modalTitle').textContent = e.title;
+  document.getElementById('modalMood').textContent = e.mood + ' Mood';
+  document.getElementById('modalDate').textContent = dateStr;
+  document.getElementById('modalWords').textContent = e.wc + ' words';
+  document.getElementById('modalContent').textContent = e.body;
+  document.getElementById('viewModal').classList.add('open');
+}
+
+function openAllEntries() {
+  if (!userName) { showToast('Please enter your name first'); return; }
+  document.querySelector('.entries-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('viewModal')) {
+    document.getElementById('viewModal').classList.remove('open');
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('viewModal').classList.remove('open');
+});
+
+// ─── EDIT / DELETE ────────────────────────────────────────
+function editEntry(e, id) {
+  e.stopPropagation();
+  const entry = entries.find(x => x.id === id);
+  if (!entry) return;
+  document.getElementById('entryTitle').value = entry.title;
+  document.getElementById('entryBody').value  = entry.body;
+  selectedMood = entry.mood || '✍️';
+  document.querySelectorAll('.mood-opt').forEach(b => {
+    b.classList.toggle('selected', b.dataset.mood === selectedMood);
+  });
+  editingId = id;
+  autoGrow(document.getElementById('entryTitle'));
+  autoGrow(document.getElementById('entryBody'));
+  updateWordCount();
+  document.getElementById('entryTitle').scrollIntoView({ behavior:'smooth', block:'center' });
+  document.getElementById('entryTitle').focus();
+  showToast('✎ Editing entry — save to update');
+}
+async function deleteEntry(e, id) {
+  e.stopPropagation();
+
+  if (!confirm('Delete this entry?')) return;
+
+  await fetch(`http://localhost:5000/delete/${id}`, {
+    method: 'DELETE'
+  });
+
+  loadEntriesFromDB();
+  showToast('Entry deleted');
+}
+
+function exportSingle(e, id) {
+  e.stopPropagation();
+  const entry = entries.find(x => x.id === id);
+  if (!entry) return;
+  const date = new Date(entry.date).toLocaleDateString('en-IN',{year:'numeric',month:'long',day:'numeric'});
+  const content = `${entry.title}\n${date}\nBy ${userName}\n\n${'─'.repeat(40)}\n\n${entry.body}`;
+  const blob = new Blob([content], {type:'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = entry.title.replace(/[^a-z0-9]/gi,'_').toLowerCase()+'.txt'; a.click();
+  showToast('📥 Exported');
+}
+
+// ─── HELPERS ──────────────────────────────────────────────
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+async function loadEntriesFromDB() {
+  try {
+    const res = await fetch('http://localhost:5000/entries');
+    let data = await res.json();
+
+    entries = data.map(e => ({
+      id: e.id.toString(),
+      title: e.title,
+      body: e.body,
+      mood: e.mood,
+      wc: e.wc,
+      date: e.created_at
+    }));
+
+    renderEntries();
+  } catch (err) {
+    console.error(err);
+  }
+}
+</script>
+</body>
+</html>

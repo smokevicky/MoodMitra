@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SereniTune</title>
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Poppins',sans-serif;
+    transition:0.4s;
+    overflow-x:hidden;
+}
+
+body.dark{
+    background:linear-gradient(-45deg,#1e3c72,#2a5298,#16222A,#3A6073);
+    background-size:400% 400%;
+    animation:gradientMove 12s ease infinite;
+    color:white;
+}
+
+body.light{
+    background:linear-gradient(-45deg,
+        #fdfbfb,
+        #ebedee,
+        #dbeafe,
+        #28a8bf
+    );
+    background-size:400% 400%;
+    animation:gradientMoveLight 18s ease infinite;
+    color:#222;
+
+}
+
+@keyframes gradientMove{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+}
+
+/* Floating Blobs */
+.blob{
+    position:fixed;
+    width:300px;
+    height:300px;
+    background:rgba(255,255,255,0.08);
+    border-radius:50%;
+    filter:blur(80px);
+    z-index:-1;
+    animation:float 10s ease-in-out infinite;
+}
+
+.blob1{top:-100px;left:-100px;}
+.blob2{bottom:-120px;right:-120px;}
+
+@keyframes float{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(30px);}
+}
+
+/* NAV */
+nav{
+    display:flex;
+    justify-content:flex-end;
+    padding:20px 30px;
+}
+
+.toggle{
+    font-size:22px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.toggle:hover{
+    transform:rotate(20deg) scale(1.1);
+}
+
+/* HERO */
+.hero{
+    text-align:center;
+    margin-top:40px;
+    margin-bottom:80px;
+}
+
+.hero h1{
+    font-family:'Playfair Display',serif;
+    font-size:56px;
+    letter-spacing:2px;
+    margin-bottom:10px;
+    animation:fadeDown 1s ease;
+}
+
+.hero p{
+    font-size:18px;
+    opacity:0.85;
+    animation:fadeDown 1.3s ease;
+}
+
+@keyframes fadeDown{
+    from{opacity:0;transform:translateY(-30px);}
+    to{opacity:1;transform:translateY(0);}
+}
+
+/* SECTIONS */
+.container{
+    padding:0 40px;
+}
+
+.section{
+    margin-bottom:70px;
+    opacity:0;
+    transform:translateY(30px);
+    transition:0.8s ease;
+}
+
+.section.visible{
+    opacity:1;
+    transform:translateY(0);
+}
+
+.section h2{
+    margin-bottom:25px;
+    font-size:24px;
+    border-left:4px solid rgba(255,255,255,0.5);
+    padding-left:10px;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+}
+
+.card{
+    background:rgba(255,255,255,0.15);
+    backdrop-filter:blur(12px);
+    padding:20px;
+    border-radius:20px;
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:translateY(-10px);
+    box-shadow:0 15px 35px rgba(0,0,0,0.3);
+}
+
+iframe{
+    width:100%;
+    height:80px;
+    border-radius:12px;
+}
+
+/* FOOTER */
+.footer{
+    text-align:center;
+    margin-top:50px;
+    margin-bottom:30px;
+    font-size:14px;
+    opacity:0.7;
+}
+
+/* LOADER */
+#loader{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:#111;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+    color:white;
+    font-size:22px;
+}
+
+.spinner{
+    border:4px solid #444;
+    border-top:4px solid #fff;
+    border-radius:50%;
+    width:40px;
+    height:40px;
+    animation:spin 1s linear infinite;
+    margin-right:15px;
+}
+
+@keyframes spin{
+    to{transform:rotate(360deg);}
+}
+
+@media(max-width:600px){
+    .hero h1{
+        font-size:36px;
+    }
+}
+</style>
+</head>
+
+<body class="dark">
+
+<div id="loader">
+<div class="spinner"></div>
+Loading SereniTune...
+</div>
+
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+
+<nav>
+<div class="toggle" onclick="toggleMode()">🌙</div>
+</nav>
+
+<div class="hero">
+<h1>SereniTune 🎵</h1>
+<p>Multilingual Mood-Based Wellness Experience</p>
+</div>
+
+<div class="container">
+
+<div class="section">
+<h2>🌎 English</h2>
+<div class="cards">
+<div class="card"><h3>😊 Happy</h3>
+<iframe src="https://open.spotify.com/embed/playlist/37i9dQZF1DXdPec7aLTmlC"></iframe></div>
+<div class="card"><h3>😌 Calm</h3>
+<iframe src="https://open.spotify.com/embed/playlist/37i9dQZF1DWZqd5JICZI0u"></iframe></div>
+<div class="card"><h3>😣 Stressed</h3>
+<iframe src="https://open.spotify.com/embed/playlist/37i9dQZF1DWU0ScTcjJBdj"></iframe></div>
+</div>
+</div>
+
+<div class="section">
+<h2>🇮🇳 Hindi</h2>
+<div class="cards">
+<div class="card"><h3>😊 Happy</h3>
+<iframe src="https://open.spotify.com/embed/playlist/37i9dQZF1DX0XUfTFmNBRM"></iframe></div>
+<div class="card"><h3>😌 Calm</h3>
+<iframe src="https://open.spotify.com/embed/playlist/37i9dQZF1DX4qDBKVkVpj4"></iframe></div>
+<div class="card"><h3>😣 Stressed</h3>
+<iframe src="https://open.spotify.com/embed/playlist/37i9dQZF1DX3bcQq2D1nCk"></iframe></div>
+</div>
+</div>
+
+<div class="section">
+<h2>🎶 Regional Hits</h2>
+<div class="cards">
+<div class="card"><h3>😊 Happy</h3>
+<iframe src="https://open.spotify.com/embed/playlist/37i9dQZF1DXbVhgADFy3im"></iframe></div>
+<div class="card"><h3>😌 Calm</h3>
+<iframe src="https://open.spotify.com/embed/playlist/37i9dQZF1DX6VdMW310YC7"></iframe></div>
+<div class="card"><h3>😣 Stressed</h3>
+<iframe src="https://open.spotify.com/embed/playlist/37i9dQZF1DX4RDXswvP6Mj"></iframe></div>
+</div>
+</div>
+
+<div class="footer">
+© 2026 SereniTune | Designed for Emotional Wellness 💙
+</div>
+
+</div>
+
+<script>
+window.onload=function(){
+setTimeout(()=>{document.getElementById("loader").style.display="none";},1200);
+}
+
+function toggleMode(){
+document.body.classList.toggle("dark");
+document.body.classList.toggle("light");
+let icon=document.querySelector(".toggle");
+icon.innerHTML=document.body.classList.contains("dark")?"🌙":"☀️";
+}
+
+/* Scroll Reveal */
+const sections=document.querySelectorAll(".section");
+window.addEventListener("scroll",()=>{
+sections.forEach(sec=>{
+const top=sec.getBoundingClientRect().top;
+if(top<window.innerHeight-100){
+sec.classList.add("visible");
+}
+});
+});
+</script>
+
+</body>
+</html>

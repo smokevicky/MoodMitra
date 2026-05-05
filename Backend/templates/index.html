@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MoodMitra</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body id="pageBody" class="neutral">
+
+    <h1>MoodMitra</h1>
+    <h2 id="emotionText">Emotion: Neutral 😐</h2>
+
+    <div id="videoSection">
+
+   <div id="cameraWrapper">
+    <img src="{{ url_for('video_feed') }}" width="500">
+
+    <!-- Real Shutter Overlay -->
+    <div id="shutterOverlay">
+        <img src="/static/image/shutter.png" id="shutterImage">
+        <p class="clickText">Click to Activate Camera</p>
+    </div>
+</div>
+
+    <!-- NEW WRAPPER FOR SIDE BY SIDE -->
+    <div class="main-container">
+
+        <!-- LEFT SIDE : POPUP / ACTIVITY -->
+        <div id="emotionPopup" class="popup hidden">
+            <div class="popup-content">
+                <span id="closePopup">×</span>
+                <p id="popupText"></p>
+
+                <div id="popupActions" class="popup-buttons"></div>
+                <p id="breathText" class="breath-text"></p>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE : HISTORY -->
+        <div class="history-box">
+            <h3> Mood History 📊</h3>
+
+            <div class="summary-box">
+                <p>Happy 😊: <span id="happyCount">0</span></p>
+                <p>Neutral 😐: <span id="neutralCount">0</span></p>
+                <p>Sad 😔: <span id="sadCount">0</span></p>
+                <p><b>Most Frequent:</b> <span id="mostMood">Neutral 😐</span></p>
+            </div>
+
+            <div class="history-actions">
+                <button id="clearHistoryBtn">🧹 Clear History</button>
+                <button id="downloadReportBtn">💾 Download Report</button>
+            </div>
+
+            <ul id="moodHistory"></ul>
+        </div>
+
+    </div>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&display=swap" rel="stylesheet">
+
+    <audio id="happyAudio" src="/static/audio/happy.mp3" loop preload="auto"></audio>
+    <audio id="sadAudio" src="/static/audio/sad.mp3" loop preload="auto"></audio>
+
+    <script src="/static/js/script.js"></script>
+
+    <div id="emojiContainer"></div>
+</body>
+</html>
