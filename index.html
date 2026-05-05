@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Moodmitra </title>
+    <link rel="icon" type="image/x-icon" href="./image/MOODMITRALOGO.png">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-fixed-variant": "#475f6a",
+                        "inverse-on-surface": "#9c9d9c",
+                        "surface-container-low": "#f3f4f3",
+                        "inverse-primary": "#a2ffed",
+                        "inverse-surface": "#0c0f0e",
+                        "on-tertiary-fixed-variant": "#682f1c",
+                        "tertiary-fixed": "#f7a48b",
+                        "surface-variant": "#e0e3e2",
+                        "surface-container-high": "#e6e9e8",
+                        "on-primary": "#e3fff7",
+                        "on-secondary-container": "#3e5560",
+                        "secondary-dim": "#3f5661",
+                        "on-background": "#2f3333",
+                        "surface-tint": "#006b5f",
+                        "primary-fixed-dim": "#89e5d4",
+                        "primary-container": "#97f3e2",
+                        "tertiary-fixed-dim": "#e8977e",
+                        "secondary": "#4b626e",
+                        "error-container": "#fa746f",
+                        "on-error": "#fff7f6",
+                        "outline": "#777b7b",
+                        "on-secondary-fixed": "#2b424d",
+                        "tertiary-dim": "#80422e",
+                        "primary-dim": "#005e53",
+                        "error": "#a83836",
+                        "secondary-fixed-dim": "#bfd8e5",
+                        "secondary-container": "#cde6f4",
+                        "on-secondary": "#f2faff",
+                        "tertiary-container": "#f7a48b",
+                        "surface": "#f9f9f8",
+                        "background": "#f9f9f8",
+                        "error-dim": "#67040d",
+                        "primary": "#006b5f",
+                        "tertiary": "#8e4d39",
+                        "surface-container-highest": "#e0e3e2",
+                        "on-primary-container": "#005d51",
+                        "secondary-fixed": "#cde6f4",
+                        "primary-fixed": "#97f3e2",
+                        "surface-dim": "#d7dbda",
+                        "on-surface": "#2f3333",
+                        "on-tertiary-container": "#5c2615",
+                        "on-surface-variant": "#5c605f",
+                        "on-error-container": "#6e0a12",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed": "#3f1103",
+                        "on-primary-fixed": "#00483f",
+                        "surface-container": "#eceeed",
+                        "surface-bright": "#f9f9f8",
+                        "on-primary-fixed-variant": "#00675b",
+                        "outline-variant": "#afb3b2"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        full: "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Plus Jakarta Sans"],
+                        body: ["Manrope"],
+                        label: ["Manrope"]
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+/* REMOVE THIS FROM YOUR CODE (VERY IMPORTANT) */
+/* .text-white { color: rgb(240, 27, 27) !important; } */
+
+/* NAV ITEM STYLE */
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 13px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* ICON */
+.nav-item .material-symbols-outlined {
+  font-size: 28px;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+/* HOVER EFFECT */
+.nav-item:hover {
+  color: #2dd4bf;
+}
+
+.nav-item:hover .material-symbols-outlined {
+  transform: translateY(-4px) scale(1.1);
+}
+
+/* UNDERLINE ANIMATION */
+.nav-item::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  width: 0%;
+  height: 2px;
+  background: #2dd4bf;
+  transition: width 0.3s ease;
+}
+.nav-item span,
+#musicIcon,
+#themeIcon {
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+}
+.nav-item:hover::after {
+  width: 100%;
+}
+
+/* ICON BUTTONS */
+.icon-btn {
+  padding: 10px;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+}
+
+.icon-btn:hover {
+  background: rgba(255,255,255,0.15);
+  transform: scale(1.1);
+}
+</style>
+    <style>
+       .footer-link {
+  color: #6b7280;
+  transition: all 0.3s ease;
+}
+
+.footer-link:hover {
+  color: #14b8a6;
+  transform: translateX(4px);
+}
+
+.footer-icon {
+  font-size: 22px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.footer-icon:hover {
+  color: #14b8a6;
+  transform: scale(1.2);
+}
+
+        /* custom transitions & glass effect */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(24px);
+        }
+        .carousel-container {
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            scroll-behavior: smooth;
+        }
+        .carousel-container::-webkit-scrollbar {
+            display: none;
+        }
+        .carousel-item {
+            scroll-snap-align: start;
+        }
+        .editorial-card:hover .editorial-overlay {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        .editorial-card img {
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .editorial-card:hover img {
+            transform: scale(1.1);
+        }
+        
+        /* ========= DARK MODE STYLES ========= */
+        .dark {
+            color-scheme: dark;
+        }
+        .dark body {
+            background-color: #121212;
+        }
+        .dark .bg-surface {
+            background-color: #121212 !important;
+        }
+        .dark .bg-surface-container-low,
+        .dark .bg-surface-container,
+        .dark .bg-surface-container-high,
+        .dark .surface-container,
+        .dark .bg-surface-container-lowest {
+            background-color: #1E1E1E !important;
+        }
+        .dark .bg-surface-container-low {
+            background-color: #1E1E1E !important;
+        }
+        .dark .bg-white {
+            background-color: #1E1E1E !important;
+        }
+        .dark .text-on-surface,
+        .dark .text-slate-600,
+        .dark .text-slate-700,
+        .dark .text-slate-800,
+        .dark .text-teal-800,
+        .dark .text-teal-900,
+        .dark .text-tertiary {
+            color: #E0E0E0 !important;
+        }
+        .dark .text-on-surface-variant,
+        .dark .text-slate-500 {
+            color: #A0A0A0 !important;
+        }
+        .dark .border-outline-variant\/30,
+        .dark .border-tertiary\/10 {
+            border-color: #333333 !important;
+        }
+        .dark .bg-gradient-to-br,
+        .dark .bg-gradient-to-b {
+            background-image: none !important;
+            background-color: #2a2a2a !important;
+        }
+        .dark .bg-slate-50,
+        .dark .bg-slate-100 {
+            background-color: #0F0F0F !important;
+        }
+        .dark .bg-surface-container-low {
+            background-color: #252525 !important;
+        }
+        .dark .bg-primary\/10 {
+            background-color: rgba(0, 107, 95, 0.2) !important;
+        }
+        .dark .bg-white\/20,
+        .dark .bg-white\/30 {
+            background-color: rgba(30, 30, 30, 0.8) !important;
+        }
+        .dark .shadow-sm,
+        .dark .shadow-md,
+        .dark .shadow-xl {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+        }
+        .dark .bg-tertiary-container\/30 {
+            background-color: rgba(142, 77, 57, 0.2) !important;
+        }
+        .dark .editorial-card .absolute.bg-gradient-to-b {
+            background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.5), rgba(0,0,0,0.7)) !important;
+        }
+        .dark button.bg-white {
+            background-color: #2C2C2C !important;
+            border-color: #444 !important;
+            color: #eee !important;
+        }
+        .dark .glass-card {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(24px);
+        }
+        /* fix card overlays for dark */
+        .dark .editorial-card .absolute.inset-0.bg-gradient-to-b {
+            background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.6), rgba(0,0,0,0.85));
+        }
+        .dark .text-primary-fixed {
+            color: #89e5d4 !important;
+        }
+        .dark .bg-primary {
+            background-color: #008b7a !important;
+        }
+        .dark .border-primary {
+            border-color: #008b7a !important;
+        }
+        /* make video overlay consistent */
+        .dark .carousel-item .absolute.bg-black\/30 {
+            background: rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+
+<body class="bg-surface font-body text-on-surface selection:bg-primary-container selection:text-on-primary-container transition-colors duration-300 ">
+
+    <!-- TopNavBar -->
+<header id="navbar" class="fixed top-0 w-full z-50 transition-all duration-300">
+  <nav class="flex justify-between items-center px-6 md:px-12 py-3 
+              backdrop-blur-xl bg-black/30 
+              border-b border-white/10">
+
+    <!-- LOGO -->
+    <div class="text-2xl font-extrabold tracking-wide text-white">
+      Mood<span class="text-teal-300">mitra</span>
+    </div>
+
+    <!-- NAV LINKS -->
+    <div class="hidden md:flex gap-10 items-center text-white/90 font-medium">
+
+      <a href="index.html" class="nav-item">
+        <span class="material-symbols-outlined">home</span>
+        <span>Home</span>
+      </a>
+
+      <a href="moodcam.html" class="nav-item">
+        <span class="material-symbols-outlined">photo_camera</span>
+        <span>Mood Cam</span>
+      </a>
+
+      <a href="about.html" class="nav-item">
+        <span class="material-symbols-outlined">info</span>
+        <span>About</span>
+      </a>
+
+      <a href="chat.html" class="nav-item">
+        <span class="material-symbols-outlined">chat</span>
+        <span>Chat</span>
+      </a>
+
+      <a href="https://telemanas.mohfw.gov.in/home" class="nav-item">
+        <span class="material-symbols-outlined">support_agent</span>
+        <span>Helpline</span>
+      </a>
+
+      <!-- MUSIC -->
+      
+
+      <!-- THEME -->
+      <button id="themeToggle" class="icon-btn">
+        <span id="themeIcon" class="material-symbols-outlined">dark_mode</span>
+      </button>
+
+    </div>
+  </nav>
+</header>
+ <!-- slider section start -->
+<main class="pt-0">
+
+<section class="relative w-full h-screen overflow-hidden">
+
+    <!-- Carousel -->
+    <div id="carouselContainer" 
+        class="flex w-full h-full transition-transform duration-700 ease-in-out">
+
+        <!-- Slide 1 -->
+        <div class="w-full h-screen flex-shrink-0">
+            <video autoplay muted loop playsinline class="w-full h-full object-cover">
+                <source src="vedio/mainbanner.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="w-full h-screen flex-shrink-0">
+            <video autoplay muted loop playsinline class="w-full h-full object-cover">
+                <source src="vedio/moodcambanner.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="w-full h-screen flex-shrink-0">
+            <video autoplay muted loop playsinline class="w-full h-full object-cover">
+                <source src="vedio/mentorbanner.mp4" type="video/mp4">
+            </video>
+        </div>
+
+    </div>
+
+    <!-- Controls -->
+    <button id="prev" 
+        class="absolute left-5 top-1/2 -translate-y-1/2 text-white text-3xl z-10">
+        ❮
+    </button>
+
+    <button id="next" 
+        class="absolute right-5 top-1/2 -translate-y-1/2 text-white text-3xl z-10">
+        ❯
+    </button>
+
+</section>
+
+</main>
+<script>
+const navbar = document.getElementById("navbar");
+
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 20) {
+    navbar.classList.add("bg-black/60", "shadow-lg");
+  } else {
+    navbar.classList.remove("bg-black/60", "shadow-lg");
+  }
+});
+</script>
+<script>
+const navbar = document.getElementById("navbar");
+
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 20) {
+    navbar.classList.add("bg-black/70", "shadow-lg");
+  } else {
+    navbar.classList.remove("bg-black/70", "shadow-lg");
+  }
+});
+</script>
+<!-- Script -->
+<script>
+const carousel = document.getElementById('carouselContainer');
+const slides = document.querySelectorAll('#carouselContainer > div');
+
+let index = 0;
+const totalSlides = slides.length;
+
+// Update slide position
+function updateSlide() {
+    carousel.style.transform = `translateX(-${index * 100}%)`;
+}
+
+// Next
+document.getElementById('next').onclick = () => {
+    index = (index + 1) % totalSlides;
+    updateSlide();
+};
+
+// Prev
+document.getElementById('prev').onclick = () => {
+    index = (index - 1 + totalSlides) % totalSlides;
+    updateSlide();
+};
+
+// Auto Slide
+setInterval(() => {
+    index = (index + 1) % totalSlides;
+    updateSlide();
+}, 5000);
+</script>
+
+
+<!-- Slider section end -->
+
+</section>
+</br>
+        <!-- Symmetric Feature Cards (unchanged but adaptive) -->
+        <section class="px-12 mb-24">
+            
+             <a href="games.html" class="block">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                <div class="editorial-card group relative rounded-[2.5rem] overflow-hidden cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-500 bg-surface-container aspect-square ">
+                   <img src="./image/controller.jpeg" alt="Games" class="absolute inset-0 w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/40 to-white">
+                    </div>
+                    <div class="absolute inset-0 p-8 flex flex-col items-center justify-center text-center">
+                       
+                        <h3 class="text-3xl font-headline font-extrabold text-teal-900">Games</h3>
+                    </div>
+                </div>
+            </a>
+            <a href="music.html" class="block">
+                <div class="editorial-card group relative rounded-[2.5rem] overflow-hidden cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-500 bg-surface-container aspect-square">
+                   <img src="./image/headphone.jpg" alt="Games"
+         class="absolute inset-0 w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-slate-100/40 to-slate-200"></div>
+                    <div class="absolute inset-0 p-8 flex flex-col items-center justify-center text-center">
+                        
+                        <h3 class="text-3xl font-headline font-extrabold text-slate-800">Music</h3>
+                    </div>
+                </div>
+            </a>
+            <a href="mentors.html" class="block">
+                <div class="editorial-card group relative rounded-[2.5rem] overflow-hidden cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-500 bg-surface-container aspect-square">
+                    <img src="./image/1777802896800.png" alt="Games"
+         class="absolute inset-0 w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-orange-100/40 to-orange-100"></div>
+                    <div class="absolute inset-0 p-8 flex flex-col items-center justify-center text-center">
+                        
+                        <h3 class="text-3xl font-headline font-extrabold text-tertiary">Mentor</h3>
+                    </div>
+                </div>
+            </a>
+            <a href="story.html" class="block">
+                <div class="editorial-card group relative rounded-[2.5rem] overflow-hidden cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-500 bg-surface-container aspect-square">
+                   <img src="./image/story.avif" alt="Games"
+         class="absolute inset-0 w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-blue-100/40 to-blue-200"></div>
+                    <div class="absolute inset-0 p-8 flex flex-col items-center justify-center text-center">
+            
+                        <h3 class="text-3xl font-headline font-extrabold text-slate-900">Story Now</h3>
+                    </div>
+                </div>
+            </a>
+            </div>
+        </section>
+
+        <!-- Mood Cam sections start  -->
+         <section class="px-12 mb-24">
+            <div class="bg-surface-container-low rounded-[2.5rem] p-12 border border-outline-variant/30 flex flex-col md:flex-row items-center gap-16">
+                <div class="flex-1 flex justify-center">
+                    <div class="relative group"> 
+                    <img src="./image/moodcamlogo.png"  >
+                    <div class="absolute top-8 right-8 w-6 h-6 bg-secondary-container rounded-full border-4 border-white">
+                        
+                </div>
+            </div>
+        </div>
+                <div class="flex-1 text-center md:text-left flex flex-col items-center md:items-start gap-8"><h2 class="text-6xl font-headline font-black text-on-surface tracking-tighter">MOODCAM</h2>
+                    <a href="moodcam.html">
+                    <button class="bg-primary text-white px-10 py-5 rounded-xl font-extrabold text-xl hover:shadow-2xl hover:-translate-y-1 transition-all active:scale-95 border-b-4 border-primary-dim">EXPLORE HERE
+                    </button></a>
+                    <div class="flex items-center gap-3 text-on-surface-variant font-medium text-lg"><span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">mood</span><span>Capture your current mood</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+       <!-- Mood Cam sections end  -->
+
+      <!--Daily 3 sections  start  -->
+
+        <section class="px-12 mb-24">
+            <div class="bg-gradient-to-br from-tertiary-container/30 to-surface rounded-[2.5rem] p-12 border border-tertiary/10 flex flex-col md:flex-row items-center gap-16">
+                <div class="flex-1 flex justify-center">
+                    <div class="relative">
+                        <div class="relative z-10 flex flex-col items-center">
+                    <img src="./image/daily3_logo.png"  >    
+                        
+                </div>
+            </div>
+        <div class="flex-1 text-center md:text-left flex flex-col items-center md:items-start gap-8">
+            <br><br>
+            <p class="text-2xl font-body text-on-surface-variant leading-relaxed max-w-md italic">"Your journey to mindfulness starts here"</p>
+                  <a href="daily.html">  
+                <button class="bg-white text-tertiary border-2 border-tertiary px-12 py-5 rounded-full font-black text-xl hover:bg-tertiary hover:text-white transition-all active:scale-95 shadow-md">Explore Now</button></a>
+            </div>
+            </div>
+
+        </section>
+
+<!--   Daily 3 sections  end -->
+
+
+
+<script>
+const slider = document.getElementById('mentorSlider');
+
+let autoScroll;
+let scrollStep = 260;
+
+// RIGHT
+function scrollRightBtn() {
+    slider.scrollBy({ left: scrollStep, behavior: 'smooth' });
+}
+
+// LEFT
+function scrollLeftBtn() {
+    slider.scrollBy({ left: -scrollStep, behavior: 'smooth' });
+}
+
+// AUTO SLIDE
+function startAutoSlide() {
+    autoScroll = setInterval(() => {
+        if (slider.scrollLeft >= slider.scrollWidth - slider.clientWidth) {
+            slider.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+            scrollRightBtn();
+        }
+    }, 3000);
+}
+
+// PAUSE ON HOVER
+slider.addEventListener('mouseenter', () => clearInterval(autoScroll));
+slider.addEventListener('mouseleave', startAutoSlide);
+
+// START
+startAutoSlide();
+</script>
+
+<style>
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    scrollbar-width: none;
+}
+</style>
+</section>
+ <!-- Top Mentors end -->
+    </main>
+
+ <!-- footer start -->
+
+
+   <footer class="w-full mt-24 px-6 md:px-12 py-16
+               bg-gradient-to-br from-[#0f0f0f] via-[#141414] to-[#1a1a1a]
+               text-gray-300 border-t border-gray-800">
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+
+    <!-- BRAND -->
+    <div class="flex flex-col gap-4">
+      <div class="text-2xl font-extrabold tracking-wide text-white">
+        Mood<span class="text-teal-400">mitra</span>
+      </div>
+      <p class="text-sm text-gray-400 leading-relaxed max-w-xs">
+        A mindful digital space designed to support emotional wellbeing, 
+        self-reflection, and calm experiences.
+      </p>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div class="flex flex-col gap-3">
+      <span class="text-sm font-semibold text-white tracking-wide">Navigation</span>
+      <a href="#" class="footer-link">Home</a>
+      <a href="moodcam.html" class="footer-link">Mood Cam</a>
+      <a href="chat.html" class="footer-link">Chat</a>
+      <a href="about.html" class="footer-link">About Us</a>
+    </div>
+
+    <!-- SUPPORT -->
+    <div class="flex flex-col gap-3">
+      <span class="text-sm font-semibold text-white tracking-wide">Support</span>
+      <a href="#" class="footer-link">Privacy Policy</a>
+      <a href="#" class="footer-link">Terms</a>
+      <a href="#" class="footer-link">Contact</a>
+      <a href="https://telemanas.mohfw.gov.in/home" class="footer-link">Helpline</a>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div class="mt-12 pt-6 border-t border-gray-800 
+              flex flex-col md:flex-row justify-between items-center gap-4">
+
+    <p class="text-xs text-gray-500">
+      © 2026 Moodmitra. All rights reserved.
+    </p>
+
+    <!-- SOCIAL -->
+    <div class="flex gap-5">
+      <span class="material-symbols-outlined footer-icon">favorite</span>
+      <span class="material-symbols-outlined footer-icon">public</span>
+      <span class="material-symbols-outlined footer-icon">share</span>
+    </div>
+
+  </div>
+
+</footer>
+
+ <!-- footer end -->
+
+    <script>
+        (function() {
+            // 1) DAY/NIGHT MODE FUNCTIONALITY
+            const htmlElement = document.documentElement;
+            const themeToggleBtn = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+            
+            function setTheme(isDark) {
+                if (isDark) {
+                    htmlElement.classList.add('dark');
+                    htmlElement.classList.remove('light');
+                    if (themeIcon) themeIcon.innerText = 'light_mode';
+                    localStorage.setItem('moodmitra-theme', 'dark');
+                } else {
+                    htmlElement.classList.remove('dark');
+                    htmlElement.classList.add('light');
+                    if (themeIcon) themeIcon.innerText = 'dark_mode';
+                    localStorage.setItem('moodmitra-theme', 'light');
+                }
+            }
+            
+            const savedTheme = localStorage.getItem('moodmitra-theme');
+            if (savedTheme === 'dark') {
+                setTheme(true);
+            } else if (savedTheme === 'light') {
+                setTheme(false);
+            } else {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                setTheme(prefersDark);
+            }
+            
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => {
+                    const isDark = htmlElement.classList.contains('dark');
+                    setTheme(!isDark);
+                });
+            }
+            
+            // 2) CAROUSEL FUNCTIONALITY (image + video slide)
+            const container = document.getElementById('carouselContainer');
+           
+            const dotsContainer = document.getElementById('carouselDots');
+            const prevBtn = document.getElementById('prev');
+            const nextBtn = document.getElementById('next');
+            if (container && prevBtn && nextBtn) {
+                let slides = Array.from(document.querySelectorAll('.carousel-item'));
+                let totalSlides = slides.length;
+                let currentIndex = 0;
+                let slideWidth = container.clientWidth;
+                
+                function updateDots() {
+                    if (!dotsContainer) return;
+                    dotsContainer.innerHTML = '';
+                    for (let i = 0; i < totalSlides; i++) {
+                        const dot = document.createElement('button');
+                        dot.className = `w-2 h-2 rounded-full transition-all mx-1 ${i === currentIndex ? 'bg-white w-6' : 'bg-white/50 hover:bg-white/80'}`;
+                        dot.addEventListener('click', () => {
+                            scrollToSlide(i);
+                        });
+                        dotsContainer.appendChild(dot);
+                    }
+                }
+                
+                function scrollToSlide(index) {
+                    if (index < 0) index = 0;
+                    if (index >= totalSlides) index = totalSlides - 1;
+                    if (container) {
+                        const newScrollLeft = index * slideWidth;
+                        container.scrollTo({ left: newScrollLeft, behavior: 'smooth' });
+                        currentIndex = index;
+                        updateDots();
+                    }
+                }
+                
+                function getCurrentSlideIndex() {
+                    if (!container) return 0;
+                    const scrollLeft = container.scrollLeft;
+                    const idx = Math.round(scrollLeft / slideWidth);
+                    return Math.min(Math.max(idx, 0), totalSlides - 1);
+                }
+                
+                function onScrollHandler() {
+                    const newIdx = getCurrentSlideIndex();
+                    if (newIdx !== currentIndex) {
+                        currentIndex = newIdx;
+                        updateDots();
+                    }
+                }
+                
+                function nextSlide() {
+                    if (currentIndex + 1 < totalSlides) {
+                        scrollToSlide(currentIndex + 1);
+                    } else {
+                        scrollToSlide(0);
+                    }
+                }
+                
+                function prevSlide() {
+                    if (currentIndex - 1 >= 0) {
+                        scrollToSlide(currentIndex - 1);
+                    } else {
+                        scrollToSlide(totalSlides - 1);
+                    }
+                }
+                
+                function refreshSlideWidth() {
+                    slideWidth = container.clientWidth;
+                    scrollToSlide(currentIndex);
+                }
+                
+                container.addEventListener('scroll', onScrollHandler);
+                window.addEventListener('resize', () => {
+                    refreshSlideWidth();
+                });
+                nextBtn.addEventListener('click', nextSlide);
+                prevBtn.addEventListener('click', prevSlide);
+                
+                // initial setup
+                slideWidth = container.clientWidth;
+                currentIndex = 0;
+                updateDots();
+                // ensure scroll position at 0
+                container.scrollLeft = 0;
+                
+                // optional: auto adjust if scroll event triggers after load
+                setTimeout(() => {
+                    refreshSlideWidth();
+                }, 100);
+            }
+        })();
+
+/*slider */
+
+  
+/*slider */
+    </script>
+    
+
+</body>
+</html>

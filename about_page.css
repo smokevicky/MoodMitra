@@ -1,0 +1,139 @@
+*{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;}
+body{margin:0;background:beige;color:#222;}
+.container{max-width:1100px;margin:auto;padding:20px;}
+
+.topbar{display:flex;align-items:center;padding:15px 20px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,0.06);}
+.logo{text-decoration:none;font-size:24px;font-weight:bold;color:#6c63ff;}
+
+.center{text-align:center;}
+
+.team{display:flex;justify-content:center;gap:25px;flex-wrap:wrap;}
+.member{text-align:center;transition:.3s;}
+.member img{width:130px;height:130px;border-radius:50%;object-fit:cover;box-shadow:0 8px 20px rgba(0,0,0,0.15);transition:.3s;}
+.member:hover img{transform:scale(1.08);} 
+.member p{margin:8px 0 0;font-weight:600;}
+.member small{color:#666;}
+/* layout */
+.why{
+  display:flex;
+  align-items:center;
+  gap:40px;
+  flex-wrap:wrap;
+}
+/* Text animation */
+.why-text h3,
+.why-text p{
+  transition: all 0.5s ease;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* hidden state */
+.text-hide{
+  opacity: 0;
+  transform: translateX(-20px); /* slide left */
+}
+
+.slider{
+  flex:1;
+  position:relative;
+  height:260px;
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
+}
+
+/* images */
+.slide{
+  position:absolute;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  opacity:0;
+  transition:opacity 1s ease-in-out;
+}
+
+.slide.active{
+  opacity:1;
+}
+
+/* buttons */
+.nav-btn{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  background:#6c63ff;
+  color:#fff;
+  border:none;
+  padding:10px;
+  border-radius:50%;
+  cursor:pointer;
+}
+
+#prev{left:10px;}
+#next{right:10px;}
+
+.card-img{width:100%;height:auto; box-shadow:0 10px 25px rgba(0,0,0,0.15);} 
+
+.fade{opacity:1;transition:opacity .6s ease;} .fade.hide{opacity:0;}
+
+.mission{display:flex;gap:25px;align-items:center;flex-wrap:wrap;}
+.img-box img{width:100%;max-width:350px;border-radius:16px;box-shadow:0 10px 25px rgba(0,0,0,0.15);} 
+
+.reviews{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;}
+.review{background:#fff;padding:15px;border-radius:16px;box-shadow:0 6px 15px rgba(0,0,0,0.08);text-align:center;}
+.avatar{width:60px;height:60px;border-radius:50%;object-fit:cover;margin-bottom:8px;}
+
+footer{margin-top:40px;padding:20px;text-align:center;background:#222;color:#fff;}
+/* Bigger & more spaced team section */
+.team{
+  display:flex;
+  justify-content:center;
+  gap:80px;               /* More space between circles */
+  flex-wrap:wrap;
+  margin-top:40px;
+}
+
+.member{
+  text-align:center;
+  transition:.3s;
+}
+
+.member img{
+  width:160px;            /* Bigger circles */
+  height:160px;
+  border-radius:50%;
+  object-fit:cover;
+  box-shadow:0 12px 30px rgba(0,0,0,0.18);
+  transition:.35s ease;
+}
+
+.member:hover img{
+  transform:scale(1.12);  /* Smooth zoom on hover */
+}
+
+.member p{
+  margin-top:12px;
+  font-weight:600;
+  font-size:18px;
+}
+
+.member small{
+  font-size:14px;
+  color:#666;
+}
+/* Keep all team members in one line */
+.team{
+  display:flex;
+  justify-content:center;   /* keeps them centered */
+  align-items:center;
+  gap:60px;                 /* spacing between circles */
+  flex-wrap:nowrap;         /* force same line */
+  overflow-x:auto;          /* allows scroll if screen too small */
+  padding:10px 0;
+}
+
+/* Optional: hide scrollbar for clean UI */
+.team::-webkit-scrollbar{
+  display:none;
+}

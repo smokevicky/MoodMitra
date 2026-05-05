@@ -1,0 +1,162 @@
+<section style="
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    background:#f5f7fb;
+    font-family:Arial, sans-serif;
+">
+
+<style>
+.controller-box {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    width: 350px;
+    text-align: center;
+}
+
+.shutter {
+    position: relative;
+    cursor: pointer;
+}
+
+.shutter img {
+    width: 100%;
+}
+
+.front {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: 0.6s;
+}
+
+.open .front {
+    transform: translateY(-100%);
+}
+
+.input-box {
+    display: none;
+    margin-top: 15px;
+}
+
+.open .input-box {
+    display: block;
+}
+
+input {
+    width: 80%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: none;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+}
+
+/* ✅ Mood section */
+.mood {
+    display: none;
+    margin-top: 20px;
+    padding: 20px;
+    width: 350px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+/* ✅ SINGLE LINE */
+.mood-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+
+.mood-buttons button {
+    flex: 0 0 auto;
+}
+
+.happy { background: #ffeb3b; color:#000; }
+.sad { background: #2196f3; }
+.angry { background: #f44336; }
+.confused { background: #9c27b0; }
+</style>
+
+<!-- CONTROLLER -->
+<div class="controller-box" id="box">
+    <div class="shutter" onclick="openBox()">
+        <img src="./image/white game.png">
+        <img src="./image/colorful game.png" class="front">
+    </div>
+
+    <div class="input-box">
+        <input id="name" placeholder="Enter Player Name">
+        <br>
+        <button onclick="submitName()">Enter</button>
+    </div>
+</div>
+
+<!-- MOOD -->
+<div class="mood" id="mood">
+    <h2 id="greet"></h2>
+    <p>What's your mood today?</p>
+
+    <div class="mood-buttons">
+        <button class="happy" onclick="openMood('happy', this)">Happy</button>
+        <button class="sad" onclick="openMood('sad', this)">Sad</button>
+        <button class="angry" onclick="openMood('angry', this)">Angry</button>
+        <button class="confused" onclick="openMood('confused', this)">Confused</button>
+    </div>
+</div>
+
+<script>
+const box = document.getElementById("box");
+const mood = document.getElementById("mood");
+const greet = document.getElementById("greet");
+
+function openBox() {
+    box.classList.add("open");
+}
+
+function submitName() {
+    const name = document.getElementById("name").value.trim();
+    if (!name) return alert("Enter your name");
+
+    greet.innerText = "Hey " + name + "..";
+    mood.style.display = "block";
+    mood.scrollIntoView({ behavior: "smooth" });
+}
+
+function openMood(type, el) {
+
+    // remove clicked button
+    el.style.display = "none";
+
+    const links = {
+        happy: "https://coloritbynumbers.com/online",
+        sad: "https://sudoku.com/",
+        angry: "https://www.google.com/search?q=stress+relief+games",
+        confused: "https://www.google.com/search?q=brain+training+games"
+    };
+
+    window.open(links[type], "_blank");
+}
+</script>
+
+</section>
+
+

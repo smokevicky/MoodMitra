@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moodify — Feel Your Music</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── THEME TOKENS ── */
+[data-theme="dark"] {
+  --bg: #0B0B0F;
+  --surface: #131318;
+  --card: #1C1C24;
+  --card-hover: #222230;
+  --text: #F0EEE8;
+  --muted: #6B6B7A;
+  --border: rgba(255,255,255,0.07);
+  --search-bg: rgba(255,255,255,0.05);
+  --player-bg: rgba(14,14,20,0.95);
+  --player-border: rgba(255,255,255,0.08);
+  --shadow: rgba(0,0,0,0.5);
+  --grain-opacity: 0.35;
+  --orb-opacity: 0.15;
+}
+[data-theme="light"] {
+  --bg: #F5F3EF;
+  --surface: #EBEBEB;
+  --card: #FFFFFF;
+  --card-hover: #F9F9F9;
+  --text: #1A1A22;
+  --muted: #888896;
+  --border: rgba(0,0,0,0.07);
+  --search-bg: rgba(0,0,0,0.05);
+  --player-bg: rgba(240,238,235,0.97);
+  --player-border: rgba(0,0,0,0.1);
+  --shadow: rgba(0,0,0,0.12);
+  --grain-opacity: 0.1;
+  --orb-opacity: 0.08;
+}
+
+:root {
+  --happy: #FFD93D; --happy-deep: #FF6B35;
+  --sad: #7EC8E3;   --sad-deep: #2D5F8A;
+  --calm: #A8D5A2;  --calm-deep: #2D6A4F;
+  --green: #1DB954;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding-bottom: 100px;
+  transition: background 0.4s, color 0.4s;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999; opacity: var(--grain-opacity);
+}
+
+/* ── ORBS ── */
+.orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: var(--orb-opacity); animation: drift 12s ease-in-out infinite; }
+.orb-1 { width:500px;height:500px;background:var(--happy);top:-200px;left:-100px;animation-delay:0s; }
+.orb-2 { width:400px;height:400px;background:var(--sad);top:-100px;right:-50px;animation-delay:-4s; }
+.orb-3 { width:300px;height:300px;background:var(--calm);bottom:-100px;left:40%;animation-delay:-8s; }
+@keyframes drift {
+  0%,100%{transform:translate(0,0) scale(1);}
+  33%{transform:translate(20px,-30px) scale(1.05);}
+  66%{transform:translate(-15px,20px) scale(0.95);}
+}
+
+/* ── HEADER ── */
+header { position:relative; padding:50px 40px 30px; overflow:hidden; }
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 44px; position: relative; z-index: 2; flex-wrap: wrap; gap: 16px;
+}
+
+.brand { display:flex; align-items:center; gap:12px; }
+.brand-icon { width:36px;height:36px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center; }
+.brand-icon svg { width:20px;height:20px;fill:white; }
+.brand-name { font-family:'Playfair Display',serif;font-size:1.5rem;letter-spacing:-0.02em;color:var(--text); }
+.brand-name span { color:var(--green);font-style:italic; }
+
+/* Theme toggle */
+.theme-toggle {
+  width:52px; height:28px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 100px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.3s;
+  flex-shrink: 0;
+}
+.theme-toggle .knob {
+  position: absolute; top: 3px; left: 3px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--text);
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+}
+[data-theme="light"] .theme-toggle .knob { transform: translateX(24px); }
+
+/* ── HERO TEXT ── */
+.hero-text { position:relative; z-index:2; max-width:700px; }
+.hero-text h1 {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2.4rem,5vw,4.4rem);
+  line-height:1.05; letter-spacing:-0.03em; margin-bottom:14px;
+}
+.hero-text h1 em { font-style:italic; color:var(--happy); }
+.hero-text p { font-size:1.05rem; color:var(--muted); font-weight:300; line-height:1.6; }
+
+/* ── SEARCH BAR ── */
+.search-wrap {
+  position: relative; z-index: 2;
+  margin-top: 28px; max-width: 480px;
+}
+.search-wrap svg {
+  position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+  width: 18px; height: 18px; fill: var(--muted); pointer-events: none;
+  transition: fill 0.2s;
+}
+.search-input {
+  width: 100%; padding: 14px 16px 14px 46px;
+  background: var(--search-bg);
+  border: 1.5px solid var(--border);
+  border-radius: 100px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem; font-weight: 400;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.25s, box-shadow 0.25s, background 0.3s;
+}
+.search-input::placeholder { color: var(--muted); }
+.search-input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(29,185,84,0.12);
+  background: var(--card);
+}
+.search-input:focus + svg, .search-wrap:focus-within svg { fill: var(--green); }
+/* fix: icon is before input so use sibling trick differently */
+.search-wrap:focus-within svg { fill: var(--green); }
+
+.search-clear {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--muted); border: none; cursor: pointer;
+  display: none; align-items: center; justify-content: center;
+  font-size: 12px; color: var(--bg); font-weight: 700;
+  transition: background 0.2s;
+}
+.search-clear:hover { background: var(--text); }
+.search-clear.visible { display: flex; }
+
+/* ── CONTROLS ── */
+.mood-section { padding: 28px 40px 0; position: relative; z-index: 2; }
+
+.mood-tabs { display:flex; gap:10px; margin-bottom:28px; flex-wrap:wrap; }
+
+.mood-tab {
+  display:flex; align-items:center; gap:8px;
+  padding:12px 24px; border-radius:100px;
+  border:1.5px solid var(--border);
+  background:var(--surface);
+  cursor:pointer; font-size:0.9rem; font-weight:500;
+  font-family:'DM Sans',sans-serif; color:var(--text);
+  transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  position:relative; overflow:hidden; letter-spacing:0.01em;
+}
+.mood-tab::before { content:''; position:absolute; inset:0; opacity:0; transition:opacity 0.3s; }
+.mood-tab.happy::before { background:linear-gradient(135deg,rgba(255,217,61,.15),rgba(255,107,53,.1)); }
+.mood-tab.sad::before   { background:linear-gradient(135deg,rgba(126,200,227,.15),rgba(45,95,138,.1)); }
+.mood-tab.calm::before  { background:linear-gradient(135deg,rgba(168,213,162,.15),rgba(45,106,79,.1)); }
+.mood-tab:hover,.mood-tab.active { transform:translateY(-2px); border-color:transparent; }
+.mood-tab:hover::before,.mood-tab.active::before { opacity:1; }
+.mood-tab.active.happy { border-color:var(--happy);box-shadow:0 0 20px rgba(255,217,61,.2);color:var(--happy); }
+.mood-tab.active.sad   { border-color:var(--sad);  box-shadow:0 0 20px rgba(126,200,227,.2);color:var(--sad); }
+.mood-tab.active.calm  { border-color:var(--calm); box-shadow:0 0 20px rgba(168,213,162,.2);color:var(--calm); }
+.mood-emoji { font-size:1.1rem; }
+
+.lang-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:36px; }
+.lang-pill {
+  padding:7px 16px; border-radius:100px; border:1px solid var(--border);
+  background:transparent; font-size:0.78rem; font-weight:500;
+  font-family:'DM Sans',sans-serif; cursor:pointer;
+  letter-spacing:0.06em; text-transform:uppercase;
+  transition:all 0.2s; color:var(--muted);
+}
+.lang-pill:hover { color:var(--text); border-color:rgba(128,128,128,0.4); }
+.lang-pill.active { background:var(--text); color:var(--bg); border-color:var(--text); }
+
+.section-header { display:flex; align-items:baseline; gap:14px; margin-bottom:22px; }
+.section-label { font-family:'Playfair Display',serif; font-size:1.7rem; font-weight:700; }
+.section-count { color:var(--muted); font-size:0.83rem; font-weight:300; }
+
+/* No results */
+.no-results {
+  padding: 60px 40px; text-align: center; color: var(--muted);
+  font-size: 1rem; display: none;
+}
+.no-results.visible { display: block; }
+.no-results span { font-size: 2rem; display: block; margin-bottom: 12px; }
+
+/* ── GRID ── */
+.grid {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(195px,1fr));
+  gap:18px; padding:0 40px 40px;
+}
+
+.card {
+  background:var(--card); border-radius:16px; overflow:hidden;
+  cursor:pointer;
+  transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s, background 0.3s;
+  border:1px solid var(--border); animation:fadeUp 0.5s ease both;
+  text-decoration:none; color:inherit; display:block;
+}
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);} }
+.card:hover { transform:translateY(-6px) scale(1.02); box-shadow:0 20px 40px var(--shadow); background:var(--card-hover); }
+
+.card-thumb { width:100%; aspect-ratio:1; position:relative; overflow:hidden; }
+.card-thumb-bg {
+  width:100%; height:100%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:3.2rem; position:relative;
+}
+.card-thumb-bg::after { content:''; position:absolute; inset:0; background:linear-gradient(160deg,rgba(255,255,255,0.08) 0%,transparent 60%); }
+
+.thumb-happy { background:linear-gradient(135deg,#FFD93D 0%,#FF6B35 50%,#FF3366 100%); }
+.thumb-sad   { background:linear-gradient(135deg,#7EC8E3 0%,#5B8DB8 50%,#2D5F8A 100%); }
+.thumb-calm  { background:linear-gradient(135deg,#A8D5A2 0%,#6BAE8B 50%,#2D6A4F 100%); }
+
+.play-btn {
+  position:absolute; bottom:10px; right:10px;
+  width:38px; height:38px; background:var(--green); border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; transform:translateY(4px);
+  transition:all 0.25s; box-shadow:0 4px 12px rgba(29,185,84,0.4);
+}
+.play-btn svg { width:15px;height:15px;fill:white;margin-left:2px; }
+.card:hover .play-btn { opacity:1; transform:translateY(0); }
+
+/* Quick play (now playing trigger) */
+.quick-play {
+  position:absolute; bottom:10px; left:10px;
+  width:32px; height:32px; background:rgba(0,0,0,0.5); border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; transform:translateY(4px);
+  transition:all 0.25s; border:none; cursor:pointer;
+  backdrop-filter: blur(4px);
+}
+.quick-play svg { width:14px;height:14px;fill:white;margin-left:1px; }
+.card:hover .quick-play { opacity:1; transform:translateY(0); }
+.quick-play.playing { opacity:1; transform:translateY(0); background:var(--green); }
+
+.card-info { padding:13px 13px 15px; }
+.card-title { font-size:0.88rem;font-weight:500;line-height:1.3;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.card-sub { font-size:0.73rem;color:var(--muted); }
+.lang-badge {
+  display:inline-block; padding:2px 8px; border-radius:100px;
+  font-size:0.63rem; font-weight:500; letter-spacing:0.05em;
+  text-transform:uppercase; margin-top:7px;
+}
+.badge-hindi   { background:rgba(255,107,53,.18); color:#FF6B35; }
+.badge-english { background:rgba(126,200,227,.18); color:#7EC8E3; }
+.badge-popular { background:rgba(255,217,61,.18);  color:#FFD93D; }
+.badge-various { background:rgba(168,213,162,.18); color:#A8D5A2; }
+
+/* ── NOW PLAYING BAR ── */
+#nowPlaying {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 500;
+  background: var(--player-bg);
+  border-top: 1px solid var(--player-border);
+  backdrop-filter: blur(20px);
+  padding: 12px 40px;
+  display: flex; align-items: center; gap: 16px;
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), background 0.3s;
+}
+#nowPlaying.visible { transform: translateY(0); }
+
+.np-thumb {
+  width: 48px; height: 48px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; flex-shrink: 0;
+}
+.np-thumb.thumb-happy { background:linear-gradient(135deg,#FFD93D,#FF6B35); }
+.np-thumb.thumb-sad   { background:linear-gradient(135deg,#7EC8E3,#2D5F8A); }
+.np-thumb.thumb-calm  { background:linear-gradient(135deg,#A8D5A2,#2D6A4F); }
+
+.np-info { flex: 1; min-width: 0; }
+.np-title { font-size:0.9rem; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.np-sub { font-size:0.75rem; color:var(--muted); }
+
+/* Progress bar */
+.np-progress-wrap { flex: 2; min-width: 0; }
+.np-time { display:flex; justify-content:space-between; font-size:0.68rem; color:var(--muted); margin-bottom:5px; }
+.np-bar { height:4px; background:var(--border); border-radius:2px; cursor:pointer; position:relative; overflow:hidden; }
+.np-fill {
+  height:100%; background:var(--green); border-radius:2px;
+  width:0%; transition:width 0.5s linear;
+}
+
+/* Controls */
+.np-controls { display:flex; align-items:center; gap:12px; }
+.np-btn {
+  width:36px; height:36px; border-radius:50%; border:none;
+  background:transparent; cursor:pointer; color:var(--text);
+  display:flex; align-items:center; justify-content:center;
+  transition:all 0.2s; font-size:1rem;
+}
+.np-btn:hover { background:var(--border); transform:scale(1.1); }
+.np-btn.primary { width:42px;height:42px;background:var(--green);color:white;box-shadow:0 4px 12px rgba(29,185,84,0.3); }
+.np-btn.primary:hover { background:#1ed760; transform:scale(1.05); }
+.np-btn svg { width:16px;height:16px;fill:currentColor; }
+.np-btn.primary svg { width:18px;height:18px;fill:white; }
+
+/* Volume */
+.np-vol { display:flex; align-items:center; gap:8px; }
+.np-vol svg { width:16px;height:16px;fill:var(--muted); flex-shrink:0; }
+.vol-slider {
+  width:70px; height:4px; border-radius:2px;
+  -webkit-appearance:none; appearance:none;
+  background:linear-gradient(to right, var(--green) 70%, var(--border) 70%);
+  outline:none; cursor:pointer;
+}
+.vol-slider::-webkit-slider-thumb { -webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--text);cursor:pointer; }
+
+/* Spotify open btn */
+.np-open {
+  padding:8px 16px; border-radius:100px; background:var(--green);
+  color:white; font-family:'DM Sans',sans-serif; font-size:0.78rem; font-weight:500;
+  text-decoration:none; display:flex; align-items:center; gap:6px;
+  transition:all 0.2s; flex-shrink:0;
+}
+.np-open:hover { background:#1ed760; transform:translateY(-1px); }
+
+.np-close {
+  width:28px;height:28px;border-radius:50%;background:var(--border);border:none;
+  cursor:pointer;color:var(--text);font-size:14px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s; flex-shrink:0;
+}
+.np-close:hover { background:var(--muted); color:var(--bg); }
+
+/* ── EQ ANIMATION ── */
+.eq {
+  display:flex; align-items:flex-end; gap:2px; height:14px;
+  margin-left:4px;
+}
+.eq span {
+  width:3px; background:var(--green); border-radius:2px;
+  animation:eq 0.8s ease-in-out infinite alternate;
+}
+.eq span:nth-child(1){height:6px;animation-delay:0s;}
+.eq span:nth-child(2){height:12px;animation-delay:.15s;}
+.eq span:nth-child(3){height:8px;animation-delay:.3s;}
+.eq span:nth-child(4){height:14px;animation-delay:.45s;}
+.eq span:nth-child(5){height:5px;animation-delay:.6s;}
+@keyframes eq{to{height:4px;opacity:.4;}}
+
+/* ── FOOTER ── */
+footer { text-align:center;padding:30px 40px;color:var(--muted);font-size:0.76rem;letter-spacing:0.04em;border-top:1px solid var(--border); }
+footer a { color:var(--green); text-decoration:none; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:700px){
+  header,.mood-section{padding:28px 18px 0;}
+  .grid{padding:0 18px 40px;grid-template-columns:repeat(2,1fr);gap:12px;}
+  .hero-text h1{font-size:2.2rem;}
+  #nowPlaying{padding:10px 16px;gap:10px;}
+  .np-progress-wrap,.np-vol{display:none;}
+  .np-open span{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 168 168"><path d="M84,0C37.6,0,0,37.6,0,84s37.6,84,84,84,84-37.6,84-84S130.4,0,84,0Zm38.6,121.2a5.24,5.24,0,0,1-7.2,1.7c-19.7-12-44.5-14.7-73.7-8.1a5.23,5.23,0,1,1-2.3-10.2c32-7.3,59.4-4.2,81.5,9.4A5.24,5.24,0,0,1,122.6,121.2Zm10.3-22.9a6.56,6.56,0,0,1-9,2.1C101.1,86.7,73.1,83.4,51.3,90a6.57,6.57,0,1,1-3.8-12.6c25-7.5,56.1-3.9,78,9.9A6.56,6.56,0,0,1,132.9,98.3ZM134,75a7.85,7.85,0,0,1-10.8-2.5C101.5,58,66.5,53.7,41.8,61.3A7.85,7.85,0,1,1,37.2,46C65.6,37.4,104.2,42.2,129,61.5,131.8,63.7,135.5,68.7,134,75Z"/></svg>
+      </div>
+      <div class="brand-name">Mood<span>ify</span></div>
+    </div>
+
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark">
+      <div class="knob" id="themeKnob">🌙</div>
+    </button>
+  </div>
+
+  <div class="hero-text">
+    <h1>Music for<br>every <em>feeling.</em></h1>
+    <p>Curated Spotify playlists that match your mood — filter by vibe and language.</p>
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    <input class="search-input" type="text" id="searchInput" placeholder="Search playlists…" oninput="onSearch(this.value)">
+    <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+  </div>
+</header>
+
+<!-- ── CONTROLS ── -->
+<section class="mood-section">
+  <div class="mood-tabs">
+    <button class="mood-tab happy active" onclick="setMood('happy',this)"><span class="mood-emoji">☀️</span>Happy</button>
+    <button class="mood-tab sad"   onclick="setMood('sad',this)">  <span class="mood-emoji">🌧️</span>Sad</button>
+    <button class="mood-tab calm"  onclick="setMood('calm',this)"> <span class="mood-emoji">🌿</span>Calm</button>
+  </div>
+  <div class="lang-row">
+    <button class="lang-pill active" onclick="setLang('all',this)">All</button>
+    <button class="lang-pill" onclick="setLang('hindi',this)">Hindi</button>
+    <button class="lang-pill" onclick="setLang('english',this)">English</button>
+    <button class="lang-pill" onclick="setLang('popular',this)">Popular</button>
+    <button class="lang-pill" onclick="setLang('various',this)">Various</button>
+  </div>
+  <div class="section-header">
+    <div class="section-label" id="sectionLabel">Happy Vibes</div>
+    <div class="section-count" id="sectionCount">15 playlists</div>
+  </div>
+</section>
+
+<div class="no-results" id="noResults">
+  <span>🔍</span>No playlists found for "<span id="searchTerm"></span>"
+</div>
+
+<div class="grid" id="playlistGrid"></div>
+
+<footer>Built with ♥ &nbsp;·&nbsp; Playlists open in <a href="https://open.spotify.com" target="_blank">Spotify</a></footer>
+
+<!-- ── NOW PLAYING BAR ── -->
+<div id="nowPlaying">
+  <div class="np-thumb thumb-happy" id="npThumb">🎉</div>
+  <div class="np-info">
+    <div class="np-title" id="npTitle">Bollywood Party Anthems</div>
+    <div class="np-sub" style="display:flex;align-items:center;gap:6px;">
+      <span id="npSub">2.1M saves · 45 songs</span>
+      <div class="eq"><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+  </div>
+  <div class="np-progress-wrap">
+    <div class="np-time"><span id="npCurrent">0:42</span><span id="npTotal">3:28</span></div>
+    <div class="np-bar" id="npBar" onclick="seekBar(event)">
+      <div class="np-fill" id="npFill"></div>
+    </div>
+  </div>
+  <div class="np-controls">
+    <button class="np-btn" onclick="prevTrack()" title="Previous">
+      <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+    </button>
+    <button class="np-btn primary" id="playPauseBtn" onclick="togglePlay()">
+      <svg id="playIcon" viewBox="0 0 24 24"><path d="M6 19h4V5H6zm8-14v14h4V5z"/></svg>
+    </button>
+    <button class="np-btn" onclick="nextTrack()" title="Next">
+      <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg>
+    </button>
+  </div>
+  <div class="np-vol">
+    <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+    <input class="vol-slider" id="volSlider" type="range" min="0" max="100" value="70" oninput="updateVol(this.value)">
+  </div>
+  <a class="np-open" id="npLink" href="https://open.spotify.com" target="_blank">
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+    <span>Open</span>
+  </a>
+  <button class="np-close" onclick="closePlayer()">✕</button>
+</div>
+
+<script>
+/* ── DATA ── */
+const DATA = {
+  happy:{label:"Happy Vibes",playlists:[
+    {title:"Bollywood Party Anthems",sub:"2.1M saves · 45 songs",lang:"hindi",emoji:"🎉",link:"https://open.spotify.com/playlist/37i9dQZF1DX0XUsuxWHRQd"},
+    {title:"Desi Dance Floor",sub:"1.4M saves · 38 songs",lang:"hindi",emoji:"💃",link:"https://open.spotify.com/playlist/37i9dQZF1DXdSjVZQzv2tl"},
+    {title:"Punjabi Beats",sub:"980K saves · 50 songs",lang:"hindi",emoji:"🥁",link:"https://open.spotify.com/playlist/37i9dQZF1DWTl4y3vgJOXW"},
+    {title:"Filmy Mood On",sub:"760K saves · 30 songs",lang:"hindi",emoji:"🎬",link:"https://open.spotify.com/playlist/37i9dQZF1DX4OzrY981I1W"},
+    {title:"Good Vibes Only",sub:"8.3M saves · 100 songs",lang:"english",emoji:"✨",link:"https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0"},
+    {title:"Happy Hits!",sub:"6.5M saves · 90 songs",lang:"english",emoji:"😄",link:"https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC"},
+    {title:"Summer Party",sub:"3.2M saves · 65 songs",lang:"english",emoji:"🌞",link:"https://open.spotify.com/playlist/37i9dQZF1DXaSl4yEy1K9O"},
+    {title:"Pop Rising",sub:"2.7M saves · 50 songs",lang:"english",emoji:"🌟",link:"https://open.spotify.com/playlist/37i9dQZF1DWUa8ZRTfalHk"},
+    {title:"Today's Top Hits",sub:"33M saves · 50 songs",lang:"popular",emoji:"🔥",link:"https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M"},
+    {title:"Global Hits 2024",sub:"12M saves · 50 songs",lang:"popular",emoji:"🌍",link:"https://open.spotify.com/playlist/37i9dQZF1DX0h0QnLkMBl4"},
+    {title:"Viral Hits",sub:"9.1M saves · 45 songs",lang:"popular",emoji:"📱",link:"https://open.spotify.com/playlist/37i9dQZF1DX2L0iB23Enbq"},
+    {title:"K-Pop Happy Hour",sub:"4.2M saves · 55 songs",lang:"various",emoji:"🇰🇷",link:"https://open.spotify.com/playlist/37i9dQZF1DX9tPFwDMOaN1"},
+    {title:"Latin Party Hits",sub:"5.1M saves · 60 songs",lang:"various",emoji:"🎺",link:"https://open.spotify.com/playlist/37i9dQZF1DX10zKzsJ2jva"},
+    {title:"Afrobeats Hits",sub:"3.6M saves · 48 songs",lang:"various",emoji:"🌴",link:"https://open.spotify.com/playlist/37i9dQZF1DWYkaDif7Ztbp"},
+    {title:"J-Pop Hits",sub:"1.8M saves · 40 songs",lang:"various",emoji:"🌸",link:"https://open.spotify.com/playlist/37i9dQZF1DXdbXrPNafg9d"},
+  ]},
+  sad:{label:"Sad Songs",playlists:[
+    {title:"Dil Tuta Sad Songs",sub:"3.4M saves · 55 songs",lang:"hindi",emoji:"💔",link:"https://open.spotify.com/playlist/37i9dQZF1DX3YSRoSdA634"},
+    {title:"Bollywood Heartbreak",sub:"2.1M saves · 48 songs",lang:"hindi",emoji:"😢",link:"https://open.spotify.com/playlist/37i9dQZF1DX4OzrY981I1W"},
+    {title:"Hindi Sad Ghazals",sub:"890K saves · 35 songs",lang:"hindi",emoji:"🌙",link:"https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC"},
+    {title:"Yaadein Sad Playlist",sub:"1.1M saves · 42 songs",lang:"hindi",emoji:"🕯️",link:"https://open.spotify.com/playlist/37i9dQZF1DX0XUsuxWHRQd"},
+    {title:"Sad Songs",sub:"10.2M saves · 80 songs",lang:"english",emoji:"🌧️",link:"https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1"},
+    {title:"Life Sucks",sub:"5.3M saves · 70 songs",lang:"english",emoji:"🖤",link:"https://open.spotify.com/playlist/37i9dQZF1DXbrUpGvoi3TS"},
+    {title:"Cry It Out",sub:"3.8M saves · 60 songs",lang:"english",emoji:"😭",link:"https://open.spotify.com/playlist/37i9dQZF1DX3YSRoSdA634"},
+    {title:"Late Night Feelings",sub:"6.1M saves · 75 songs",lang:"english",emoji:"🌃",link:"https://open.spotify.com/playlist/37i9dQZF1DX4SBhb3fqCJd"},
+    {title:"Heartbreak Songs",sub:"14M saves · 50 songs",lang:"popular",emoji:"💔",link:"https://open.spotify.com/playlist/37i9dQZF1DX4SBhb3fqCJd"},
+    {title:"Sad Indie",sub:"4.2M saves · 55 songs",lang:"popular",emoji:"🎸",link:"https://open.spotify.com/playlist/37i9dQZF1DXdwmD5Q7Gxoh"},
+    {title:"Missing You",sub:"7.9M saves · 65 songs",lang:"popular",emoji:"🫀",link:"https://open.spotify.com/playlist/37i9dQZF1DX7K31D69s4M1"},
+    {title:"Bolero & Baladas Triste",sub:"2.1M saves · 45 songs",lang:"various",emoji:"🌹",link:"https://open.spotify.com/playlist/37i9dQZF1DWVrtsSlLKzro"},
+    {title:"K-Ballads",sub:"1.6M saves · 40 songs",lang:"various",emoji:"🇰🇷",link:"https://open.spotify.com/playlist/37i9dQZF1DWTl4y3vgJOXW"},
+    {title:"French Nostalgia",sub:"980K saves · 35 songs",lang:"various",emoji:"🇫🇷",link:"https://open.spotify.com/playlist/37i9dQZF1DXe2bobNYDtW8"},
+  ]},
+  calm:{label:"Calm & Chill",playlists:[
+    {title:"Sufi Calm",sub:"1.2M saves · 40 songs",lang:"hindi",emoji:"🌊",link:"https://open.spotify.com/playlist/37i9dQZF1DX5KpGHKBMMMV"},
+    {title:"Chill Hindi Lofi",sub:"890K saves · 35 songs",lang:"hindi",emoji:"📚",link:"https://open.spotify.com/playlist/37i9dQZF1DXdSjVZQzv2tl"},
+    {title:"Bollywood Classics",sub:"2.1M saves · 50 songs",lang:"hindi",emoji:"🎻",link:"https://open.spotify.com/playlist/37i9dQZF1DX0h0QnLkMBl4"},
+    {title:"Rainy Day Hindi",sub:"760K saves · 30 songs",lang:"hindi",emoji:"☔",link:"https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0"},
+    {title:"Peaceful Piano",sub:"12M saves · 100 songs",lang:"english",emoji:"🎹",link:"https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO"},
+    {title:"Chill Hits",sub:"9.4M saves · 90 songs",lang:"english",emoji:"🌤️",link:"https://open.spotify.com/playlist/37i9dQZF1DX0MLFaUdXnjA"},
+    {title:"Deep Focus",sub:"6.2M saves · 72 songs",lang:"english",emoji:"🧘",link:"https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ"},
+    {title:"Lo-Fi Beats",sub:"8.7M saves · 80 songs",lang:"english",emoji:"🎧",link:"https://open.spotify.com/playlist/37i9dQZF1DWWQRwui0ExPn"},
+    {title:"Ambient Chill",sub:"5.1M saves · 60 songs",lang:"popular",emoji:"🌌",link:"https://open.spotify.com/playlist/37i9dQZF1DX3Ogo9pFvBkY"},
+    {title:"Sleep",sub:"11M saves · 100 songs",lang:"popular",emoji:"😴",link:"https://open.spotify.com/playlist/37i9dQZF1DWStCV4t2XMTD"},
+    {title:"Mindful Morning",sub:"3.8M saves · 45 songs",lang:"popular",emoji:"🌅",link:"https://open.spotify.com/playlist/37i9dQZF1DX9uKNf5jGX6m"},
+    {title:"Bossa Nova Lounge",sub:"2.4M saves · 40 songs",lang:"various",emoji:"🇧🇷",link:"https://open.spotify.com/playlist/37i9dQZF1DXd9nR9jMHFQo"},
+    {title:"Japanese Lofi",sub:"1.9M saves · 38 songs",lang:"various",emoji:"🎋",link:"https://open.spotify.com/playlist/37i9dQZF1DXdbXrPNafg9d"},
+    {title:"Nordic Calm",sub:"1.1M saves · 35 songs",lang:"various",emoji:"❄️",link:"https://open.spotify.com/playlist/37i9dQZF1DX4wta20PHzhA"},
+    {title:"Flamenco Nights",sub:"870K saves · 30 songs",lang:"various",emoji:"💃",link:"https://open.spotify.com/playlist/37i9dQZF1DX0h0QnLkMBl4"},
+  ]}
+};
+
+/* ── STATE ── */
+let currentMood='happy', currentLang='all', searchQ='';
+let playing=false, currentPlaylist=null, currentIndex=0;
+let progressInterval=null, progressSec=0, totalSec=208;
+
+/* ── FILTERS ── */
+function setMood(mood,btn){
+  currentMood=mood;
+  document.querySelectorAll('.mood-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGrid();
+}
+function setLang(lang,btn){
+  currentLang=lang;
+  document.querySelectorAll('.lang-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGrid();
+}
+function onSearch(val){
+  searchQ=val.trim().toLowerCase();
+  document.getElementById('searchClear').classList.toggle('visible', val.length>0);
+  renderGrid();
+}
+function clearSearch(){
+  document.getElementById('searchInput').value='';
+  document.getElementById('searchClear').classList.remove('visible');
+  searchQ='';
+  renderGrid();
+}
+
+/* ── RENDER ── */
+function renderGrid(){
+  const grid=document.getElementById('playlistGrid');
+  const noRes=document.getElementById('noResults');
+  const moodData=DATA[currentMood];
+  let filtered=moodData.playlists.filter(p=>currentLang==='all'||p.lang===currentLang);
+  if(searchQ) filtered=filtered.filter(p=>p.title.toLowerCase().includes(searchQ));
+
+  document.getElementById('sectionLabel').textContent=moodData.label;
+  document.getElementById('sectionCount').textContent=filtered.length+' playlist'+(filtered.length!==1?'s':'');
+
+  if(filtered.length===0){
+    grid.innerHTML='';
+    noRes.classList.add('visible');
+    document.getElementById('searchTerm').textContent=searchQ||'this filter';
+    return;
+  }
+  noRes.classList.remove('visible');
+
+  grid.innerHTML=filtered.map(function(p,i){
+    var isPlaying = currentPlaylist && currentPlaylist.title===p.title;
+    return '<div class="card" style="animation-delay:'+(i*0.05)+'s" data-title="'+p.title+'">' +
+      '<div class="card-thumb">' +
+        '<div class="card-thumb-bg thumb-'+currentMood+'"><span>'+p.emoji+'</span></div>' +
+        '<button class="quick-play'+(isPlaying?' playing':'') +'" onclick="quickPlay(event,\''+escJ(p.title)+'\',\''+escJ(p.sub)+'\',\''+p.emoji+'\',\''+p.link+'\')" title="Preview in player">' +
+          '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>' +
+        '</button>' +
+        '<a class="play-btn" href="'+p.link+'" target="_blank" onclick="event.stopPropagation()" title="Open in Spotify">' +
+          '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>' +
+        '</a>' +
+      '</div>' +
+      '<div class="card-info">' +
+        '<div class="card-title">'+p.title+'</div>' +
+        '<div class="card-sub">'+p.sub+'</div>' +
+        '<div class="lang-badge badge-'+p.lang+'">'+p.lang+'</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function escJ(s){return s.replace(/'/g,"\\'").replace(/"/g,'&quot;');}
+
+/* ── NOW PLAYING ── */
+function quickPlay(e,title,sub,emoji,link){
+  e.preventDefault(); e.stopPropagation();
+  currentPlaylist={title,sub,emoji,link,mood:currentMood};
+  document.getElementById('npTitle').textContent=title;
+  document.getElementById('npSub').textContent=sub;
+  document.getElementById('npThumb').textContent=emoji;
+  document.getElementById('npThumb').className='np-thumb thumb-'+currentMood;
+  document.getElementById('npLink').href=link;
+  document.getElementById('nowPlaying').classList.add('visible');
+  progressSec=0;
+  totalSec=Math.floor(Math.random()*120)+160;
+  updateProgress();
+  startPlay();
+  // highlight card
+  document.querySelectorAll('.quick-play').forEach(b=>b.classList.remove('playing'));
+  e.currentTarget.classList.add('playing');
+}
+
+function startPlay(){
+  playing=true;
+  updatePlayBtn();
+  clearInterval(progressInterval);
+  progressInterval=setInterval(function(){
+    if(playing){
+      progressSec++;
+      if(progressSec>=totalSec){progressSec=0;}
+      updateProgress();
+    }
+  },1000);
+}
+
+function togglePlay(){
+  playing=!playing;
+  updatePlayBtn();
+  if(playing) startPlay();
+}
+
+function updatePlayBtn(){
+  var icon=document.getElementById('playIcon');
+  if(playing){
+    icon.innerHTML='<path d="M6 19h4V5H6zm8-14v14h4V5z"/>';
+  } else {
+    icon.innerHTML='<path d="M8 5v14l11-7z"/>';
+  }
+}
+
+function updateProgress(){
+  var pct=totalSec>0?(progressSec/totalSec*100):0;
+  document.getElementById('npFill').style.width=pct+'%';
+  document.getElementById('npCurrent').textContent=fmt(progressSec);
+  document.getElementById('npTotal').textContent=fmt(totalSec);
+}
+
+function fmt(s){return Math.floor(s/60)+':'+(s%60<10?'0':'')+(s%60);}
+
+function seekBar(e){
+  var bar=document.getElementById('npBar');
+  var rect=bar.getBoundingClientRect();
+  var pct=(e.clientX-rect.left)/rect.width;
+  progressSec=Math.floor(pct*totalSec);
+  updateProgress();
+}
+
+function prevTrack(){progressSec=0;updateProgress();}
+function nextTrack(){progressSec=0;totalSec=Math.floor(Math.random()*120)+160;updateProgress();}
+
+function closePlayer(){
+  document.getElementById('nowPlaying').classList.remove('visible');
+  clearInterval(progressInterval);
+  playing=false;
+  document.querySelectorAll('.quick-play').forEach(b=>b.classList.remove('playing'));
+}
+
+function updateVol(v){
+  document.getElementById('volSlider').style.background=
+    'linear-gradient(to right, var(--green) '+v+'%, var(--border) '+v+'%)';
+}
+
+/* ── THEME ── */
+function toggleTheme(){
+  var html=document.documentElement;
+  var isDark=html.getAttribute('data-theme')==='dark';
+  html.setAttribute('data-theme', isDark?'light':'dark');
+  document.getElementById('themeKnob').textContent=isDark?'☀️':'🌙';
+}
+
+renderGrid();
+updateVol(70);
+</script>
+</body>
+</html>

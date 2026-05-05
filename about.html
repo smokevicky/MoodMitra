@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Us — Our Team</title>
+<link rel="icon" type="image/x-icon" href="./image/MOODMITRALOGO.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"] {
+    --bg: #0d0d0f;
+    --bg2: #141418;
+    --bg3: #1c1c22;
+    --card: #18181e;
+    --border: #2a2a35;
+    --text: #f0ede8;
+    --muted: #888;
+    --accent: #e8b86d;
+    --accent2: #c47b3a;
+    --gold: #f0c060;
+    --shadow: rgba(0,0,0,0.6);
+    --glass: rgba(255,255,255,0.03);
+    --tag-bg: rgba(232,184,109,0.12);
+  }
+  :root[data-theme="light"] {
+    --bg: #faf8f4;
+    --bg2: #f2ede4;
+    --bg3: #e9e2d6;
+    --card: #ffffff;
+    --border: #ddd8ce;
+    --text: #1a1714;
+    --muted: #7a7068;
+    --accent: #b5682a;
+    --accent2: #8b4e1e;
+    --gold: #c47b2a;
+    --shadow: rgba(0,0,0,0.12);
+    --glass: rgba(0,0,0,0.02);
+    --tag-bg: rgba(181,104,42,0.10);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.4s, color 0.4s;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.2rem 2.5rem;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    transition: background 0.4s, border-color 0.4s;
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+  .nav-right { display: flex; gap: 1rem; align-items: center; }
+  .nav-link {
+    font-size: 0.85rem; font-weight: 500; color: var(--muted);
+    text-decoration: none; letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+  .nav-link:hover { color: var(--accent); }
+
+  /* THEME TOGGLE */
+  .toggle-btn {
+    width: 44px; height: 24px; border-radius: 12px;
+    background: var(--border); border: none; cursor: pointer;
+    position: relative; transition: background 0.3s;
+  }
+  .toggle-btn::after {
+    content: '';
+    position: absolute; top: 3px; left: 3px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--accent);
+    transition: transform 0.3s;
+  }
+  [data-theme="light"] .toggle-btn::after { transform: translateX(20px); }
+  .toggle-label { font-size: 0.8rem; color: var(--muted); }
+
+  /* HERO */
+  .hero {
+    margin-top: 64px;
+    padding: 6rem 2.5rem 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(232,184,109,0.12), transparent 70%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1rem; font-weight: 500;
+    animation: fadeUp 0.8s ease both;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    line-height: 1.05; letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero-desc {
+    max-width: 640px; margin: 0 auto 3rem;
+    font-size: 1.05rem; line-height: 1.7; color: var(--muted);
+    font-weight: 300;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+  .hero-stats {
+    display: flex; justify-content: center; gap: 3rem;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem; color: var(--accent); display: block;
+  }
+  .stat-label { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.08em; }
+
+  /* DIVIDER */
+  .divider {
+    display: flex; align-items: center; gap: 1.5rem;
+    padding: 0 2.5rem; margin: 2rem 0;
+    color: var(--muted); font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  /* GROUP PHOTO */
+  .group-section {
+    padding: 2rem 2.5rem 4rem;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .group-photo-wrap {
+    position: relative; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 30px 80px var(--shadow);
+    animation: fadeUp 0.9s 0.2s ease both;
+  }
+  .group-photo-wrap img {
+    width: 100%; max-height: 520px; object-fit: cover; display: block;
+    filter: saturate(0.9);
+    transition: filter 0.4s;
+  }
+  .group-photo-wrap:hover img { filter: saturate(1); }
+  .group-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 2rem 2.5rem;
+    background: linear-gradient(transparent, rgba(0,0,0,0.75));
+  }
+  .group-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem; color: #fff;
+  }
+  .group-sub { color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-top: 0.3rem; }
+
+  /* WHY US */
+  .why-section {
+    max-width: 1100px; margin: 0 auto;
+    padding: 2rem 2.5rem 5rem;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+  }
+  .why-text h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3vw, 2.8rem);
+    line-height: 1.2; margin-bottom: 1.2rem;
+  }
+  .why-text h2 em { color: var(--accent); font-style: italic; }
+  .why-text p { color: var(--muted); line-height: 1.8; margin-bottom: 1rem; font-size: 0.95rem; }
+  .why-pills { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.5rem; }
+  .pill {
+    background: var(--tag-bg); border: 1px solid var(--border);
+    color: var(--accent); padding: 0.4rem 1rem;
+    border-radius: 20px; font-size: 0.8rem; font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .why-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .why-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.4rem;
+    transition: transform 0.25s, box-shadow 0.25s;
+  }
+  .why-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px var(--shadow); }
+  .why-card-icon { font-size: 1.6rem; margin-bottom: 0.7rem; }
+  .why-card h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.4rem; }
+  .why-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+
+  /* TEAM */
+  .team-section {
+    max-width: 1100px; margin: 0 auto; padding: 2rem 2.5rem 5rem;
+  }
+  .section-header { text-align: center; margin-bottom: 3rem; }
+  .section-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3vw, 2.6rem); margin-bottom: 0.6rem;
+  }
+  .section-header p { color: var(--muted); font-size: 0.95rem; }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  .team-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    animation: fadeUp 0.7s ease both;
+    position: relative;
+  }
+  .team-card:nth-child(1) { animation-delay: 0.1s; }
+  .team-card:nth-child(2) { animation-delay: 0.2s; }
+  .team-card:nth-child(3) { animation-delay: 0.3s; }
+  .team-card:nth-child(4) { animation-delay: 0.4s; }
+  .team-card:nth-child(5) { animation-delay: 0.5s; }
+  .team-card:hover { transform: translateY(-8px); box-shadow: 0 24px 60px var(--shadow); }
+  .team-card:nth-child(4) { grid-column: 1 / 2; }
+  .team-card:nth-child(5) { grid-column: 3 / 4; }
+
+  .team-img-wrap {
+    width: 100%; aspect-ratio: 4/4.5; overflow: hidden;
+    position: relative;
+  }
+  .team-img-wrap img {
+    width: 100%; height: 100%; object-fit: cover; object-position: top center;
+    transition: transform 0.5s;
+  }
+  .team-card:hover .team-img-wrap img { transform: scale(1.05); }
+  .team-accent-bar {
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .team-info { padding: 1.2rem 1.4rem 1.4rem; }
+  .team-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem; margin-bottom: 0.2rem;
+  }
+  .team-role {
+    font-size: 0.78rem; color: var(--accent);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    font-weight: 500; margin-bottom: 0.7rem;
+  }
+  .team-bio { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+  /* REVIEWS */
+  .reviews-section {
+    background: var(--bg2);
+    padding: 5rem 2.5rem;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .reviews-inner { max-width: 1100px; margin: 0 auto; }
+  .reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2rem;
+    margin-top: 2.5rem;
+  }
+  .review-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 1.8rem;
+    transition: transform 0.25s, box-shadow 0.25s;
+    animation: fadeUp 0.7s ease both;
+  }
+  .review-card:nth-child(1) { animation-delay: 0.1s; }
+  .review-card:nth-child(2) { animation-delay: 0.2s; }
+  .review-card:nth-child(3) { animation-delay: 0.3s; }
+  .review-card:nth-child(4) { animation-delay: 0.4s; }
+  .review-card:nth-child(5) { animation-delay: 0.5s; }
+  .review-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px var(--shadow); }
+  .review-card:nth-child(4), .review-card:nth-child(5) { grid-column: span 1; }
+  .reviews-grid .review-card:last-child:nth-child(5) { grid-column: 2 / 3; }
+
+  .stars { color: var(--gold); font-size: 0.9rem; margin-bottom: 1rem; letter-spacing: 0.1em; }
+  .review-quote {
+    font-family: 'Playfair Display', serif;
+    font-style: italic; font-size: 1rem; line-height: 1.65;
+    margin-bottom: 1.2rem; color: var(--text);
+  }
+  .review-author { display: flex; align-items: center; gap: 0.8rem; }
+  .author-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem; font-weight: 600; color: #fff; flex-shrink: 0;
+  }
+  .author-name { font-size: 0.85rem; font-weight: 600; }
+  .author-tag { font-size: 0.75rem; color: var(--muted); }
+
+  /* FOOTER */
+  footer {
+    text-align: center; padding: 2.5rem;
+    color: var(--muted); font-size: 0.82rem;
+    border-top: 1px solid var(--border);
+  }
+  footer span { color: var(--accent); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .why-section { grid-template-columns: 1fr; gap: 2rem; }
+    .team-grid { grid-template-columns: repeat(2, 1fr); }
+    .team-card:nth-child(4), .team-card:nth-child(5) { grid-column: auto; }
+    .reviews-grid { grid-template-columns: 1fr 1fr; }
+    .reviews-grid .review-card:last-child:nth-child(5) { grid-column: 1 / -1; }
+  }
+  @media (max-width: 600px) {
+    nav { padding: 1rem 1.2rem; }
+    .hero { padding: 5rem 1.2rem 2rem; }
+    .hero-stats { gap: 1.5rem; }
+    .group-section, .team-section, .reviews-inner, .why-section { padding-left: 1.2rem; padding-right: 1.2rem; }
+    .team-grid { grid-template-columns: 1fr; }
+    .reviews-grid { grid-template-columns: 1fr; }
+    .reviews-grid .review-card:last-child:nth-child(5) { grid-column: auto; }
+    .why-cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">✦ Our Team</div>
+  <div class="nav-right">
+    <a href="#" class="nav-link">Home</a>
+    <a href="#team" class="nav-link">Team</a>
+    <a href="#reviews" class="nav-link">Reviews</a>
+    <span class="toggle-label">☀︎</span>
+    <button class="toggle-btn" id="themeToggle" aria-label="Toggle theme"></button>
+    <span class="toggle-label">☽</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-eyebrow">✦ About Us</p>
+  <h1>We're a team of<br><em>passionate creators</em></h1>
+  <p class="hero-desc">We believe great things happen when talented, curious people come together with a shared purpose. Meet the humans behind the work — each bringing their unique strengths to build something truly meaningful.</p>
+  
+</section>
+
+<div class="divider">Our Journey Together</div>
+
+<!-- GROUP PHOTO -->
+<div class="group-section">
+  <div class="group-photo-wrap">
+    <img src="image/1000296847.jpg" alt="Our Team Together">
+    <div class="group-overlay">
+      <div class="group-label">The Full Team — 2026</div>
+      <div class="group-sub">Together we dream it. Together we build it.</div>
+    </div>
+  </div>
+</div>
+
+<!-- WHY US -->
+<section class="why-section" id="why">
+  <div class="why-text">
+    <h2>Why choose<br><em> Moodmitra</em></h2>
+    <p>We started with a simple belief: that technology, when built with intention and heart, can genuinely change lives. Every feature, every design decision, every line of code — crafted with care.</p>
+    <p>Our diverse backgrounds in design, engineering, research, and strategy mean you get a holistic approach to every challenge. We don't just build products — we build experiences that people love.</p>
+    <div class="why-pills">
+      <span class="pill">✦ User-Centered</span>
+      <span class="pill">✦ Fast & Reliable</span>
+      <span class="pill">✦ Always Improving</span>
+      <span class="pill">✦ Transparent</span>
+    </div>
+  </div>
+  <div class="why-cards">
+    <div class="why-card">
+      <div class="why-card-icon">🎯</div>
+      <h4>Focused Expertise</h4>
+      <p>Every team member brings deep domain knowledge and a passion for excellence.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-card-icon">💬</div>
+      <h4>Clear Communication</h4>
+      <p>We believe in radical transparency — with each other and with the people we serve.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-card-icon">🚀</div>
+      <h4>Rapid Iteration</h4>
+      <p>We ship fast, learn faster, and continuously evolve based on real user feedback.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-card-icon">❤️</div>
+      <h4>Built with Care</h4>
+      <p>Every detail matters to us. We care deeply about what we make and who it's for.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider">Meet The Team</div>
+
+<!-- TEAM -->
+<section class="team-section" id="team">
+  <div class="section-header">
+    <h2>The people behind the magic</h2>
+    <p>Five unique voices, one shared mission.</p>
+  </div>
+  <div class="team-grid">
+
+    <div class="team-card">
+      <div class="team-img-wrap">
+        <img src="image/1000103972.jpeg" alt="Team Member 1">
+      </div>
+      <div class="team-accent-bar"></div>
+      <div class="team-info">
+        <div class="team-name">Chinmaya Kumar Behera</div>
+        <div class="team-role">Frontend & Research</div>
+        <p class="team-bio">Helped with ideas, structure and project planning.</p>
+      </div>
+    </div>
+
+    <div class="team-card">
+      <div class="team-img-wrap">
+        <img src="image/1000103971.jpg" alt="Team Member 2">
+      </div>
+      <div class="team-accent-bar"></div>
+      <div class="team-info">
+        <div class="team-name">T. Shravani</div>
+        <div class="team-role">Content writer</div>
+        <p class="team-bio">Wrote and managed the text and information on the website.</p>
+      </div>
+    </div>
+
+    <div class="team-card">
+      <div class="team-img-wrap">
+        <img src="image/1000103973.jpeg" alt="Team Member 3">
+      </div>
+      <div class="team-accent-bar"></div>
+      <div class="team-info">
+        <div class="team-name">Subhransu Maharaj</div>
+        <div class="team-role">AI Integration</div>
+        <p class="team-bio">Used AI tools to improve our project by helping with ideas, coding, and problem solving.</p>
+      </div>
+    </div>
+
+    <div class="team-card">
+      <div class="team-img-wrap">
+        <img src="image/1000103974.jpg" alt="Team Member 4">
+      </div>
+      <div class="team-accent-bar"></div>
+      <div class="team-info">
+        <div class="team-name">Arpita Priyadarshinee Prusty</div>
+        <div class="team-role">Full Stack Developer</div>
+        <p class="team-bio">Helped in both frontend and backend development./p>
+      </div>
+    </div>
+
+    <div class="team-card">
+      <div class="team-img-wrap">
+        <img src="image/1000103991.jpg" alt="Team Member 5">
+      </div>
+      <div class="team-accent-bar"></div>
+      <div class="team-info">
+        <div class="team-name">Bhagyashree Priyadarshini</div>
+        <div class="team-role">Testing & Support</div>
+        <p class="team-bio">Hunt bugs and keep everything running smoothly</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider">What People Say</div>
+
+<!-- REVIEWS -->
+<section class="reviews-section" id="reviews">
+  <div class="reviews-inner">
+    <div class="section-header">
+      <h2>Loved by our community</h2>
+      <p>Real words from real people who've experienced what we do.</p>
+    </div>
+    <div class="reviews-grid">
+
+      <div class="review-card">
+        <div class="stars">★★★★★</div>
+        <p class="review-quote">"This is one of those rare products that you immediately want to tell everyone about. It solved a problem I didn't even know how to articulate."</p>
+        <div class="review-author">
+          <div class="author-avatar">AK</div>
+          <div>
+            <div class="author-name">Aarav Krishnan</div>
+            <div class="author-tag">Product Designer, Bengaluru</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="stars">★★★★★</div>
+        <p class="review-quote">"The team is genuinely responsive and kind. I raised an issue and had a solution within hours. That level of care is incredibly rare these days."</p>
+        <div class="review-author">
+          <div class="author-avatar">MV</div>
+          <div>
+            <div class="author-name">Meera Varghese</div>
+            <div class="author-tag">Educator, Kochi</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="stars">★★★★★</div>
+        <p class="review-quote">"Beautifully designed and incredibly powerful. I've tried many tools in this space — this one stands out because it was clearly made with deep thought."</p>
+        <div class="review-author">
+          <div class="author-avatar">RS</div>
+          <div>
+            <div class="author-name">Rohan Shetty</div>
+            <div class="author-tag">Startup Founder, Mumbai</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="stars">★★★★☆</div>
+        <p class="review-quote">"What I love most is how they listen. Suggestions I made in the community actually showed up in the next update. They really care about their users."</p>
+        <div class="review-author">
+          <div class="author-avatar">DK</div>
+          <div>
+            <div class="author-name">Divya Kulkarni</div>
+            <div class="author-tag">Researcher, Hyderabad</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="stars">★★★★★</div>
+        <p class="review-quote">"Switched over three months ago and haven't looked back. The interface is a joy to use and it keeps getting better. My whole team is now on it."</p>
+        <div class="review-author">
+          <div class="author-avatar">SP</div>
+          <div>
+            <div class="author-name">Suresh Pillai</div>
+            <div class="author-tag">Engineering Lead, Chennai</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer style="
+  background: linear-gradient(135deg, var(--bg2), var(--bg3));
+  border-top: 1px solid var(--border);
+  padding: 60px 5% 30px;
+  color: var(--text2);
+">
+
+  <div style="
+    max-width: 1200px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 40px;
+  ">
+
+    <!-- BRAND -->
+    <div>
+      <h2 style="
+        font-family: 'Playfair Display', serif;
+        color: var(--accent);
+        font-size: 1.6rem;
+      ">
+        Mood<span style="color: var(--accent2)">mitra</span>
+      </h2>
+
+      <p style="margin-top: 12px; font-size: 0.9rem; line-height: 1.6;">
+        Your personal mental wellness companion. Helping you relax, grow,
+        and take care of your mind every day.
+      </p>
+    </div>
+
+    <!-- LINKS -->
+    <div>
+      
+      <div style="display:flex;gap:40px;">
+      <h3 style="color: var(--text); margin-bottom: 10px;">Quick Links</h3>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <a href="games.html" style="text-decoration:none; color: var(--text2);">Games</a>
+        <a href="music.html" style="text-decoration:none; color: var(--text2);">Music</a>
+        <a href="mentors.html" style="text-decoration:none; color: var(--text2);">Mentor</a>
+        <a href="story.html" style="text-decoration:none; color: var(--text2);">Story Now</a>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <a href="#" style="text-decoration:none; color: var(--text2);">About Us</a>
+        <a href="#" style="text-decoration:none; color: var(--text2);">Contact Us</a>
+        
+      </div>
+      
+    </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div>
+      <h3 style="color: var(--text); margin-bottom: 14px;">Contact</h3>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <a href="mailto:yourmail@gmail.com" style="text-decoration:none; color: var(--text2);">
+          📧 subhransumaharaj18@gmail.com
+        </a>
+        <a href="tel:+917978413323" style="text-decoration:none; color: var(--text2);">
+          📞 +91 7978413323
+        </a>
+        <a href="https://wa.me/917978413323" target="_blank" style="text-decoration:none; color: var(--text2);">
+          💬 WhatsApp Chat
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM -->
+  <div style="
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--text3);
+  ">
+    © 2026 Moodmitra. All rights reserved.
+  </div>
+
+</footer>
+<script>
+  const toggle = document.getElementById('themeToggle');
+  const html = document.documentElement;
+  toggle.addEventListener('click', () => {
+    html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+  });
+</script>
+</body>
+</html>
