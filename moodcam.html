@@ -86,9 +86,32 @@
 
   .cam-box {
     background: var(--surface);
-    border: 0.5px solid var(--border);
+    border: 1.5px solid var(--border);
     border-radius: 20px; overflow: hidden;
     position: relative; aspect-ratio: 4/3;
+    transition: border-color 0.4s, box-shadow 0.4s;
+  }
+
+  /* State: scanning — sweeping border animation */
+  .cam-box.scanning {
+    border-color: rgba(200,180,255,0.5);
+    box-shadow: 0 0 0 0 rgba(200,180,255,0);
+    animation: cam-scan-sweep 2s ease-in-out infinite;
+  }
+  @keyframes cam-scan-sweep {
+    0%, 100% { box-shadow: 0 0 12px 2px rgba(200,180,255,0.15); border-color: rgba(200,180,255,0.35); }
+    50%       { box-shadow: 0 0 24px 4px rgba(200,180,255,0.35); border-color: rgba(200,180,255,0.7); }
+  }
+
+  /* State: face locked — steady accent glow */
+  .cam-box.face-locked {
+    border-color: rgba(200,180,255,0.9);
+    box-shadow: 0 0 20px 4px rgba(200,180,255,0.3), inset 0 0 12px rgba(200,180,255,0.05);
+    animation: cam-lock-pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes cam-lock-pulse {
+    0%, 100% { box-shadow: 0 0 16px 3px rgba(200,180,255,0.25); }
+    50%       { box-shadow: 0 0 28px 6px rgba(200,180,255,0.45); }
   }
 
   #video {
@@ -104,21 +127,34 @@
 
   .scan-ring {
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    pointer-events: none;
+    pointer-events: none; z-index: 5;
   }
-
   .ring {
     width: 140px; height: 140px; border-radius: 50%;
-    border: 1.5px solid rgba(200,180,255,0.4);
-    position: absolute; animation: ring-pulse 2s ease-in-out infinite;
+    border: 1px dashed rgba(200, 180, 255, 0.5);
+    position: absolute;
+    animation: ring-pulse 4s linear infinite;
+  }
+  .ring:nth-child(2) {
+    width: 175px; height: 175px;
+    border: 1px solid rgba(200, 180, 255, 0.25);
+    animation: ring-pulse-reverse 5s linear infinite;
+  }
+  .ring:nth-child(3) {
+    width: 210px; height: 210px;
+    border: 1px dashed rgba(200, 180, 255, 0.15);
+    animation: ring-pulse 7s linear infinite;
   }
 
-  .ring:nth-child(2) { width: 170px; height: 170px; animation-delay: 0.4s; opacity: 0.5; }
-  .ring:nth-child(3) { width: 200px; height: 200px; animation-delay: 0.8s; opacity: 0.25; }
-
   @keyframes ring-pulse {
-    0%, 100% { transform: scale(1); opacity: 0.6; }
-    50% { transform: scale(1.05); opacity: 0.2; }
+    0% { transform: scale(0.95) rotate(0deg); opacity: 0.3; }
+    50% { transform: scale(1.05) rotate(180deg); opacity: 0.7; }
+    100% { transform: scale(0.95) rotate(360deg); opacity: 0.3; }
+  }
+  @keyframes ring-pulse-reverse {
+    0% { transform: scale(1.05) rotate(360deg); opacity: 0.6; }
+    50% { transform: scale(0.95) rotate(180deg); opacity: 0.25; }
+    100% { transform: scale(1.05) rotate(0deg); opacity: 0.6; }
   }
 
   .timer-arc {
@@ -135,10 +171,42 @@
   }
 
   .mood-panel {
+    position: relative;
+    overflow: hidden;
     background: var(--surface);
     border: 0.5px solid var(--border);
     border-radius: 20px; padding: 1.5rem;
     display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .mood-panel > :not(.radial-burst) {
+    position: relative;
+    z-index: 1;
+  }
+  .radial-burst {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.1);
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .radial-burst.animate {
+    animation: burstGlow 1.2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+  }
+  @keyframes burstGlow {
+    0% {
+      transform: translate(-50%, -50%) scale(0.1);
+      opacity: 0.95;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1.85);
+      opacity: 0;
+    }
   }
 
   .mood-title {
@@ -231,7 +299,7 @@
 
   .history-list {
     display: flex; flex-direction: column; gap: 8px;
-    max-height: 260px; overflow-y: auto;
+    max-height: 900px; overflow-y: auto;
     scrollbar-width: thin; scrollbar-color: var(--border) transparent;
   }
 
@@ -244,16 +312,202 @@
 
   .h-emoji { font-size: 1.4rem; flex-shrink: 0; }
 
-  .h-info { flex: 1; }
+  .h-photo-wrap {
+    width: 38px; height: 38px; border-radius: 8px;
+    overflow: hidden; border: 1.2px solid rgba(255, 255, 255, 0.12);
+    position: relative; flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+  .h-photo {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .h-emoji-badge {
+    position: absolute; bottom: -2px; right: -2px;
+    font-size: 0.75rem; background: rgba(18, 18, 28, 0.95);
+    border-radius: 50%; width: 16px; height: 16px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  }
+  .h-emoji-wrap {
+    width: 38px; height: 38px; border-radius: 8px;
+    background: var(--surface2); border: 0.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .h-engine-chip {
+    display: inline-block;
+    font-size: 0.65rem; color: #c8b4ff; background: rgba(200, 180, 255, 0.08);
+    border: 0.5px solid rgba(200, 180, 255, 0.2);
+    padding: 1px 5px; border-radius: 4px; margin-left: 4px;
+    font-weight: 500;
+  }
+
+  .h-info { flex: 1; min-width: 0; }
   .h-mood { font-size: 0.85rem; font-weight: 500; }
+  .h-scores {
+    display: flex; gap: 5px; flex-wrap: wrap; margin: 3px 0;
+  }
+  .h-score-pill {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 0.62rem; font-weight: 600; color: rgba(240,237,232,0.65);
+    background: rgba(255,255,255,0.04); border: 0.5px solid rgba(255,255,255,0.08);
+    padding: 1px 5px; border-radius: 4px; white-space: nowrap;
+  }
+  .h-score-pill .s-dot {
+    width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0;
+  }
   .h-time { font-size: 0.72rem; color: var(--muted); }
 
-  .h-bars { display: flex; gap: 3px; align-items: flex-end; }
-  .h-bar { width: 4px; border-radius: 2px; background: rgba(200,180,255,0.4); }
+  .h-bars {
+    display: flex; gap: 3px; align-items: flex-end;
+    cursor: pointer; padding: 6px; border-radius: 6px;
+    transition: all 0.2s ease;
+    border: 0.5px solid transparent;
+  }
+  .h-bars:hover {
+    background: rgba(200, 180, 255, 0.1);
+    border-color: rgba(200, 180, 255, 0.25);
+    transform: translateY(-1px) scale(1.05);
+  }
+  .h-bar { 
+    width: 4px; 
+    border-radius: 2px; 
+    background: rgba(200,180,255,0.4); 
+    transition: background 0.2s; 
+    height: 0;
+    animation: growBar 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  .h-bar:nth-child(1) { animation-delay: 0.05s; }
+  .h-bar:nth-child(2) { animation-delay: 0.12s; }
+  .h-bar:nth-child(3) { animation-delay: 0.19s; }
+  @keyframes growBar {
+    to { height: var(--h); }
+  }
+  .h-bars:hover .h-bar { background: #c8b4ff; }
+
+  .h-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+  .h-delete-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 6px;
+    background: transparent; border: 0.5px solid transparent;
+    color: rgba(240,237,232,0.3); cursor: pointer;
+    transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .h-delete-btn svg { width: 14px; height: 14px; }
+  .h-delete-btn:hover {
+    background: rgba(255, 80, 80, 0.12);
+    border-color: rgba(255, 80, 80, 0.3);
+    color: #ff6b6b;
+    transform: scale(1.08);
+  }
+  .h-delete-btn:active { transform: scale(0.95); }
 
   .empty-state {
     text-align: center; padding: 2rem;
     color: var(--muted); font-size: 0.85rem; line-height: 1.6;
+  }
+
+  /* Premium Glassmorphic Modal */
+  .mm-modal {
+    position: fixed; inset: 0; z-index: 100000;
+    display: none; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.3s ease;
+  }
+  .mm-modal.show {
+    display: flex; opacity: 1;
+  }
+  .mm-modal-overlay {
+    position: absolute; inset: 0;
+    background: rgba(10, 10, 15, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .mm-modal-content {
+    background: rgba(18, 18, 28, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px; width: 90%; max-width: 540px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7);
+    position: relative; overflow: hidden;
+    animation: modal-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 10; padding: 1.75rem;
+  }
+  @keyframes modal-slide-up {
+    from { transform: translateY(24px) scale(0.97); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  .mm-modal-close {
+    position: absolute; top: 1.2rem; right: 1.2rem;
+    background: rgba(255, 255, 255, 0.05); border: none;
+    width: 32px; height: 32px; border-radius: 50%;
+    color: var(--muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; border: 1px solid rgba(255,255,255,0.06);
+  }
+  .mm-modal-close:hover {
+    background: rgba(255, 255, 255, 0.12); color: #ffffff;
+    transform: scale(1.05);
+  }
+  .mm-modal-close svg { width: 16px; height: 16px; }
+
+  .mm-modal-title-row {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .mm-modal-emoji {
+    font-size: 2.5rem; line-height: 1;
+    filter: drop-shadow(0 4px 12px rgba(200, 180, 255, 0.35));
+  }
+  .mm-modal-mood-label {
+    font-size: 1.5rem; font-weight: 700; margin: 0; color: #ffffff;
+  }
+  .mm-modal-time {
+    font-size: 0.8rem; color: var(--muted); margin: 0; margin-top: 2px;
+  }
+
+  .mm-modal-grid {
+    display: grid; grid-template-columns: 160px 1fr; gap: 1.5rem;
+  }
+  @media (max-width: 500px) {
+    .mm-modal-grid { grid-template-columns: 1fr; }
+    .mm-modal-content { padding: 1.25rem; }
+  }
+
+  .mm-modal-capture-sec {
+    display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
+  }
+  .mm-modal-img-wrap {
+    width: 100%; aspect-ratio: 4/3; border-radius: 12px;
+    overflow: hidden; border: 1.5px solid rgba(255, 255, 255, 0.15);
+    background: #0d0d14; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  }
+  .mm-modal-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+  .mm-modal-engine {
+    font-size: 0.7rem; color: #c8b4ff; font-weight: 600;
+    background: rgba(200, 180, 255, 0.1); border: 0.5px solid rgba(200, 180, 255, 0.25);
+    padding: 3px 8px; border-radius: 6px; text-align: center; width: 100%;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .mm-modal-metrics {
+    display: flex; flex-direction: column; gap: 0.75rem;
+  }
+  .mm-modal-metric-card {
+    background: rgba(255, 255, 255, 0.03); border: 0.5px solid rgba(255, 255, 255, 0.06);
+    padding: 0.65rem 0.85rem; border-radius: 10px; display: flex; flex-direction: column; gap: 5px;
+    position: relative;
+  }
+  .m-metric-label { font-size: 0.7rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .m-metric-progress-container {
+    height: 6px; background: rgba(255, 255, 255, 0.05); border-radius: 3px; overflow: hidden;
+  }
+  .m-metric-progress-bar {
+    height: 100%; background: linear-gradient(90deg, #c8b4ff, #ffd4a8); border-radius: 3px;
+    transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .m-metric-value {
+    font-size: 0.8rem; font-weight: 700; color: #ffffff; align-self: flex-end;
   }
 
   .light-badge {
@@ -277,6 +531,30 @@
 
   .spin { animation: spin 1s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  .engine-select {
+    appearance: none; -webkit-appearance: none;
+    background: var(--surface2);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    padding: 5px 28px 5px 10px;
+    cursor: pointer; outline: none;
+    transition: border-color 0.2s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(240,237,232,0.4)'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+  }
+  .engine-select:focus { border-color: var(--accent); }
+  .engine-select option { background: #1a1a2e; }
+
+  .engine-badge {
+    font-size: 0.68rem; color: var(--muted);
+    letter-spacing: 0.06em; text-transform: uppercase;
+    margin-right: 4px;
+  }
 </style>
 </head>
 <body>
@@ -285,13 +563,29 @@
 <div class="noise"></div>
 
 <main>
-  <header>
-    <div class="logo">Mood<span>Cam</span></div>
-    <div>
-      <span class="status-dot" id="statusDot"></span>
-      <span class="status-text" id="statusText">Ready</span>
+  <header style="position:relative; z-index:100; display:flex; flex-direction:column; gap:16px; padding-bottom:1.5rem; border-bottom:0.5px solid var(--border); margin-bottom:2rem;">
+    <!-- First Line: Logo on left, User profile chip on right -->
+    <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+      <div class="logo">Mood<span>Cam</span></div>
+      <div id="userNav"></div>
+    </div>
+    
+    <!-- Second Line: Engine Selector & Status Indicator -->
+    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; padding-top:12px; border-top:1.5px solid rgba(255,255,255,0.02);">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="engine-badge">Engine</span>
+        <select id="engineSelect" class="engine-select" title="Choose detection engine">
+          <option value="faceapi">🧠 face-api.js</option>
+          <option value="opencv" selected>👁️ OpenCV (Python)</option>
+        </select>
+      </div>
+      <div style="display:flex; align-items:center;">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-text" id="statusText">Ready</span>
+      </div>
     </div>
   </header>
+
 
   <div id="errorBox" class="error-msg" style="display:none"></div>
   <div id="loadingModels" class="loading-models" style="display:none">
@@ -299,14 +593,9 @@
   </div>
 
   <div class="cam-section">
-    <div class="cam-box">
+    <div class="cam-box" id="camBox">
       <video id="video" autoplay muted playsinline></video>
       <canvas id="overlay"></canvas>
-      <div class="scan-ring" id="scanRing" style="display:none">
-        <div class="ring"></div>
-        <div class="ring"></div>
-        <div class="ring"></div>
-      </div>
       <div class="timer-arc" id="timerArc" style="display:none">
         <svg viewBox="0 0 44 44">
           <circle cx="22" cy="22" r="18"/>
@@ -318,11 +607,22 @@
     </div>
 
     <div class="mood-panel">
+      <div class="radial-burst" id="radialBurst"></div>
       <div>
         <div class="mood-title">Current Mood</div>
-        <div id="lightBadge" class="light-badge" style="display:none">
-          <div class="light-dot" id="lightDot"></div>
-          <span id="lightText">checking light…</span>
+        <div id="badgeContainer" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+          <div id="lightBadge" class="light-badge" style="display:none">
+            <div class="light-dot" id="lightDot"></div>
+            <span id="lightText">checking light…</span>
+          </div>
+          <div id="engineBadge" class="light-badge" style="display:none">
+            <div class="light-dot" style="background:#50b5ff;"></div>
+            <span id="engineText">Engine: OpenCV</span>
+          </div>
+          <div id="latencyBadge" class="light-badge" style="display:none">
+            <div class="light-dot" style="background:#7effa0;"></div>
+            <span id="latencyText">Latency: --ms</span>
+          </div>
         </div>
         <span class="mood-emoji" id="moodEmoji">✦</span>
         <div class="mood-label" id="moodLabel">Awaiting scan</div>
@@ -365,6 +665,74 @@
       <div class="empty-state">No mood scans yet.<br>Your history will appear here.</div>
     </div>
   </div>
+
+  <!-- Premium Mood Details Modal -->
+  <div class="mm-modal" id="moodModal">
+    <div class="mm-modal-overlay" id="moodModalOverlay"></div>
+    <div class="mm-modal-content">
+      <button class="mm-modal-close" id="moodModalClose" title="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <div class="mm-modal-header">
+        <div class="mm-modal-title-row">
+          <span id="modalEmoji" class="mm-modal-emoji">😐</span>
+          <div>
+            <h3 id="modalMood" class="mm-modal-mood-label">Neutral</h3>
+            <p id="modalTime" class="mm-modal-time">Awaiting details…</p>
+          </div>
+        </div>
+      </div>
+      <div class="mm-modal-body">
+        <div class="mm-modal-grid">
+          <!-- Left side: Camera Capture & Model Specs -->
+          <div class="mm-modal-capture-sec">
+            <div class="mm-modal-img-wrap">
+              <img id="modalImg" src="" alt="Face capture">
+            </div>
+            <span id="modalEngine" class="mm-modal-engine">Client AI</span>
+          </div>
+          
+          <!-- Right side: Real-time Metric Bars -->
+          <div class="mm-modal-metrics">
+            <div class="mm-modal-metric-card">
+              <span class="m-metric-label">Smile / Happiness</span>
+              <div class="m-metric-progress-container">
+                <div class="m-metric-progress-bar" id="modalSmileBar" style="width: 0%"></div>
+              </div>
+              <span class="m-metric-value" id="modalSmileVal">0%</span>
+            </div>
+            
+            <div class="mm-modal-metric-card">
+              <span class="m-metric-label">Eye Openness</span>
+              <div class="m-metric-progress-container">
+                <div class="m-metric-progress-bar" id="modalEyeBar" style="width: 0%"></div>
+              </div>
+              <span class="m-metric-value" id="modalEyeVal">0%</span>
+            </div>
+            
+            <div class="mm-modal-metric-card">
+              <span class="m-metric-label">Brow Elevation</span>
+              <div class="m-metric-progress-container">
+                <div class="m-metric-progress-bar" id="modalBrowBar" style="width: 0%"></div>
+              </div>
+              <span class="m-metric-value" id="modalBrowVal">0%</span>
+            </div>
+            
+            <div class="mm-modal-metric-card">
+              <span class="m-metric-label">Ambient Light Intensity</span>
+              <div class="m-metric-progress-container">
+                <div class="m-metric-progress-bar" id="modalLightBar" style="width: 0%"></div>
+              </div>
+              <span class="m-metric-value" id="modalLightVal">0%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </main>
 
 <script>
@@ -394,6 +762,7 @@ let stream = null, detectionInterval = null, scanning = false;
 let expressionSamples = [], lightSamples = [];
 let history = JSON.parse(localStorage.getItem('moodcam_history') || '[]');
 let modelsLoaded = false;
+let isLoggedIn = false;
 
 const video = document.getElementById('video');
 const overlay = document.getElementById('overlay');
@@ -401,7 +770,6 @@ const startBtn = document.getElementById('startBtn');
 const statusDot = document.getElementById('statusDot');
 const statusText = document.getElementById('statusText');
 const bgLayer = document.getElementById('bgLayer');
-const scanRing = document.getElementById('scanRing');
 const timerArc = document.getElementById('timerArc');
 const timerProgress = document.getElementById('timerProgress');
 const timerLabel = document.getElementById('timerLabel');
@@ -413,8 +781,40 @@ const activitiesGrid = document.getElementById('activitiesGrid');
 const historyList = document.getElementById('historyList');
 const metricsBox = document.getElementById('metricsBox');
 const lightBadge = document.getElementById('lightBadge');
+const engineBadge = document.getElementById('engineBadge');
+const engineText = document.getElementById('engineText');
+const latencyBadge = document.getElementById('latencyBadge');
+const latencyText = document.getElementById('latencyText');
 const errorBox = document.getElementById('errorBox');
+const camBox   = document.getElementById('camBox');
+
+function setCamState(state) { // state: '' | 'scanning' | 'face-locked'
+  camBox.classList.remove('scanning', 'face-locked');
+  if (state) camBox.classList.add(state);
+}
 const loadingModels = document.getElementById('loadingModels');
+
+function updateScanBadges(engine, latency, lightAvg) {
+  lightBadge.style.display = 'inline-flex';
+  engineBadge.style.display = 'inline-flex';
+  latencyBadge.style.display = 'inline-flex';
+
+  engineText.textContent = engine;
+  latencyText.textContent = `Latency: ${latency}ms`;
+
+  const lightDot = document.getElementById('lightDot');
+  const lightText = document.getElementById('lightText');
+  if (lightAvg > 160) {
+    lightDot.style.background = '#ffe77e';
+    lightText.textContent = 'Optimal Lighting • Stable';
+  } else if (lightAvg > 90) {
+    lightDot.style.background = '#ffb450';
+    lightText.textContent = 'Moderate Lighting • Normal';
+  } else {
+    lightDot.style.background = '#ff5050';
+    lightText.textContent = 'Low Lighting • Affected';
+  }
+}
 
 function setStatus(state, text) {
   statusDot.className = 'status-dot' + (state ? ' ' + state : '');
@@ -476,6 +876,34 @@ function measureLightIntensity() {
   return total / (d.length / 4);
 }
 
+// Professional corner-bracket face tracker (camera / FaceID style)
+function drawFocusBrackets(ctx, x, y, w, h) {
+  // Disabled to keep webcam preview completely clean and avoid offset alignment issues
+}
+
+// Capture current video frame as base64 JPEG (used by OpenCV mode)
+function captureFrame() {
+  const c = document.createElement('canvas');
+  c.width  = video.videoWidth  || 640;
+  c.height = video.videoHeight || 480;
+  c.getContext('2d').drawImage(video, 0, 0, c.width, c.height);
+  return c.toDataURL('image/jpeg', 0.8);
+}
+
+// Capture a compact mirrored 160x120 JPEG thumbnail of the user's face
+function captureThumbnail() {
+  const c = document.createElement('canvas');
+  c.width  = 160;
+  c.height = 120;
+  const ctx = c.getContext('2d');
+  
+  // Mirror the image to match the video element's mirrored styling naturally
+  ctx.translate(c.width, 0);
+  ctx.scale(-1, 1);
+  ctx.drawImage(video, 0, 0, c.width, c.height);
+  return c.toDataURL('image/jpeg', 0.65);
+}
+
 function getLandmarkMetrics(landmarks) {
   const pts = landmarks.positions;
   const leftEye = pts.slice(36, 42);
@@ -514,7 +942,8 @@ function classifyMood(exprAvg, smileAvg, eyeAvg, browAvg, lightAvg) {
   return 'neutral';
 }
 
-function applyMood(moodKey, smileAvg, eyeAvg, browAvg, lightAvg) {
+function applyMood(moodKey, smileAvg, eyeAvg, browAvg, lightAvg, engine, latency) {
+  setCamState(''); // always clear glow when results are shown
   const mood = MOODS[moodKey];
   document.documentElement.style.setProperty('--glow', mood.glow);
   document.documentElement.style.setProperty('--accent', mood.accent);
@@ -532,15 +961,19 @@ function applyMood(moodKey, smileAvg, eyeAvg, browAvg, lightAvg) {
   updateMetric('light', lightPct, lightAvg > 160 ? 'Bright' : lightAvg > 90 ? 'Medium' : 'Dim');
   document.getElementById('lightBar').style.background = lightAvg > 160 ? '#ffe77e' : lightAvg > 90 ? '#ffb450' : '#9682ff';
 
-  lightBadge.style.display = 'inline-flex';
-  const lightDot = document.getElementById('lightDot');
-  const lightText = document.getElementById('lightText');
-  if (lightAvg > 160) { lightDot.style.background = '#ffe77e'; lightText.textContent = 'Bright environment'; }
-  else if (lightAvg > 90) { lightDot.style.background = '#ffb450'; lightText.textContent = 'Moderate light'; }
-  else { lightDot.style.background = '#9682ff'; lightText.textContent = 'Low light detected'; }
+  // Update dynamic high-tech chips row
+  updateScanBadges(engine || 'face-api.js', latency || 12, lightAvg);
 
   renderActivities(moodKey);
-  addHistory(moodKey, smileAvg, eyeAvg, browAvg, lightAvg);
+  addHistory(moodKey, smileAvg, eyeAvg, browAvg, lightAvg, engine, latency);
+
+  // Trigger glowing radial burst shockwave
+  const burst = document.getElementById('radialBurst');
+  if (burst) {
+    burst.classList.remove('animate');
+    void burst.offsetWidth; // trigger layout reflow
+    burst.classList.add('animate');
+  }
 }
 
 function renderActivities(moodKey) {
@@ -554,45 +987,244 @@ function renderActivities(moodKey) {
   });
 }
 
-function addHistory(moodKey, smile, eye, brow, light) {
-  const entry = { mood: moodKey, smile: Math.round(smile), eye: Math.round(eye), brow: Math.round(brow), light: Math.round(light), time: Date.now() };
-  history.unshift(entry);
-  if (history.length > 20) history.pop();
-  localStorage.setItem('moodcam_history', JSON.stringify(history));
+async function addHistory(moodKey, smile, eye, brow, light, engine, latency) {
+  const photo = captureThumbnail();
+  const entry = {
+    mood: moodKey,
+    smile: Math.round(smile),
+    eye: Math.round(eye),
+    brow: Math.round(brow),
+    light: Math.round(light),
+    photo: photo,
+    engine: engine || 'Client',
+    latency: latency || 12,
+    time: Date.now()
+  };
+
+  if (isLoggedIn) {
+    try {
+      const res = await fetch('/mood', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          emotion: moodKey,
+          source: engine && engine.includes('Server') ? 'opencv' : 'faceapi',
+          smile: Math.round(smile),
+          eye_open: Math.round(eye),
+          brow_raise: Math.round(brow),
+          light: Math.round(light),
+          photo: photo,
+          engine: engine || 'Client',
+          latency: latency || 12
+        })
+      });
+      if (res.ok) {
+        // Fetch latest history from the SQL DB to keep it fully synchronized
+        const histRes = await fetch('/mood-history');
+        const dbHist = await histRes.json();
+        if (Array.isArray(dbHist)) {
+          history = dbHist.map(row => ({
+            id: row.id,
+            mood: row.emotion,
+            smile: row.smile,
+            eye: row.eye_open,
+            brow: row.brow_raise,
+            light: row.light,
+            photo: row.photo,
+            engine: row.engine,
+            latency: row.latency,
+            time: new Date(row.created_at).getTime()
+          }));
+        }
+      }
+    } catch (err) {
+      console.error('Failed to save mood to DB:', err);
+    }
+  } else {
+    // Guest mode: save to local storage
+    history.unshift(entry);
+    if (history.length > 20) history.pop();
+    localStorage.setItem('moodcam_history', JSON.stringify(history));
+  }
   renderHistory();
 }
 
 function renderHistory() {
-  if (!history.length) return;
+  if (!history.length) {
+    if (isLoggedIn) {
+      historyList.innerHTML = '<div class="empty-state">No mood scans yet.<br>Your history will appear here.</div>';
+    } else {
+      historyList.innerHTML = '<div class="empty-state">Login to save your mood scans.</div>';
+    }
+    return;
+  }
   historyList.innerHTML = '';
   history.forEach(h => {
-    const mood = MOODS[h.mood];
+    const mood = MOODS[h.mood] || MOODS.neutral;
     const item = document.createElement('div');
     item.className = 'history-item';
     const t = new Date(h.time);
     const timeStr = t.toLocaleDateString([], {month:'short',day:'numeric'}) + ' · ' + t.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-    const heights = [h.smile, h.eye, h.brow].map(v => Math.max(6, Math.round(v / 100 * 24)));
+    const heights = [h.smile, h.eye, h.brow].map(v => Math.max(6, Math.round((v || 0) / 100 * 24)));
+    
+    // Circular mirrored face photo capture or beautiful fallback emoji wrap
+    const photoOrEmoji = h.photo 
+      ? `<div class="h-photo-wrap">
+           <img src="${h.photo}" class="h-photo" alt="Capture">
+           <span class="h-emoji-badge">${mood.emoji}</span>
+         </div>`
+      : `<div class="h-emoji-wrap"><span class="h-emoji">${mood.emoji}</span></div>`;
+
+    const lightVal = h.light || 0;
+    const lightLabel = lightVal > 160 ? 'Bright' : lightVal > 90 ? 'Med' : 'Dim';
+    const lightColor = lightVal > 160 ? '#ffe77e' : lightVal > 90 ? '#ffb450' : '#9682ff';
+
     item.innerHTML = `
-      <span class="h-emoji">${mood.emoji}</span>
+      ${photoOrEmoji}
       <div class="h-info">
         <div class="h-mood">${mood.label}</div>
-        <div class="h-time">${timeStr}</div>
+        <div class="h-scores">
+          <span class="h-score-pill"><span class="s-dot" style="background:#c8b4ff"></span>😊 ${Math.round(h.smile || 0)}%</span>
+          <span class="h-score-pill"><span class="s-dot" style="background:#7effcc"></span>👁 ${Math.round(h.eye || 0)}%</span>
+          <span class="h-score-pill"><span class="s-dot" style="background:#ffd4a8"></span>🤨 ${Math.round(h.brow || 0)}%</span>
+          <span class="h-score-pill"><span class="s-dot" style="background:${lightColor}"></span>💡 ${lightLabel}</span>
+        </div>
+        <div class="h-time">${timeStr} <span class="h-engine-chip">${h.engine || 'Client'} • ${h.latency ? h.latency + 'ms' : '12ms'}</span></div>
       </div>
-      <div class="h-bars">
-        ${heights.map(h => `<div class="h-bar" style="height:${h}px"></div>`).join('')}
+      <div class="h-actions">
+        <div class="h-bars" title="View full details">
+          ${heights.map(b => `<div class="h-bar" style="--h: ${b}px;"></div>`).join('')}
+        </div>
+        <button class="h-delete-btn" title="Delete this record" aria-label="Delete">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+            <path d="M10 11v6"></path><path d="M14 11v6"></path>
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+          </svg>
+        </button>
       </div>`;
+
+    item.querySelector('.h-bars').addEventListener('click', (e) => {
+      e.stopPropagation();
+      openMoodModal(h);
+    });
+
+    item.querySelector('.h-delete-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteHistoryItem(h.id, item);
+    });
+
     historyList.appendChild(item);
   });
 }
+
+function openMoodModal(h) {
+  const mood = MOODS[h.mood] || MOODS.neutral;
+  
+  document.getElementById('modalEmoji').textContent = mood.emoji;
+  document.getElementById('modalMood').textContent = mood.label;
+  
+  const t = new Date(h.time);
+  const timeStr = t.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' }) + ' · ' + t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('modalTime').textContent = timeStr;
+  
+  const modalImg = document.getElementById('modalImg');
+  if (h.photo) {
+    modalImg.src = h.photo;
+  } else {
+    modalImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='120' viewBox='0 0 160 120'><rect width='100%' height='100%' fill='%2312121c'/><text x='50%' y='55%' font-size='36' text-anchor='middle' dominant-baseline='middle'>😶</text></svg>";
+  }
+  
+  document.getElementById('modalEngine').textContent = `${h.engine || 'Client'} • ${h.latency ? h.latency + 'ms' : '12ms'}`;
+  
+  const smileVal = Math.round(h.smile || 0);
+  const eyeVal = Math.round(h.eye || 0);
+  const browVal = Math.round(h.brow || 0);
+  const lightVal = Math.round(h.light || 0);
+  
+  document.getElementById('modalSmileBar').style.width = smileVal + '%';
+  document.getElementById('modalSmileVal').textContent = smileVal + '%';
+  
+  document.getElementById('modalEyeBar').style.width = eyeVal + '%';
+  document.getElementById('modalEyeVal').textContent = eyeVal + '%';
+  
+  document.getElementById('modalBrowBar').style.width = browVal + '%';
+  document.getElementById('modalBrowVal').textContent = browVal + '%';
+  
+  const lightPct = Math.round((lightVal / 255) * 100);
+  document.getElementById('modalLightBar').style.width = lightPct + '%';
+  document.getElementById('modalLightVal').textContent = `${lightPct}% (${lightVal > 160 ? 'Bright' : lightVal > 90 ? 'Medium' : 'Dim'})`;
+  
+  const modal = document.getElementById('moodModal');
+  modal.style.display = 'flex';
+  setTimeout(() => modal.classList.add('show'), 10);
+}
+
+async function deleteHistoryItem(id, itemEl) {
+  // Animate out immediately for a snappy feel
+  itemEl.style.transition = 'opacity 0.25s ease, transform 0.25s ease, max-height 0.3s ease, padding 0.3s ease, margin 0.3s ease';
+  itemEl.style.opacity = '0';
+  itemEl.style.transform = 'translateX(12px) scale(0.97)';
+  itemEl.style.maxHeight = itemEl.offsetHeight + 'px';
+  setTimeout(() => {
+    itemEl.style.maxHeight = '0';
+    itemEl.style.padding = '0';
+    itemEl.style.margin = '0';
+  }, 220);
+  setTimeout(() => itemEl.remove(), 520);
+
+  if (isLoggedIn && id) {
+    try {
+      await fetch(`/mood/${id}`, { method: 'DELETE' });
+    } catch (err) {
+      console.error('Failed to delete mood record:', err);
+    }
+  }
+
+  // Remove from local history array
+  history = history.filter(h => h.id !== id);
+  if (!isLoggedIn) {
+    localStorage.setItem('moodcam_history', JSON.stringify(history));
+  }
+
+  // Show empty state if nothing left
+  setTimeout(() => {
+    if (!historyList.querySelector('.history-item')) {
+      if (isLoggedIn) {
+        historyList.innerHTML = '<div class="empty-state">No mood scans yet.<br>Your history will appear here.</div>';
+      } else {
+        historyList.innerHTML = '<div class="empty-state">Login to save your mood scans etc.</div>';
+      }
+    }
+  }, 530);
+}
+
+function closeMoodModal() {
+  const modal = document.getElementById('moodModal');
+  modal.classList.remove('show');
+  setTimeout(() => modal.style.display = 'none', 300);
+}
+
+// Register modal event listeners immediately (since modal HTML is defined statically above this script)
+const closeBtn = document.getElementById('moodModalClose');
+const moodModalOverlayEl = document.getElementById('moodModalOverlay');
+if (closeBtn) closeBtn.addEventListener('click', closeMoodModal);
+if (moodModalOverlayEl) moodModalOverlayEl.addEventListener('click', closeMoodModal);
 
 async function runScan() {
   if (scanning) return;
   scanning = true;
   startBtn.disabled = true;
   startBtn.textContent = 'Scanning…';
-  setStatus('scanning', 'Scanning face');
+  setStatus('scanning', 'Scanning face via face-api.js ');
+  setCamState('scanning');
   expressionSamples = []; lightSamples = [];
-  scanRing.style.display = 'flex';
+  const latencySamples = [];
+  const eyeBrowSamples = [];  // collect per-frame eye/brow — no second interval needed
+  let totalFrames = 0;
+  let missedFrames = 0;         // debounce: only show 'not detected' after N consecutive misses
+  const MISS_THRESHOLD = 3;     // ~1.2s at 400ms interval
   timerArc.style.display = 'block';
 
   const circumference = 113;
@@ -609,102 +1241,251 @@ async function runScan() {
   }, 1000);
 
   const ctx = overlay.getContext('2d');
+  const displayW = overlay.clientWidth  || 640;
+  const displayH = overlay.clientHeight || 480;
+  overlay.width  = displayW;
+  overlay.height = displayH;
+  const displaySize = { width: displayW, height: displayH };
 
   detectionInterval = setInterval(async () => {
     try {
+      const t0 = performance.now();
       const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224 }))
         .withFaceLandmarks(true).withFaceExpressions();
+      if (!scanning) return;
+      const lat = Math.round(performance.now() - t0);
+      latencySamples.push(lat);
+      totalFrames++;
 
-      overlay.width = video.videoWidth || 640;
-      overlay.height = video.videoHeight || 480;
       ctx.clearRect(0, 0, overlay.width, overlay.height);
 
       if (detection) {
-        const { landmarks, expressions } = detection;
-        const { eyeOpen, browRaise } = getLandmarkMetrics(landmarks);
+        missedFrames = 0;  // reset miss streak on any positive detection
+        const resized = faceapi.resizeResults(detection, displaySize);
+        const { expressions } = resized;
+        const { eyeOpen, browRaise } = getLandmarkMetrics(resized.landmarks);
         const smile = (expressions.happy || 0) * 100;
         const lm = measureLightIntensity();
         expressionSamples.push(expressions);
         lightSamples.push(lm);
+        eyeBrowSamples.push({ eyeOpen, browRaise });
 
         updateMetric('smile', Math.min(100, smile), null);
-        updateMetric('eye', Math.min(100, eyeOpen), null);
-        updateMetric('brow', Math.min(100, browRaise), null);
+        updateMetric('eye',   Math.min(100, eyeOpen), null);
+        updateMetric('brow',  Math.min(100, browRaise), null);
         updateMetric('light', Math.min(100, (lm / 255) * 100), lm > 160 ? 'Bright' : lm > 90 ? 'Medium' : 'Dim');
+        updateScanBadges('face-api.js', lat, lm);
         metricsBox.style.display = 'grid';
 
-        const box = detection.detection.box;
-        ctx.strokeStyle = 'rgba(200,180,255,0.5)';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(box.x, box.y, box.width, box.height);
-        ctx.fillStyle = 'rgba(200,180,255,0.08)';
-        ctx.fillRect(box.x, box.y, box.width, box.height);
-
-        landmarks.positions.forEach(p => {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, 1.2, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(200,180,255,0.4)';
-          ctx.fill();
-        });
-
-        setStatus('scanning', 'Face detected');
+        const box = resized.detection.box;
+        drawFocusBrackets(ctx, box.x, box.y, box.width, box.height);
+        setCamState('face-locked');
+        setStatus('scanning', 'Face detected · Client AI');
       } else {
-        setStatus('scanning', 'Looking for face…');
+        missedFrames++;
+        if (missedFrames >= MISS_THRESHOLD) {
+          setCamState('scanning');
+          setStatus('scanning', 'Face not detected');
+        }
       }
-    } catch(e) {}
+    } catch(e) { setStatus('scanning', 'AI error: ' + e.message); }
   }, 400);
 
   setTimeout(() => {
     clearInterval(tick);
     clearInterval(detectionInterval);
-    scanRing.style.display = 'none';
     timerArc.style.display = 'none';
     overlay.getContext('2d').clearRect(0, 0, overlay.width, overlay.height);
+    setCamState('');
     scanning = false;
     startBtn.disabled = false;
     startBtn.textContent = 'Scan again';
 
-    if (!expressionSamples.length) {
-      setStatus('active', 'No face found');
-      moodLabel.textContent = 'No face detected';
+    // Face must have been detected in ≥30% of frames for result to be valid
+    const faceRatio = totalFrames > 0 ? expressionSamples.length / totalFrames : 0;
+    if (!expressionSamples.length || faceRatio < 0.3) {
+      setStatus('active', 'Face not detected');
+      moodEmoji.textContent = '😶';
+      moodLabel.textContent = 'Face not detected';
       moodSub.textContent = 'Make sure your face is visible, well-lit, and centred in the frame.';
+      updateMetric('smile', 0, null); updateMetric('eye', 0, null); updateMetric('brow', 0, null);
       return;
     }
 
     const keys = ['neutral','happy','sad','angry','fearful','disgusted','surprised'];
-    const avg = {};
+    const avg  = {};
     keys.forEach(k => avg[k] = expressionSamples.reduce((s, e) => s + (e[k] || 0), 0) / expressionSamples.length);
 
     const smileAvg = avg.happy * 100;
     const lightAvg = lightSamples.reduce((s, v) => s + v, 0) / lightSamples.length;
-
-    let eyeVals = [];
-    detectionInterval = setInterval(async () => {
-      const d = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224 })).withFaceLandmarks(true);
-      if (d) eyeVals.push(getLandmarkMetrics(d.landmarks));
-    }, 100);
-
-    setTimeout(() => {
-      clearInterval(detectionInterval);
-      const eyeAvg = eyeVals.length ? eyeVals.reduce((s, v) => s + v.eyeOpen, 0) / eyeVals.length : 50;
-      const browAvg = eyeVals.length ? eyeVals.reduce((s, v) => s + v.browRaise, 0) / eyeVals.length : 30;
-      const moodKey = classifyMood(avg, smileAvg, eyeAvg, browAvg, lightAvg);
-      applyMood(moodKey, smileAvg, eyeAvg, browAvg, lightAvg);
-      setStatus('active', 'Mood detected');
-      activitiesSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 600);
+    const eyeAvg   = eyeBrowSamples.length ? eyeBrowSamples.reduce((s, v) => s + v.eyeOpen,   0) / eyeBrowSamples.length : 50;
+    const browAvg  = eyeBrowSamples.length ? eyeBrowSamples.reduce((s, v) => s + v.browRaise, 0) / eyeBrowSamples.length : 30;
+    const moodKey  = classifyMood(avg, smileAvg, eyeAvg, browAvg, lightAvg);
+    const avgLat   = latencySamples.length ? Math.round(latencySamples.reduce((s, v) => s + v, 0) / latencySamples.length) : 10;
+    applyMood(moodKey, smileAvg, eyeAvg, browAvg, lightAvg, 'face-api.js (Client)', avgLat);
+    setStatus('active', 'Mood detected');
+    activitiesSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
   }, TOTAL * 1000);
 }
 
+// ─── OpenCV mode: send frames to Flask /analyze ──────────────────────────────
+async function runScanOpenCV() {
+  if (scanning) return;
+ 
+  // Check Flask is reachable before starting
+  try {
+    const test = await fetch('http://127.0.0.1:5001/emotion',
+      { signal: AbortSignal.timeout(2000) });
+    if (!test.ok) throw new Error();
+  } catch {
+    showError('⚠️ OpenCV server not reachable. Run this in the Backend folder: venv/bin/python3 app.py');
+    return;
+  }
+ 
+  errorBox.style.display = 'none';
+  scanning = true;
+  startBtn.disabled = true;
+  startBtn.textContent = 'Scanning…';
+  setStatus('scanning', 'Scanning via OpenCV');
+  setCamState('scanning');
+  expressionSamples = []; lightSamples = [];
+  const latencySamples = [];
+  timerArc.style.display = 'block';
+  metricsBox.style.display = 'grid';
+ 
+  const circumference = 113;
+  let elapsed = 0;
+  const TOTAL = 10;
+  timerProgress.style.strokeDashoffset = circumference;
+  timerLabel.textContent = TOTAL;
+ 
+  const tick = setInterval(() => {
+    elapsed++;
+    const remain = TOTAL - elapsed;
+    timerLabel.textContent = remain;
+    timerProgress.style.strokeDashoffset = circumference * (remain / TOTAL);
+  }, 1000);
+ 
+  let totalFramesCV = 0;
+  let missedFramesCV = 0;       // debounce: only show 'not detected' after N consecutive misses
+  const MISS_THRESHOLD_CV = 3; // ~1.5s at 500ms interval
+
+  detectionInterval = setInterval(async () => {
+    try {
+      const frame = captureFrame();
+      const t0    = performance.now();
+      const res   = await fetch('http://127.0.0.1:5001/analyze', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ frame }),
+        signal:  AbortSignal.timeout(2000)
+      });
+      const data = await res.json();
+      if (!scanning) return;
+      const lat  = Math.round(performance.now() - t0);
+      latencySamples.push(lat);
+      totalFramesCV++;
+
+      // Reject frames where backend explicitly reports no face
+      if (data.face_detected === false || !data.scores || !Object.keys(data.scores).length) {
+        missedFramesCV++;
+        if (missedFramesCV >= MISS_THRESHOLD_CV) {
+          setCamState('scanning');
+          setStatus('scanning', 'Face not detected');
+        }
+        return;
+      }
+
+      missedFramesCV = 0;  // reset on positive detection
+      expressionSamples.push(data.scores);
+      const lm    = measureLightIntensity();
+      lightSamples.push(lm);
+      const smile     = (data.scores.happy || 0) * 100;
+      const eyeOpen   = (!isNaN(data.eye_open)   && data.eye_open   != null) ? data.eye_open   : 50;
+      const browRaise = (!isNaN(data.brow_raise) && data.brow_raise != null) ? data.brow_raise : 30;
+      updateMetric('smile', Math.min(100, smile), null);
+      updateMetric('eye',   Math.min(100, eyeOpen), null);
+      updateMetric('brow',  Math.min(100, browRaise), null);
+      updateMetric('light', Math.min(100, (lm / 255) * 100), lm > 160 ? 'Bright' : lm > 90 ? 'Medium' : 'Dim');
+      const engineLabel = data.engine === 'onnx-ferplus' ? 'ONNX FER+' : 'OpenCV Cascade';
+      updateScanBadges(engineLabel, lat, lm);
+      setCamState('face-locked');
+      setStatus('scanning', 'Face detected');
+    } catch { setStatus('scanning', 'Waiting for OpenCV…'); }
+  }, 500);
+
+  setTimeout(() => {
+    clearInterval(tick);
+    clearInterval(detectionInterval);
+    timerArc.style.display  = 'none';
+    setCamState('');
+    scanning = false;
+    startBtn.disabled = false;
+    startBtn.textContent = 'Scan again';
+
+    // Face must have been detected in ≥30% of frames for result to be valid
+    const faceRatioCV = totalFramesCV > 0 ? expressionSamples.length / totalFramesCV : 0;
+    if (!expressionSamples.length || faceRatioCV < 0.3) {
+      setStatus('active', 'Face not detected');
+      moodEmoji.textContent = '😶';
+      moodLabel.textContent = 'Face not detected';
+      moodSub.textContent = 'Make sure your face is visible, well-lit, and the OpenCV server is running.';
+      updateMetric('smile', 0, null); updateMetric('eye', 0, null); updateMetric('brow', 0, null);
+      return;
+    }
+
+    const keys = ['neutral','happy','sad','angry','fearful','disgusted','surprised'];
+    const avg  = {};
+    keys.forEach(k => avg[k] = expressionSamples.reduce((s, e) => s + (e[k] || 0), 0) / expressionSamples.length);
+
+    const smileAvg = avg.happy * 100;
+    const lightAvg = lightSamples.reduce((s, v) => s + v, 0) / lightSamples.length;
+    const moodKey  = classifyMood(avg, smileAvg, 50, 30, lightAvg);
+    const avgLat   = latencySamples.length ? Math.round(latencySamples.reduce((s, v) => s + v, 0) / latencySamples.length) : 18;
+    applyMood(moodKey, smileAvg, 50, 30, lightAvg, 'ONNX FER+ (Server)', avgLat);
+    setStatus('active', 'Mood detected');
+    activitiesSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, TOTAL * 1000);
+}
+
 startBtn.addEventListener('click', () => {
-  if (!modelsLoaded) { showError('Models still loading, please wait…'); return; }
   if (!stream) { showError('Camera not available.'); return; }
+  const engine = document.getElementById('engineSelect').value;
+  if (engine === 'opencv') { runScanOpenCV(); return; }
+  if (!modelsLoaded) { showError('Models still loading, please wait…'); return; }
   runScan();
 });
 
 (async () => {
-  if (history.length) renderHistory();
+  // Check auth and fetch history from SQL Database if logged in
+  try {
+    const meRes = await fetch('/me');
+    const meData = await meRes.json();
+    if (meData.user) {
+      isLoggedIn = true;
+      const histRes = await fetch('/mood-history');
+      const dbHist = await histRes.json();
+      if (Array.isArray(dbHist)) {
+        history = dbHist.map(row => ({
+          id: row.id,
+          mood: row.emotion,
+          smile: row.smile,
+          eye: row.eye_open,
+          brow: row.brow_raise,
+          light: row.light,
+          photo: row.photo,
+          engine: row.engine,
+          latency: row.latency,
+          time: new Date(row.created_at).getTime()
+        }));
+      }
+    }
+  } catch (err) {
+    console.error('Session/History fetch failed, falling back to local storage:', err);
+  }
+
+  renderHistory();
   setStatus('', 'Loading…');
   startBtn.disabled = true;
   startBtn.textContent = 'Loading models…';
@@ -716,5 +1497,6 @@ startBtn.addEventListener('click', () => {
   }
 })();
 </script>
+  <script src="auth-nav.js"></script>
 </body>
 </html>
