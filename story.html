@@ -119,6 +119,8 @@ body::before {
 
 /* ─── HEADER ─────────────────────────────────────────────── */
 header {
+  position: relative;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -926,6 +928,7 @@ header {
         <span class="theme-icon icon-moon">🌙</span>
         <span class="theme-icon icon-sun">☀️</span>
       </button>
+      <div id="userNav" style="color:var(--text);"></div>
     </div>
   </header>
 
@@ -1078,22 +1081,18 @@ header {
 
 <script>
 // ─── STATE ────────────────────────────────────────────────
-let userName = localStorage.getItem('wys_name') || '';
+let userName = '';
+let isLoggedIn = false;
 let entries  = [];
 let selectedMood = '✍️';
 let draftTimer = null;
 let editingId = null;
 
 // ─── INIT ─────────────────────────────────────────────────
-(function init() {
+(async function init() {
   setGreetingDate();
   loadTheme();
-  if (userName) {
-    showEditor();
-  } else {
-    document.getElementById('welcomeScreen').style.display = 'flex';
-    document.getElementById('editorScreen').classList.remove('visible');
-  }
+  await checkLoginState();
   loadDraft();
   window.addEventListener('resize', () => {
     ['entryTitle','entryBody'].forEach(id => autoGrow(document.getElementById(id)));
@@ -1112,18 +1111,41 @@ function toggleTheme() {
   localStorage.setItem('wys_theme', next);
 }
 
-// ─── ENTER JOURNAL ────────────────────────────────────────
-function enterJournal() {
-  const input = document.getElementById('nameInput');
-  const name  = input.value.trim();
-  if (!name) { input.focus(); input.style.borderColor = 'var(--danger)'; setTimeout(() => input.style.borderColor = '', 1000); return; }
-  userName = name;
-  localStorage.setItem('wys_name', name);
-  document.getElementById('welcomeScreen').style.animation = 'none';
-  document.getElementById('welcomeScreen').style.opacity = '0';
-  document.getElementById('welcomeScreen').style.transform = 'translateY(-20px)';
-  document.getElementById('welcomeScreen').style.transition = 'all 0.4s';
-  setTimeout(showEditor, 350);
+async function checkLoginState() {
+  try {
+    const res = await fetch('/me');
+    const data = await res.json();
+    if (data.user) {
+      userName = data.user.name || 'User';
+      isLoggedIn = true;
+      showEditor();
+    } else {
+      isLoggedIn = false;
+      showLoginRequired();
+    }
+  } catch (err) {
+    console.error(err);
+    isLoggedIn = false;
+    showLoginRequired();
+  }
+}
+
+function showLoginRequired() {
+  const welcome = document.getElementById('welcomeScreen');
+  welcome.style.display = 'flex';
+  document.getElementById('editorScreen').classList.remove('visible');
+  
+  welcome.innerHTML = `
+    <div class="welcome-heading">
+      Every day is a<br>new <em>chapter.</em>
+    </div>
+    <div class="welcome-sub" style="margin-bottom: 32px; max-width: 520px; line-height: 1.6;">
+      Please sign in to write, save, and access your personal journal entries.
+    </div>
+    <a href="login.html" class="btn-enter" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none; max-width: 240px; height: 50px; line-height: 50px; padding: 0 24px;">
+      Sign In / Register →
+    </a>
+  `;
 }
 
 function showEditor() {
@@ -1132,7 +1154,7 @@ function showEditor() {
   el.classList.add('visible');
   document.getElementById('greetingName').textContent = userName;
   updateStreak();
- loadEntriesFromDB();
+  loadEntriesFromDB();
   setGreetingDate();
   updateWordCount();
 }
@@ -1418,7 +1440,7 @@ function viewEntry(id) {
 }
 
 function openAllEntries() {
-  if (!userName) { showToast('Please enter your name first'); return; }
+  if (!isLoggedIn) { showToast('Please sign in first'); return; }
   document.querySelector('.entries-section').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -1509,5 +1531,6 @@ async function loadEntriesFromDB() {
   }
 }
 </script>
+  <script src="auth-nav.js"></script>
 </body>
 </html>
