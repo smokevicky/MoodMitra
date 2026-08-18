@@ -575,8 +575,8 @@
       <div style="display:flex; align-items:center; gap:8px;">
         <span class="engine-badge">Engine</span>
         <select id="engineSelect" class="engine-select" title="Choose detection engine">
-          <option value="faceapi">🧠 face-api.js</option>
-          <option value="opencv" selected>👁️ OpenCV (Python)</option>
+          <option value="faceapi" selected>🧠 face-api.js (Browser AI)</option>
+          <option value="opencv">👁️ OpenCV (Python Backend)</option>
         </select>
       </div>
       <div style="display:flex; align-items:center;">
@@ -1339,7 +1339,7 @@ async function runScanOpenCV() {
       { signal: AbortSignal.timeout(2000) });
     if (!test.ok) throw new Error();
   } catch {
-    showError('⚠️ OpenCV server not reachable. Run this in the Backend folder: venv/bin/python3 app.py');
+    showError('⚠️ OpenCV backend is offline (requires running "python3 app.py" in Backend folder). For browser-only mode without Python, select "face-api.js (Browser AI)" in the Engine dropdown above.');
     return;
   }
  
