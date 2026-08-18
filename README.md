@@ -6,11 +6,14 @@
 
 ### *Your AI-Powered Emotional Wellbeing Companion*
 
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live%20Demo-2ea44f?logo=github&logoColor=white)](https://smokevicky.github.io/MoodMitra/)
 [![Node.js](https://img.shields.io/badge/Node.js-v20.x_LTS-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)](https://python.org/)
 [![Flask](https://img.shields.io/badge/Flask-3.x-000000?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![Express](https://img.shields.io/badge/Express-5.x-000000?logo=express&logoColor=white)](https://expressjs.com/)
 [![License](https://img.shields.io/badge/License-ISC-blue.svg)](LICENSE)
+
+**🌐 Live Demo:** [https://smokevicky.github.io/MoodMitra/](https://smokevicky.github.io/MoodMitra/)
 
 A full-stack mental health companion web application that combines real-time AI-powered facial emotion detection, a private mood journal, an AI-guided mental wellness chat, calming music, mindfulness games, curated mentors, and daily check-in routines — all in one beautiful, dark-mode-first interface.
 
