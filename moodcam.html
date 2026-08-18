@@ -1340,17 +1340,19 @@ async function runScanOpenCV() {
     if (!test.ok) throw new Error();
   } catch {
     console.warn('OpenCV backend offline, auto-falling back to face-api.js browser AI');
-    document.getElementById('engineSelect').value = 'faceapi';
+    const sel = document.getElementById('engineSelect');
+    if (sel) sel.value = 'faceapi';
+    errorBox.style.display = 'none';
     if (!modelsLoaded) {
-      showError('OpenCV backend offline (requires local Python). Loading in-browser AI models…');
+      startBtn.textContent = 'Loading models…';
+      startBtn.disabled = true;
       await loadModels();
       if (modelsLoaded) {
-        errorBox.style.display = 'none';
+        startBtn.disabled = false;
         runScan();
       }
       return;
     }
-    errorBox.style.display = 'none';
     runScan();
     return;
   }
