@@ -1336,10 +1336,22 @@ async function runScanOpenCV() {
   // Check Flask is reachable before starting
   try {
     const test = await fetch('http://127.0.0.1:5001/emotion',
-      { signal: AbortSignal.timeout(2000) });
+      { signal: AbortSignal.timeout(1500) });
     if (!test.ok) throw new Error();
   } catch {
-    showError('⚠️ OpenCV backend is offline (requires running "python3 app.py" in Backend folder). For browser-only mode without Python, select "face-api.js (Browser AI)" in the Engine dropdown above.');
+    console.warn('OpenCV backend offline, auto-falling back to face-api.js browser AI');
+    document.getElementById('engineSelect').value = 'faceapi';
+    if (!modelsLoaded) {
+      showError('OpenCV backend offline (requires local Python). Loading in-browser AI models…');
+      await loadModels();
+      if (modelsLoaded) {
+        errorBox.style.display = 'none';
+        runScan();
+      }
+      return;
+    }
+    errorBox.style.display = 'none';
+    runScan();
     return;
   }
  
@@ -1486,6 +1498,8 @@ startBtn.addEventListener('click', () => {
   }
 
   renderHistory();
+  const engineEl = document.getElementById('engineSelect');
+  if (engineEl) engineEl.value = 'faceapi';
   setStatus('', 'Loading…');
   startBtn.disabled = true;
   startBtn.textContent = 'Loading models…';
