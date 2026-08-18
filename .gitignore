@@ -1,0 +1,21 @@
+# Virtual Environments
+venv/
+Backend/venv/
+.venv/
+env/
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+Backend/__pycache__/
+.DS_Store
+*/.DS_Store
+
+# Logs
+*.log
+Backend/*.log
+UI/server.log
+
+# Node dependencies & databases (if local)
+# UI/node_modules/
