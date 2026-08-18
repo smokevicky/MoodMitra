@@ -1,7 +1,7 @@
 {
   "name": "moodmitra",
   "version": "1.0.0",
-  "description": "",
+  "description": "MoodMitra — AI-Powered Emotional Wellbeing Companion. Live at https://smokevicky.github.io/MoodMitra/",
   "main": "index.js",
   "dependencies": {
     "accepts": "^2.0.0",
